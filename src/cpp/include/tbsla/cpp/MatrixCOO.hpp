@@ -14,6 +14,8 @@ class MatrixCOO : public Matrix {
     MatrixCOO() : values(0), row(0), col(0) {};
     std::vector<double> spmv(const std::vector<double> &v);
     void push_back(int r, int c, double v);
+    std::ostream & print_stats(std::ostream &os);
+    std::ostream & print_infos(std::ostream &os);
   protected:
     std::vector<double> values;
     std::vector<int> row;

@@ -7,6 +7,9 @@ int main(int argc, char** argv) {
 
   if(argc == 2) {
     MatrixCOO m = tbsla::utils::io::readMM(std::string(argv[1]));
+    m.print_stats(std::cout);
+    m.print_infos(std::cout);
+
 
     std::random_device rnd_device;
     std::mt19937 mersenne_engine {rnd_device()};  // Generates random integers

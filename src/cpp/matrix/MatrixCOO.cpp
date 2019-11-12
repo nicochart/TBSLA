@@ -50,3 +50,36 @@ void MatrixCOO::push_back(int r, int c, double v) {
   this->row.push_back(r);
   this->col.push_back(c);
 }
+
+std::ostream & MatrixCOO::print_infos(std::ostream &os) {
+  os << "--- capacity ---" << std::endl;
+  os << "values : " << values.capacity() << std::endl;
+  os << "row : " << row.capacity() << std::endl;
+  os << "col : " << col.capacity() << std::endl;
+  os << "--- size ---" << std::endl;
+  os << "values : " << values.size() << std::endl;
+  os << "row : " << row.size() << std::endl;
+  os << "col : " << col.size() << std::endl;
+  return os;
+}
+
+std::ostream & MatrixCOO::print_stats(std::ostream &os) {
+  int s = 0, u = 0, d = 0;
+  if(row.size() != col.size()) {
+    std::cerr << "Err \n";
+    return os;
+  }
+  for(int i = 0; i < row.size(); i++) {
+    if(row[i] < col[i]) {
+      s++;
+    } else if(row[i] > col[i]) {
+      u++;
+    } else {
+      d++;
+    }
+  }
+  os << "upper values : " << u << std::endl;
+  os << "lower values : " << s << std::endl;
+  os << "diag  values : " << d << std::endl;
+  return os;
+}
