@@ -1,3 +1,6 @@
+#ifndef TBSLA_CPP_MatrixCSR
+#define TBSLA_CPP_MatrixCSR
+
 #include <tbsla/cpp/Matrix.hpp>
 #include <iostream>
 #include <vector>
@@ -12,3 +15,5 @@ class MatrixCSR : public Matrix {
     std::vector<int> rowptr;
     std::vector<int> colidx;
 };
+
+#endif

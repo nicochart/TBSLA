@@ -1,3 +1,6 @@
+#ifndef TBSLA_CPP_MatrixCOO
+#define TBSLA_CPP_MatrixCOO
+
 #include <tbsla/cpp/Matrix.hpp>
 #include <iostream>
 #include <vector>
@@ -12,3 +15,5 @@ class MatrixCOO : public Matrix {
     std::vector<int> row;
     std::vector<int> col;
 };
+
+#endif

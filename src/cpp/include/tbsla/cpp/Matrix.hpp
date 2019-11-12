@@ -1,3 +1,6 @@
+#ifndef TBSLA_CPP_Matrix
+#define TBSLA_CPP_Matrix
+
 #include <vector>
 
 class Matrix {
@@ -7,3 +10,5 @@ class Matrix {
   protected:
     int n_row, n_col;
 };
+
+#endif
