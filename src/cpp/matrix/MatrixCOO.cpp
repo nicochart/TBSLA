@@ -12,6 +12,19 @@ MatrixCOO::MatrixCOO(int n_row, int n_col, std::vector<double> & values, std::ve
   this->col = col;
 }
 
+MatrixCOO::MatrixCOO(int n_row, int n_col, int n_values) {
+  this->n_row = n_row;
+  this->n_col = n_col;
+  this->values.reserve(n_values);
+  this->row.reserve(n_values);
+  this->col.reserve(n_values);
+}
+
+MatrixCOO::MatrixCOO(int n_row, int n_col) {
+  this->n_row = n_row;
+  this->n_col = n_col;
+}
+
 std::ostream & operator<<( std::ostream &os, const MatrixCOO &m) {
   os << "n_row : " << m.n_row << std::endl;
   os << "n_col : " << m.n_col << std::endl;
@@ -30,4 +43,10 @@ std::vector<double> MatrixCOO::spmv(const std::vector<double> &v) {
      r[this->row[i]] += this->values[i] * v[this->col[i]];
   }
   return r;
+}
+
+void MatrixCOO::push_back(int r, int c, double v) {
+  this->values.push_back(v);
+  this->row.push_back(r);
+  this->col.push_back(c);
 }
