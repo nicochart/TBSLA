@@ -10,6 +10,7 @@ class Matrix {
 
     int const get_n_row() {return n_row;}
     int const get_n_col() {return n_col;}
+    int const get_nnz();
   protected:
     int n_row, n_col;
 };

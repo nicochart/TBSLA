@@ -16,6 +16,7 @@ class MatrixCOO : public Matrix {
     void push_back(int r, int c, double v);
     std::ostream & print_stats(std::ostream &os);
     std::ostream & print_infos(std::ostream &os);
+    int const get_nnz() {return values.size();};
   protected:
     std::vector<double> values;
     std::vector<int> row;
