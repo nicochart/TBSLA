@@ -25,7 +25,7 @@ std::ostream & operator<<( std::ostream &os, const MatrixCSR &m) {
 }
 
 std::vector<double> MatrixCSR::spmv(const std::vector<double> &v) {
-  std::vector<double> r (v.size(), 0);
+  std::vector<double> r (this->n_row, 0);
   for (int i = 0; i < this->n_row; i++) {
     for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
        r[i] += this->values[j] * v[this->colidx[j]];
