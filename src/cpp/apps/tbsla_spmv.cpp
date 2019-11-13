@@ -1,6 +1,7 @@
 #include <tbsla/cpp/MatrixCOO.hpp>
 #include <tbsla/cpp/utils/mm.hpp>
 
+#include <algorithm>
 #include <chrono>
 #include <random>
 #include <map>
@@ -25,7 +26,7 @@ int main(int argc, char** argv) {
     std::uniform_real_distribution<double> dist {-1, 1};
     auto gen = [&dist, &mersenne_engine](){ return dist(mersenne_engine); };
     std::vector<double> vec(m.get_n_col());
-    generate(begin(vec), end(vec), gen);
+    std::generate(begin(vec), end(vec), gen);
 
     //auto t_spmv_start = Clock::now().time_since_epoch().count();
     auto t_spmv_start = now();
