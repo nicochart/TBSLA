@@ -49,6 +49,7 @@ int main(int argc, char** argv) {
     outmap["time_spmv"] = std::to_string((t_spmv_end - t_spmv_start) / 1e9);
     outmap["time_app"] = std::to_string((t_app_end - t_read_start) / 1e9);
     outmap["lang"] = "C++";
+    outmap["matrix_input"] = std::string(argv[1]);
 
     std::map<std::string, std::string>::iterator it=outmap.begin();
     std::cout << "{\"" << it->first << "\":\"" << it->second << "\"";
