@@ -52,14 +52,19 @@ void MatrixCOO::push_back(int r, int c, double v) {
 }
 
 std::ostream & MatrixCOO::print_infos(std::ostream &os) {
-  os << "--- capacity ---" << std::endl;
+  os << "-----------------" << std::endl;
+  os << "--- general   ---" << std::endl;
+  os << "n_row : " << n_row << std::endl;
+  os << "n_col : " << n_col << std::endl;
+  os << "--- capacity  ---" << std::endl;
   os << "values : " << values.capacity() << std::endl;
   os << "row : " << row.capacity() << std::endl;
   os << "col : " << col.capacity() << std::endl;
-  os << "--- size ---" << std::endl;
+  os << "--- size      ---" << std::endl;
   os << "values : " << values.size() << std::endl;
   os << "row : " << row.size() << std::endl;
   os << "col : " << col.size() << std::endl;
+  os << "-----------------" << std::endl;
   return os;
 }
 
