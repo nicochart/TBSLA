@@ -37,12 +37,12 @@ MatrixCOO readMM(std::string fname) {
     getline(is, line);
     std::vector<std::string> splits = split(line, delim);
     std::cout << line << "\n";
-    if(splits[0].compare(std::string("\%\%MatrixMarket")) == 0
+    if(splits[0].compare(std::string("%%MatrixMarket")) == 0
        && splits[1].compare(std::string("matrix")) == 0
        && splits[2].compare(std::string("coordinate")) == 0
        && splits[3].compare(std::string("real")) == 0 ) {
       if(splits[4].compare(std::string("general")) == 0) {
-        while(line.rfind("\%", 0) == 0) {
+        while(line.rfind("%", 0) == 0) {
           getline(is, line);
         }
         std::cout << line << "\n";
@@ -62,7 +62,7 @@ MatrixCOO readMM(std::string fname) {
         }
         return m;
       } else if(splits[4].compare(std::string("symmetric")) == 0) {
-        while(line.rfind("\%", 0) == 0) {
+        while(line.rfind("%", 0) == 0) {
           getline(is, line);
         }
         std::cout << line << "\n";
