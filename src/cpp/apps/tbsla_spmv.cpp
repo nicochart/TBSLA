@@ -44,9 +44,9 @@ int main(int argc, char** argv) {
     outmap["n_row"] = std::to_string(m.get_n_row());
     outmap["n_col"] = std::to_string(m.get_n_col());
     outmap["nnz"] = std::to_string(m.get_nnz());
-    outmap["time_read_m"] = std::to_string((t_read_end - t_read_start) / 10e9);
-    outmap["time_spmv"] = std::to_string((t_spmv_end - t_spmv_start) / 10e9);
-    outmap["time_app"] = std::to_string((t_app_end - t_read_start) / 10e9);
+    outmap["time_read_m"] = std::to_string((t_read_end - t_read_start) / 1e9);
+    outmap["time_spmv"] = std::to_string((t_spmv_end - t_spmv_start) / 1e9);
+    outmap["time_app"] = std::to_string((t_app_end - t_read_start) / 1e9);
     outmap["lang"] = "C++";
 
     std::map<std::string, std::string>::iterator it=outmap.begin();
