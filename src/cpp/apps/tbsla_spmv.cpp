@@ -6,6 +6,10 @@
 #include <random>
 #include <map>
 
+#ifdef TBSLA_HAS_MPI
+#include <mpi.h>
+#endif
+
 static std::uint64_t now() {
   std::chrono::nanoseconds ns = std::chrono::steady_clock::now().time_since_epoch();
   return static_cast<std::uint64_t>(ns.count());
@@ -14,12 +18,24 @@ static std::uint64_t now() {
 int main(int argc, char** argv) {
 
   if(argc == 2) {
+#ifdef TBSLA_HAS_MPI
+    MPI_Init(&argc, &argv);
+    int world, rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &world);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#endif
+
     auto t_read_start = now();
+#ifdef TBSLA_HAS_MPI
+    MatrixCOO m;
+    m.read_bin_mpiio(MPI_COMM_WORLD, std::string(argv[1]));
+#else
     MatrixCOO m = tbsla::utils::io::readMM(std::string(argv[1]));
+#endif
+
     auto t_read_end = now();
     m.print_stats(std::cout);
     m.print_infos(std::cout);
-
 
     std::random_device rnd_device;
     std::mt19937 mersenne_engine {rnd_device()};  // Generates random integers
@@ -30,11 +46,18 @@ int main(int argc, char** argv) {
 
     //auto t_spmv_start = Clock::now().time_since_epoch().count();
     auto t_spmv_start = now();
+#ifdef TBSLA_HAS_MPI
+    std::vector<double> res = m.spmv(MPI_COMM_WORLD, vec);
+#else
     std::vector<double> res = m.spmv(vec);
+#endif
     //auto t_spmv_end = Clock::now().time_since_epoch().count();
     auto t_spmv_end = now();
 
 
+#ifdef TBSLA_HAS_MPI
+    if(rank == 0) {
+#endif
     auto t_app_end = now();
 
     std::map<std::string, std::string> outmap;
@@ -58,5 +81,12 @@ int main(int argc, char** argv) {
       std::cout << ",\"" << it->first << "\":\"" << it->second << "\"";
     }
     std::cout << "}\n";
+#ifdef TBSLA_HAS_MPI
+    }
+#endif
+
+#ifdef TBSLA_HAS_MPI
+    MPI_Finalize();
+#endif
   }
 }

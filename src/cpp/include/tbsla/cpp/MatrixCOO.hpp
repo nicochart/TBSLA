@@ -6,6 +6,10 @@
 #include <fstream>
 #include <vector>
 
+#ifdef TBSLA_HAS_MPI
+#include <mpi.h>
+#endif
+
 class MatrixCOO : public Matrix {
   public:
     friend std::ostream & operator<<( std::ostream &os, const MatrixCOO &m);
@@ -20,6 +24,11 @@ class MatrixCOO : public Matrix {
     std::ostream & write(std::ostream &os);
     std::istream & read(std::istream &is);
     int const get_nnz() {return values.size();};
+
+#ifdef TBSLA_HAS_MPI
+   int read_bin_mpiio(MPI_Comm comm, std::string filename);
+    std::vector<double> spmv(MPI_Comm comm, const std::vector<double> &v);
+#endif
   protected:
     std::vector<double> values;
     std::vector<int> row;

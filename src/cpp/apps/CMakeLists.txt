@@ -1,6 +1,11 @@
 add_executable(tbsla_spmv tbsla_spmv.cpp)
 target_link_libraries(tbsla_spmv PRIVATE Matrix)
 target_link_libraries(tbsla_spmv PRIVATE MatrixUtils)
+# modern cmake (3.9+)
+# https://cliutils.gitlab.io/modern-cmake/chapters/packages/MPI.html
+if(TBSLA_ENABLE_MPI)
+    target_link_libraries(tbsla_spmv PUBLIC MPI::MPI_CXX)
+endif()
 target_include_directories(tbsla_spmv PUBLIC ${PROJECT_SOURCE_DIR}/include)
 install(TARGETS tbsla_spmv DESTINATION bin)
 

@@ -1,6 +1,10 @@
-cmake_minimum_required(VERSION 3.8.2...3.14)
+cmake_minimum_required(VERSION 3.9...3.14)
 
 project(TBSLA VERSION 1.0 LANGUAGES CXX)
+
+if(TBSLA_ENABLE_MPI)
+    find_package(MPI REQUIRED)
+endif()
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
