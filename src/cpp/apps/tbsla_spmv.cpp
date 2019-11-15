@@ -67,11 +67,18 @@ int main(int argc, char** argv) {
     // outmap[""] = "";
     outmap["n_row"] = std::to_string(m.get_n_row());
     outmap["n_col"] = std::to_string(m.get_n_col());
+#ifdef TBSLA_HAS_MPI
+    outmap["nnz"] = std::to_string(m.get_gnnz());
+#else
     outmap["nnz"] = std::to_string(m.get_nnz());
+#endif
     outmap["time_read_m"] = std::to_string((t_read_end - t_read_start) / 1e9);
     outmap["time_spmv"] = std::to_string((t_spmv_end - t_spmv_start) / 1e9);
     outmap["time_app"] = std::to_string((t_app_end - t_read_start) / 1e9);
     outmap["lang"] = "C++";
+#ifdef TBSLA_HAS_MPI
+    outmap["lang"] += "_MPI";
+#endif
     outmap["matrix_input"] = std::string(argv[1]);
 
     std::map<std::string, std::string>::iterator it=outmap.begin();

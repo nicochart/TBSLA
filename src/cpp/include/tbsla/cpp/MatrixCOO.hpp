@@ -28,11 +28,16 @@ class MatrixCOO : public Matrix {
 #ifdef TBSLA_HAS_MPI
    int read_bin_mpiio(MPI_Comm comm, std::string filename);
     std::vector<double> spmv(MPI_Comm comm, const std::vector<double> &v);
+    int const get_gnnz() {return gnnz;};
 #endif
   protected:
     std::vector<double> values;
     std::vector<int> row;
     std::vector<int> col;
+
+#ifdef TBSLA_HAS_MPI
+    int gnnz;
+#endif
 };
 
 #endif

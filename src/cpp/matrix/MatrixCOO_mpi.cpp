@@ -24,6 +24,7 @@ int MatrixCOO::read_bin_mpiio(MPI_Comm comm, std::string filename) {
   */
   MPI_File_read_at_all(fh, depla_general, &vec_size, 1, MPI_UNSIGNED_LONG, &status);
   depla_general += sizeof(size_t);
+  this->gnnz = vec_size;
 
   int n_read = vec_size / world;
   int mod = vec_size % world;
