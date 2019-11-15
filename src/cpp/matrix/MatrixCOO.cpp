@@ -1,5 +1,8 @@
 #include <tbsla/cpp/MatrixCOO.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
+#include <numeric>
+#include <algorithm>
+#include <cassert>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -124,4 +127,46 @@ std::istream & MatrixCOO::read(std::istream &is) {
   this->col.resize(size);
   is.read(reinterpret_cast<char*>(this->col.data()), size * sizeof(int));
   return is;
+}
+
+bool compare_row(std::vector<int> row, std::vector<int> col, unsigned i, unsigned j) {
+  if (row[i] == row[j]) {
+    return col[i] < col[j];
+  }
+  return row[i] < row[j];
+}
+
+template <typename T>
+std::vector<T> applyPermutation(
+    const std::vector<int>& order,
+    std::vector<T>& t)
+{
+    assert(order.size() == t.size());
+    std::vector<T> st(t.size());
+    for(int i=0; i<t.size(); i++)
+    {
+        st[i] = t[order[i]];
+    }
+    return st;
+}
+
+MatrixCSR MatrixCOO::toCSR() {
+  std::vector<int> p(this->values.size());
+  std::iota(p.begin(), p.end(), 0);
+  std::sort(p.begin(), p.end(), [&](unsigned i, unsigned j){ return compare_row(this->row, this->col, i, j); });
+
+  std::vector<int> pr = applyPermutation<int>(p, this->row);
+  std::vector<int> pc = applyPermutation<int>(p, this->col);
+  std::vector<double> pv = applyPermutation<double>(p, this->values);
+
+  std::vector<int> cr(this->n_row + 1);
+  cr[0] = 0;
+  size_t incr = 0;
+  for(int i = 1; i < cr.size(); i++) {
+    while(this->row[cr[i - 1]] == this->row[incr] && incr <= this->row.size())
+      incr++;
+    cr[i] = incr;
+  }
+
+  return MatrixCSR(this->n_row, this->n_col, pv, cr, pc);
 }

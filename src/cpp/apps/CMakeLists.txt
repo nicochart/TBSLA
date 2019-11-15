@@ -14,3 +14,8 @@ target_link_libraries(tbsla_mm_to_binCOO PRIVATE Matrix)
 target_link_libraries(tbsla_mm_to_binCOO PRIVATE MatrixUtils)
 target_include_directories(tbsla_mm_to_binCOO PUBLIC ${PROJECT_SOURCE_DIR}/include)
 install(TARGETS tbsla_mm_to_binCOO DESTINATION bin)
+
+add_executable(tbsla_binCOO_to_binCSR tbsla_binCOO_to_binCSR.cpp)
+target_link_libraries(tbsla_binCOO_to_binCSR PRIVATE Matrix)
+target_include_directories(tbsla_binCOO_to_binCSR PUBLIC ${PROJECT_SOURCE_DIR}/include)
+install(TARGETS tbsla_binCOO_to_binCSR DESTINATION bin)

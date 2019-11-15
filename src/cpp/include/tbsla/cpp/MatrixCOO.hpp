@@ -2,6 +2,7 @@
 #define TBSLA_CPP_MatrixCOO
 
 #include <tbsla/cpp/Matrix.hpp>
+#include <tbsla/cpp/MatrixCSR.hpp>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -24,6 +25,8 @@ class MatrixCOO : public Matrix {
     std::ostream & write(std::ostream &os);
     std::istream & read(std::istream &is);
     int const get_nnz() {return values.size();};
+
+    MatrixCSR toCSR();
 
 #ifdef TBSLA_HAS_MPI
    int read_bin_mpiio(MPI_Comm comm, std::string filename);

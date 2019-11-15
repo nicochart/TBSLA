@@ -11,6 +11,8 @@ class MatrixCSR : public Matrix {
     MatrixCSR(int n_row, int n_col, std::vector<double> & values, std::vector<int> & rowptr, std::vector<int> & colidx);
     std::vector<double> spmv(const std::vector<double> &v);
     int const get_nnz();
+    std::ostream & write(std::ostream &os);
+    std::istream & read(std::istream &is);
   protected:
     std::vector<double> values;
     std::vector<int> rowptr;
