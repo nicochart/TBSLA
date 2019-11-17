@@ -25,6 +25,7 @@ class MatrixCOO : public Matrix {
     std::ostream & write(std::ostream &os);
     std::istream & read(std::istream &is);
     int const get_nnz() {return values.size();};
+    std::ostream& print(std::ostream& os) const;
 
     MatrixCSR toCSR();
 

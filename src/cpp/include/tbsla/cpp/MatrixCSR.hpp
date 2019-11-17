@@ -13,6 +13,7 @@ class MatrixCSR : public Matrix {
     int const get_nnz();
     std::ostream & write(std::ostream &os);
     std::istream & read(std::istream &is);
+    std::ostream& print(std::ostream& os) const;
   protected:
     std::vector<double> values;
     std::vector<int> rowptr;

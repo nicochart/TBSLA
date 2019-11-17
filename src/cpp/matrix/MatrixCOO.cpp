@@ -28,16 +28,20 @@ MatrixCOO::MatrixCOO(int n_row, int n_col) {
   this->n_col = n_col;
 }
 
-std::ostream & operator<<( std::ostream &os, const MatrixCOO &m) {
-  os << "n_row : " << m.n_row << std::endl;
-  os << "n_col : " << m.n_col << std::endl;
-  os << "n_values : " << m.values.size() << std::endl;
-  tbsla::utils::vector::streamvector<double>(os, "val", m.values);
+std::ostream& MatrixCOO::print(std::ostream& os) const {
+  os << "n_row : " << this->n_row << std::endl;
+  os << "n_col : " << this->n_col << std::endl;
+  os << "n_values : " << this->values.size() << std::endl;
+  tbsla::utils::vector::streamvector<double>(os, "val", this->values);
   os << std::endl;
-  tbsla::utils::vector::streamvector<int>(os, "row", m.row);
+  tbsla::utils::vector::streamvector<int>(os, "row", this->row);
   os << std::endl;
-  tbsla::utils::vector::streamvector<int>(os, "col", m.col);
+  tbsla::utils::vector::streamvector<int>(os, "col", this->col);
   return os;
+}
+
+std::ostream & operator<<( std::ostream &os, const MatrixCOO &m) {
+  return m.print(os);
 }
 
 std::vector<double> MatrixCOO::spmv(const std::vector<double> &v) {

@@ -13,14 +13,18 @@ MatrixCSR::MatrixCSR(int n_row, int n_col, std::vector<double> & values, std::ve
 }
 
 std::ostream & operator<<( std::ostream &os, const MatrixCSR &m) {
-  os << "n_row : " << m.n_row << std::endl;
-  os << "n_col : " << m.n_col << std::endl;
-  os << "n_values : " << m.values.size() << std::endl;
-  tbsla::utils::vector::streamvector<double>(os, "values", m.values);
+  return m.print(os);
+}
+
+std::ostream& MatrixCSR::print(std::ostream& os) const {
+  os << "n_row : " << this->n_row << std::endl;
+  os << "n_col : " << this->n_col << std::endl;
+  os << "n_values : " << this->values.size() << std::endl;
+  tbsla::utils::vector::streamvector<double>(os, "values", this->values);
   os << std::endl;
-  tbsla::utils::vector::streamvector<int>(os, "rowptr", m.rowptr);
+  tbsla::utils::vector::streamvector<int>(os, "rowptr", this->rowptr);
   os << std::endl;
-  tbsla::utils::vector::streamvector<int>(os, "colidx", m.colidx);
+  tbsla::utils::vector::streamvector<int>(os, "colidx", this->colidx);
   return os;
 }
 
