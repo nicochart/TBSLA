@@ -90,8 +90,8 @@ int MatrixCOO::read_bin_mpiio(MPI_Comm comm, std::string filename) {
   return 0;
 }
 
-std::vector<double> MatrixCOO::spmv(MPI_Comm comm, const std::vector<double> &v) {
-  std::vector<double> send = this->spmv(v);
+std::vector<double> MatrixCOO::spmv(MPI_Comm comm, const std::vector<double> &v, int vect_incr) {
+  std::vector<double> send = this->spmv(v, vect_incr);
   std::vector<double> recv(v.size());
   MPI_Allreduce(send.data(), recv.data(), send.size(), MPI_DOUBLE, MPI_SUM, comm);
   return recv;

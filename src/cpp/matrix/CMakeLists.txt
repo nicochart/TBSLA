@@ -2,6 +2,7 @@ list(APPEND SRC_LIST MatrixCSR.cpp MatrixCOO.cpp)
 
 if(TBSLA_ENABLE_MPI)
     list(APPEND SRC_LIST MatrixCOO_mpi.cpp)
+    list(APPEND SRC_LIST MatrixCSR_mpi.cpp)
 endif()
 
 add_library(Matrix OBJECT ${SRC_LIST})

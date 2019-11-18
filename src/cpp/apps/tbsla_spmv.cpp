@@ -1,4 +1,5 @@
 #include <tbsla/cpp/MatrixCOO.hpp>
+#include <tbsla/cpp/MatrixCSR.hpp>
 #include <tbsla/cpp/utils/mm.hpp>
 #include <tbsla/cpp/utils/InputParser.hpp>
 
@@ -34,6 +35,8 @@ int main(int argc, char** argv) {
 
   if(format == "COO" | format == "coo") {
     m = new MatrixCOO();
+  } else if(format == "CSR" | format == "csr") {
+    m = new MatrixCSR();
   } else {
     std::cerr << format << " unrecognized!" << std::endl;
     exit(1);

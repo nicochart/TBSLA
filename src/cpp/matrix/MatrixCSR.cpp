@@ -28,14 +28,50 @@ std::ostream& MatrixCSR::print(std::ostream& os) const {
   return os;
 }
 
-std::vector<double> MatrixCSR::spmv(const std::vector<double> &v) {
+std::vector<double> MatrixCSR::spmv(const std::vector<double> &v, int vect_incr) {
   std::vector<double> r (this->n_row, 0);
-  for (int i = 0; i < this->n_row; i++) {
-    for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
-       r[i] += this->values[j] * v[this->colidx[j]];
+  for (int i = 0; i < this->rowptr.size() - 1; i++) {
+    for (int j = this->rowptr[i] - this->rowptr.front(); j < this->rowptr[i + 1] - this->rowptr.front(); j++) {
+       r[i + vect_incr] += this->values[j] * v[this->colidx[j]];
     }
   }
   return r;
+}
+
+std::ostream & MatrixCSR::print_infos(std::ostream &os) {
+  os << "-----------------" << std::endl;
+  os << "--- general   ---" << std::endl;
+  os << "n_row : " << n_row << std::endl;
+  os << "n_col : " << n_col << std::endl;
+  os << "--- capacity  ---" << std::endl;
+  os << "values : " << values.capacity() << std::endl;
+  os << "rowptr : " << rowptr.capacity() << std::endl;
+  os << "colidx : " << colidx.capacity() << std::endl;
+  os << "--- size      ---" << std::endl;
+  os << "values : " << values.size() << std::endl;
+  os << "rowptr : " << rowptr.size() << std::endl;
+  os << "colidx : " << colidx.size() << std::endl;
+  os << "-----------------" << std::endl;
+  return os;
+}
+
+std::ostream & MatrixCSR::print_stats(std::ostream &os) {
+  int s = 0, u = 0, d = 0;
+  for (int i = 0; i < this->rowptr.size() - 1; i++) {
+    for (int j = this->rowptr[i] - this->rowptr.front(); j < this->rowptr[i + 1] - this->rowptr.front(); j++) {
+      if(i < this->colidx[j]) {
+        s++;
+      } else if(i > this->colidx[j]) {
+        u++;
+      } else {
+        d++;
+      }
+    }
+  }
+  os << "upper values : " << u << std::endl;
+  os << "lower values : " << s << std::endl;
+  os << "diag  values : " << d << std::endl;
+  return os;
 }
 
 std::ostream & MatrixCSR::write(std::ostream &os) {

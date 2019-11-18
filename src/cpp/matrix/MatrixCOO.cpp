@@ -44,10 +44,10 @@ std::ostream & operator<<( std::ostream &os, const MatrixCOO &m) {
   return m.print(os);
 }
 
-std::vector<double> MatrixCOO::spmv(const std::vector<double> &v) {
+std::vector<double> MatrixCOO::spmv(const std::vector<double> &v, int vect_incr) {
   std::vector<double> r (this->n_row, 0);
   for (int i = 0; i < this->values.size(); i++) {
-     r[this->row[i]] += this->values[i] * v[this->col[i]];
+     r[this->row[i] + vect_incr] += this->values[i] * v[this->col[i]];
   }
   return r;
 }
