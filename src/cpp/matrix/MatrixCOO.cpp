@@ -167,7 +167,7 @@ MatrixCSR MatrixCOO::toCSR() {
   cr[0] = 0;
   size_t incr = 0;
   for(int i = 1; i < cr.size(); i++) {
-    while(this->row[cr[i - 1]] == this->row[incr] && incr <= this->row.size())
+    while(pr[cr[i - 1]] == pr[incr] && incr <= this->row.size())
       incr++;
     cr[i] = incr;
   }
