@@ -8,7 +8,7 @@ int main(int argc, char** argv) {
 
   if(argc == 2) {
     std::ifstream is(std::string(argv[1]), std::ifstream::binary);
-    MatrixCOO mcoo;
+    tbsla::cpp::MatrixCOO mcoo;
     mcoo.read(is);
     is.close();
     mcoo.print_stats(std::cout);

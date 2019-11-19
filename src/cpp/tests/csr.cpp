@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
 
   std::vector<double> x{ 1, 2, 3, 4, 5 };
 
-  MatrixCSR m(5, 5, values, rowptr, colidx);
+  tbsla::cpp::MatrixCSR m(5, 5, values, rowptr, colidx);
   std::cout << m << std::endl;
 
   tbsla::utils::vector::streamvector<double>(std::cout, "x", x);

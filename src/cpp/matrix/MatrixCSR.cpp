@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 
-MatrixCSR::MatrixCSR(int n_row, int n_col, std::vector<double> & values, std::vector<int> & rowptr,  std::vector<int> & colidx) {
+tbsla::cpp::MatrixCSR::MatrixCSR(int n_row, int n_col, std::vector<double> & values, std::vector<int> & rowptr,  std::vector<int> & colidx) {
   this->n_row = n_row;
   this->n_col = n_col;
   this->values = values;
@@ -12,11 +12,11 @@ MatrixCSR::MatrixCSR(int n_row, int n_col, std::vector<double> & values, std::ve
   this->colidx = colidx;
 }
 
-std::ostream & operator<<( std::ostream &os, const MatrixCSR &m) {
+std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::MatrixCSR &m) {
   return m.print(os);
 }
 
-std::ostream& MatrixCSR::print(std::ostream& os) const {
+std::ostream& tbsla::cpp::MatrixCSR::print(std::ostream& os) const {
   os << "n_row : " << this->n_row << std::endl;
   os << "n_col : " << this->n_col << std::endl;
   os << "n_values : " << this->values.size() << std::endl;
@@ -28,7 +28,7 @@ std::ostream& MatrixCSR::print(std::ostream& os) const {
   return os;
 }
 
-std::vector<double> MatrixCSR::spmv(const std::vector<double> &v, int vect_incr) {
+std::vector<double> tbsla::cpp::MatrixCSR::spmv(const std::vector<double> &v, int vect_incr) {
   std::vector<double> r (this->n_row, 0);
   for (int i = 0; i < this->rowptr.size() - 1; i++) {
     for (int j = this->rowptr[i] - this->rowptr.front(); j < this->rowptr[i + 1] - this->rowptr.front(); j++) {
@@ -38,7 +38,7 @@ std::vector<double> MatrixCSR::spmv(const std::vector<double> &v, int vect_incr)
   return r;
 }
 
-std::ostream & MatrixCSR::print_infos(std::ostream &os) {
+std::ostream & tbsla::cpp::MatrixCSR::print_infos(std::ostream &os) {
   os << "-----------------" << std::endl;
   os << "--- general   ---" << std::endl;
   os << "n_row : " << n_row << std::endl;
@@ -55,7 +55,7 @@ std::ostream & MatrixCSR::print_infos(std::ostream &os) {
   return os;
 }
 
-std::ostream & MatrixCSR::print_stats(std::ostream &os) {
+std::ostream & tbsla::cpp::MatrixCSR::print_stats(std::ostream &os) {
   int s = 0, u = 0, d = 0;
   for (int i = 0; i < this->rowptr.size() - 1; i++) {
     for (int j = this->rowptr[i] - this->rowptr.front(); j < this->rowptr[i + 1] - this->rowptr.front(); j++) {
@@ -74,7 +74,7 @@ std::ostream & MatrixCSR::print_stats(std::ostream &os) {
   return os;
 }
 
-std::ostream & MatrixCSR::write(std::ostream &os) {
+std::ostream & tbsla::cpp::MatrixCSR::write(std::ostream &os) {
   os.write(reinterpret_cast<char*>(&this->n_row), sizeof(this->n_row));
   os.write(reinterpret_cast<char*>(&this->n_col), sizeof(this->n_col));
 
@@ -92,7 +92,7 @@ std::ostream & MatrixCSR::write(std::ostream &os) {
   return os;
 }
 
-std::istream & MatrixCSR::read(std::istream &is) {
+std::istream & tbsla::cpp::MatrixCSR::read(std::istream &is) {
   is.read(reinterpret_cast<char*>(&this->n_row), sizeof(this->n_row));
   is.read(reinterpret_cast<char*>(&this->n_col), sizeof(this->n_col));
 

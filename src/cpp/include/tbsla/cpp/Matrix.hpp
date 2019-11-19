@@ -4,9 +4,7 @@
 #include <fstream>
 #include <vector>
 
-#ifdef TBSLA_HAS_MPI
-#include <mpi.h>
-#endif
+namespace tbsla { namespace cpp {
 
 class Matrix {
   public:
@@ -24,18 +22,11 @@ class Matrix {
     std::istream & read(std::istream &is);
     virtual std::ostream& print(std::ostream& os) const = 0;
 
-#ifdef TBSLA_HAS_MPI
-    virtual int read_bin_mpiio(MPI_Comm comm, std::string filename) = 0;
-    virtual std::vector<double> spmv(MPI_Comm comm, const std::vector<double> &v, int vect_incr = 0) = 0;
-    int const get_gnnz() {return gnnz;};
-#endif
-
   protected:
     int n_row, n_col;
 
-#ifdef TBSLA_HAS_MPI
-    int gnnz;
-#endif
 };
+
+}}
 
 #endif

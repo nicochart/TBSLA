@@ -6,7 +6,7 @@
 
 namespace tbsla { namespace utils { namespace io {
 
-MatrixCOO readMM(std::string fname);
+tbsla::cpp::MatrixCOO readMM(std::string fname);
 
 }}}
 

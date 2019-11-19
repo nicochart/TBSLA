@@ -28,7 +28,7 @@ struct MatrixFormatReadException : public std::exception {
    }
 };
 
-MatrixCOO readMM(std::string fname) {
+tbsla::cpp::MatrixCOO readMM(std::string fname) {
   std::ifstream is(fname);
   std::string line;
   std::string delim(" ");
@@ -51,7 +51,7 @@ MatrixCOO readMM(std::string fname) {
         ss >> nr;
         ss >> nc;
         ss >> nv;
-        MatrixCOO m (nr, nc, nv);
+        tbsla::cpp::MatrixCOO m (nr, nc, nv);
         int r, c;
         double v;
         for(int i = 0; i < nv && !is.eof(); i++) {
@@ -71,7 +71,7 @@ MatrixCOO readMM(std::string fname) {
         ss >> nr;
         ss >> nc;
         ss >> nv;
-        MatrixCOO m (nr, nc, nv * 2);
+        tbsla::cpp::MatrixCOO m (nr, nc, nv * 2);
         int r, c;
         double v;
         for(int i = 0; i < nv && !is.eof(); i++) {

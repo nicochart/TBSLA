@@ -1,8 +1,8 @@
-#include <tbsla/cpp/MatrixCSR.hpp>
+#include <tbsla/mpi/MatrixCSR.hpp>
 #include <vector>
 #include <mpi.h>
 
-int MatrixCSR::read_bin_mpiio(MPI_Comm comm, std::string filename) {
+int tbsla::mpi::MatrixCSR::read_bin_mpiio(MPI_Comm comm, std::string filename) {
   int world, rank;
   MPI_Comm_size(comm, &world);
   MPI_Comm_rank(comm, &rank);
@@ -79,8 +79,8 @@ int MatrixCSR::read_bin_mpiio(MPI_Comm comm, std::string filename) {
   return 0;
 }
 
-std::vector<double> MatrixCSR::spmv(MPI_Comm comm, const std::vector<double> &v, int vect_incr) {
-  std::vector<double> send = this->spmv(v, this->row_incr + vect_incr);
+std::vector<double> tbsla::mpi::MatrixCSR::spmv(MPI_Comm comm, const std::vector<double> &v, int vect_incr) {
+  std::vector<double> send = this->tbsla::cpp::MatrixCSR::spmv(v, this->row_incr + vect_incr);
   std::vector<double> recv(v.size());
   MPI_Allreduce(send.data(), recv.data(), send.size(), MPI_DOUBLE, MPI_SUM, comm);
   return v;

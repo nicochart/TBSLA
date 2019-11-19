@@ -8,7 +8,7 @@
 #include <string>
 #include <iomanip>
 
-MatrixCOO::MatrixCOO(int n_row, int n_col, std::vector<double> & values, std::vector<int> & row,  std::vector<int> & col) {
+tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col, std::vector<double> & values, std::vector<int> & row,  std::vector<int> & col) {
   this->n_row = n_row;
   this->n_col = n_col;
   this->values = values;
@@ -16,7 +16,7 @@ MatrixCOO::MatrixCOO(int n_row, int n_col, std::vector<double> & values, std::ve
   this->col = col;
 }
 
-MatrixCOO::MatrixCOO(int n_row, int n_col, int n_values) {
+tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col, int n_values) {
   this->n_row = n_row;
   this->n_col = n_col;
   this->values.reserve(n_values);
@@ -24,12 +24,12 @@ MatrixCOO::MatrixCOO(int n_row, int n_col, int n_values) {
   this->col.reserve(n_values);
 }
 
-MatrixCOO::MatrixCOO(int n_row, int n_col) {
+tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col) {
   this->n_row = n_row;
   this->n_col = n_col;
 }
 
-std::ostream& MatrixCOO::print_as_dense(std::ostream& os) {
+std::ostream& tbsla::cpp::MatrixCOO::print_as_dense(std::ostream& os) {
   std::vector<double> d(this->n_row * this->n_col);
   std::cout.precision(6);
   std::cout << std::fixed;
@@ -45,7 +45,7 @@ std::ostream& MatrixCOO::print_as_dense(std::ostream& os) {
   return os;
 }
 
-std::ostream& MatrixCOO::print(std::ostream& os) const {
+std::ostream& tbsla::cpp::MatrixCOO::print(std::ostream& os) const {
   os << "n_row : " << this->n_row << std::endl;
   os << "n_col : " << this->n_col << std::endl;
   os << "n_values : " << this->values.size() << std::endl;
@@ -57,11 +57,11 @@ std::ostream& MatrixCOO::print(std::ostream& os) const {
   return os;
 }
 
-std::ostream & operator<<( std::ostream &os, const MatrixCOO &m) {
+std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::MatrixCOO &m) {
   return m.print(os);
 }
 
-std::vector<double> MatrixCOO::spmv(const std::vector<double> &v, int vect_incr) {
+std::vector<double> tbsla::cpp::MatrixCOO::spmv(const std::vector<double> &v, int vect_incr) {
   std::vector<double> r (this->n_row, 0);
   for (int i = 0; i < this->values.size(); i++) {
      r[this->row[i] + vect_incr] += this->values[i] * v[this->col[i]];
@@ -69,13 +69,13 @@ std::vector<double> MatrixCOO::spmv(const std::vector<double> &v, int vect_incr)
   return r;
 }
 
-void MatrixCOO::push_back(int r, int c, double v) {
+void tbsla::cpp::MatrixCOO::push_back(int r, int c, double v) {
   this->values.push_back(v);
   this->row.push_back(r);
   this->col.push_back(c);
 }
 
-std::ostream & MatrixCOO::print_infos(std::ostream &os) {
+std::ostream & tbsla::cpp::MatrixCOO::print_infos(std::ostream &os) {
   os << "-----------------" << std::endl;
   os << "--- general   ---" << std::endl;
   os << "n_row : " << n_row << std::endl;
@@ -92,7 +92,7 @@ std::ostream & MatrixCOO::print_infos(std::ostream &os) {
   return os;
 }
 
-std::ostream & MatrixCOO::print_stats(std::ostream &os) {
+std::ostream & tbsla::cpp::MatrixCOO::print_stats(std::ostream &os) {
   int s = 0, u = 0, d = 0;
   if(row.size() != col.size()) {
     std::cerr << "Err \n";
@@ -113,7 +113,7 @@ std::ostream & MatrixCOO::print_stats(std::ostream &os) {
   return os;
 }
 
-std::ostream & MatrixCOO::write(std::ostream &os) {
+std::ostream & tbsla::cpp::MatrixCOO::write(std::ostream &os) {
   os.write(reinterpret_cast<char*>(&this->n_row), sizeof(this->n_row));
   os.write(reinterpret_cast<char*>(&this->n_col), sizeof(this->n_col));
 
@@ -131,7 +131,7 @@ std::ostream & MatrixCOO::write(std::ostream &os) {
   return os;
 }
 
-std::istream & MatrixCOO::read(std::istream &is) {
+std::istream & tbsla::cpp::MatrixCOO::read(std::istream &is) {
   is.read(reinterpret_cast<char*>(&this->n_row), sizeof(this->n_row));
   is.read(reinterpret_cast<char*>(&this->n_col), sizeof(this->n_col));
 
@@ -171,7 +171,7 @@ std::vector<T> applyPermutation(
     return st;
 }
 
-MatrixCSR MatrixCOO::toCSR() {
+tbsla::cpp::MatrixCSR tbsla::cpp::MatrixCOO::toCSR() {
   std::vector<int> p(this->values.size());
   std::iota(p.begin(), p.end(), 0);
   std::sort(p.begin(), p.end(), [&](unsigned i, unsigned j){ return compare_row(this->row, this->col, i, j); });
@@ -189,5 +189,5 @@ MatrixCSR MatrixCOO::toCSR() {
     cr[i] = incr;
   }
 
-  return MatrixCSR(this->n_row, this->n_col, pv, cr, pc);
+  return tbsla::cpp::MatrixCSR(this->n_row, this->n_col, pv, cr, pc);
 }

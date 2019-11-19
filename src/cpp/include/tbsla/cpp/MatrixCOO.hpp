@@ -7,11 +7,9 @@
 #include <fstream>
 #include <vector>
 
-#ifdef TBSLA_HAS_MPI
-#include <mpi.h>
-#endif
+namespace tbsla { namespace cpp {
 
-class MatrixCOO : public Matrix {
+class MatrixCOO : public virtual Matrix {
   public:
     friend std::ostream & operator<<( std::ostream &os, const MatrixCOO &m);
     MatrixCOO(int n_row, int n_col, std::vector<double> & values, std::vector<int> & row, std::vector<int> & col);
@@ -30,14 +28,12 @@ class MatrixCOO : public Matrix {
 
     MatrixCSR toCSR();
 
-#ifdef TBSLA_HAS_MPI
-    int read_bin_mpiio(MPI_Comm comm, std::string filename);
-    std::vector<double> spmv(MPI_Comm comm, const std::vector<double> &v, int vect_incr = 0);
-#endif
   protected:
     std::vector<double> values;
     std::vector<int> row;
     std::vector<int> col;
 };
+
+}}
 
 #endif
