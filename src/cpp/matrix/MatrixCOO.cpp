@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <iomanip>
 
 MatrixCOO::MatrixCOO(int n_row, int n_col, std::vector<double> & values, std::vector<int> & row,  std::vector<int> & col) {
   this->n_row = n_row;
@@ -26,6 +27,22 @@ MatrixCOO::MatrixCOO(int n_row, int n_col, int n_values) {
 MatrixCOO::MatrixCOO(int n_row, int n_col) {
   this->n_row = n_row;
   this->n_col = n_col;
+}
+
+std::ostream& MatrixCOO::print_as_dense(std::ostream& os) {
+  std::vector<double> d(this->n_row * this->n_col);
+  std::cout.precision(6);
+  std::cout << std::fixed;
+  for(int i = 0; i < this->row.size(); i++) {
+    d[row[i] * this->n_row + col[i]] = this->values[i];
+  }
+  for(int i = 0; i < this->n_row; i++) {
+    for(int j = 0; j < this->n_col; j++) {
+      os << std::setw(9) << d[i * this->n_row + j] << "  ";
+    }
+    os << std::endl;
+  }
+  return os;
 }
 
 std::ostream& MatrixCOO::print(std::ostream& os) const {

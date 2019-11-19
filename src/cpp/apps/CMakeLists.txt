@@ -19,3 +19,8 @@ add_executable(tbsla_binCOO_to_binCSR tbsla_binCOO_to_binCSR.cpp)
 target_link_libraries(tbsla_binCOO_to_binCSR PRIVATE Matrix)
 target_include_directories(tbsla_binCOO_to_binCSR PUBLIC ${PROJECT_SOURCE_DIR}/include)
 install(TARGETS tbsla_binCOO_to_binCSR DESTINATION bin)
+
+add_executable(tbsla_print_binCOO_as_Dense tbsla_print_binCOO_as_Dense.cpp)
+target_link_libraries(tbsla_print_binCOO_as_Dense PRIVATE Matrix)
+target_include_directories(tbsla_print_binCOO_as_Dense PUBLIC ${PROJECT_SOURCE_DIR}/include)
+install(TARGETS tbsla_print_binCOO_as_Dense DESTINATION bin)
