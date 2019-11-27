@@ -10,7 +10,7 @@ template <class myType>
 void streamvector(std::ostream &os, const std::string name, const std::vector<myType> & v) {
   os << name << " : ";
   auto it = v.cbegin();
-  if (it != v.cend()) {
+  if (it != v.cend() && v.size() != 0) {
     for (; it != v.cend() - 1; it++) {
       os << *it << ", ";
     }
