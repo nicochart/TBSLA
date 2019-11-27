@@ -28,7 +28,7 @@ std::ostream& tbsla::cpp::MatrixCSR::print(std::ostream& os) const {
   return os;
 }
 
-std::vector<double> tbsla::cpp::MatrixCSR::spmv(const std::vector<double> &v, int vect_incr) {
+std::vector<double> tbsla::cpp::MatrixCSR::spmv(const std::vector<double> &v, int vect_incr) const {
   std::vector<double> r (this->n_row, 0);
   for (int i = 0; i < this->rowptr.size() - 1; i++) {
     for (int j = this->rowptr[i] - this->rowptr.front(); j < this->rowptr[i + 1] - this->rowptr.front(); j++) {
@@ -92,7 +92,7 @@ std::ostream & tbsla::cpp::MatrixCSR::write(std::ostream &os) {
   return os;
 }
 
-std::istream & tbsla::cpp::MatrixCSR::read(std::istream &is) {
+std::istream & tbsla::cpp::MatrixCSR::read(std::istream &is, std::size_t pos, std::size_t n) {
   is.read(reinterpret_cast<char*>(&this->n_row), sizeof(this->n_row));
   is.read(reinterpret_cast<char*>(&this->n_col), sizeof(this->n_col));
 

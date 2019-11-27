@@ -9,7 +9,7 @@ namespace tbsla { namespace cpp {
 class Matrix {
   public:
     friend std::ostream & operator<<( std::ostream &os, const Matrix &m) { return m.print(os); };
-    std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0);
+    std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
     std::vector<double> & saxpy(const std::vector<double> &x, std::vector<double> &y);
 
     int const get_n_row() {return n_row;}
@@ -18,8 +18,8 @@ class Matrix {
 
     virtual std::ostream & print_stats(std::ostream &os) = 0;
     virtual std::ostream & print_infos(std::ostream &os) = 0;
-    std::ostream & write(std::ostream &os);
-    std::istream & read(std::istream &is);
+    virtual std::ostream & write(std::ostream &os) = 0;
+    virtual std::istream & read(std::istream &is, std::size_t pos = 0, std::size_t n = 1) = 0;
     virtual std::ostream& print(std::ostream& os) const = 0;
 
   protected:

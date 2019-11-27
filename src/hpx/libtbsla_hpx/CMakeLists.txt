@@ -1,0 +1,7 @@
+list(APPEND SRC_LIST MatrixCOO.cpp)
+list(APPEND SRC_LIST Vector.cpp)
+
+add_library(tbsla_hpx OBJECT ${SRC_LIST})
+target_include_directories(tbsla_hpx PUBLIC ${PROJECT_SOURCE_DIR}/hpx/include)
+target_link_libraries(tbsla_hpx PUBLIC tbsla)
+hpx_setup_target(tbsla_hpx COMPONENT_DEPENDENCIES iostreams)

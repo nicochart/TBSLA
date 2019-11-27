@@ -10,3 +10,7 @@ add_subdirectory(cpp)
 if(TBSLA_ENABLE_MPI)
     add_subdirectory(mpi)
 endif()
+
+if(TBSLA_ENABLE_HPX)
+    add_subdirectory(hpx)
+endif()

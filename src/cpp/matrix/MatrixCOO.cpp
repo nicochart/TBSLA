@@ -61,7 +61,7 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
   return m.print(os);
 }
 
-std::vector<double> tbsla::cpp::MatrixCOO::spmv(const std::vector<double> &v, int vect_incr) {
+std::vector<double> tbsla::cpp::MatrixCOO::spmv(const std::vector<double> &v, int vect_incr) const {
   std::vector<double> r (this->n_row, 0);
   for (int i = 0; i < this->values.size(); i++) {
      r[this->row[i] + vect_incr] += this->values[i] * v[this->col[i]];
@@ -131,22 +131,74 @@ std::ostream & tbsla::cpp::MatrixCOO::write(std::ostream &os) {
   return os;
 }
 
-std::istream & tbsla::cpp::MatrixCOO::read(std::istream &is) {
+std::istream & tbsla::cpp::MatrixCOO::read(std::istream &is, std::size_t pos, std::size_t n) {
   is.read(reinterpret_cast<char*>(&this->n_row), sizeof(this->n_row));
   is.read(reinterpret_cast<char*>(&this->n_col), sizeof(this->n_col));
 
+
+  size_t vec_size, depla_general, depla_local;
+  depla_general = 2 * sizeof(int);
+
+
   size_t size;
   is.read(reinterpret_cast<char*>(&size), sizeof(size_t));
-  this->values.resize(size);
-  is.read(reinterpret_cast<char*>(this->values.data()), size * sizeof(double));
+  depla_general += sizeof(size_t);
 
-  is.read(reinterpret_cast<char*>(&size), sizeof(size_t));
-  this->row.resize(size);
-  is.read(reinterpret_cast<char*>(this->row.data()), size * sizeof(int));
+  int n_read = size / n;
+  int mod = size % n;
 
+  if (pos < mod)
+    n_read++;
+
+  this->values.resize(n_read);
+  if (pos < mod) {
+    depla_local = depla_general + pos * n_read * sizeof(double);
+  } else {
+    depla_local = depla_general + (pos * n_read + mod) * sizeof(double);
+  }
+  is.seekg(depla_local);
+  is.read(reinterpret_cast<char*>(this->values.data()), n_read * sizeof(double));
+  depla_general += size * sizeof(double);
+
+  is.seekg(depla_general);
   is.read(reinterpret_cast<char*>(&size), sizeof(size_t));
-  this->col.resize(size);
-  is.read(reinterpret_cast<char*>(this->col.data()), size * sizeof(int));
+  depla_general += sizeof(size_t);
+
+  n_read = size / n;
+  mod = size % n;
+
+  if (pos < mod)
+    n_read++;
+
+  this->row.resize(n_read);
+  if (pos < mod) {
+    depla_local = depla_general + pos * n_read * sizeof(int);
+  } else {
+    depla_local = depla_general + (pos * n_read + mod) * sizeof(int);
+  }
+  is.seekg(depla_local);
+  is.read(reinterpret_cast<char*>(this->row.data()), n_read * sizeof(int));
+  depla_general += size * sizeof(int);
+
+
+  is.seekg(depla_general);
+  is.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+  depla_general += sizeof(size_t);
+
+  n_read = size / n;
+  mod = size % n;
+
+  if (pos < mod)
+    n_read++;
+
+  this->col.resize(n_read);
+  if (pos < mod) {
+    depla_local = depla_general + pos * n_read * sizeof(int);
+  } else {
+    depla_local = depla_general + (pos * n_read + mod) * sizeof(int);
+  }
+  is.seekg(depla_local);
+  is.read(reinterpret_cast<char*>(this->col.data()), n_read * sizeof(int));
   return is;
 }
 
