@@ -77,6 +77,7 @@ void tbsla::cpp::MatrixCOO::push_back(int r, int c, double v) {
 
 std::ostream & tbsla::cpp::MatrixCOO::print_infos(std::ostream &os) {
   os << "-----------------" << std::endl;
+  os << "------ COO ------" << std::endl;
   os << "--- general   ---" << std::endl;
   os << "n_row : " << n_row << std::endl;
   os << "n_col : " << n_col << std::endl;

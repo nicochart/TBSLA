@@ -40,6 +40,7 @@ std::vector<double> tbsla::cpp::MatrixCSR::spmv(const std::vector<double> &v, in
 
 std::ostream & tbsla::cpp::MatrixCSR::print_infos(std::ostream &os) {
   os << "-----------------" << std::endl;
+  os << "------ CSR ------" << std::endl;
   os << "--- general   ---" << std::endl;
   os << "n_row : " << n_row << std::endl;
   os << "n_col : " << n_col << std::endl;
