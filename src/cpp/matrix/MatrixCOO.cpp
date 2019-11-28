@@ -264,3 +264,35 @@ tbsla::cpp::MatrixCSR tbsla::cpp::MatrixCOO::toCSR() {
   }
   return tbsla::cpp::MatrixCSR(this->n_row, this->n_col, pv, cr, pc);
 }
+
+void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag) {
+  int n = std::max(n_row, n_col);
+  n = std::max(n, cdiag);
+  int nv = 2 * n;
+  this->n_row = n_row;
+  this->n_col = n_col;
+  this->values.clear();
+  this->values.reserve(nv);
+  this->col.clear();
+  this->col.reserve(nv);
+  this->row.clear();
+  this->row.reserve(nv);
+
+  for(int i = 0; i < cdiag; i++) {
+    this->push_back(i, i + cdiag, 1);
+  }
+
+  for(int i = 0; i < n - 2 * cdiag; i++) {
+    this->push_back(i + cdiag, i + 2 * cdiag, 1);
+  }
+
+  if(cdiag != 0) {
+    for(int i = 0; i < cdiag; i++) {
+      this->push_back(i + cdiag, i, 1);
+    }
+
+    for(int i = 0; i < n - 2 * cdiag; i++) {
+      this->push_back(i + 2 * cdiag, i + cdiag, 1);
+    }
+  }
+}
