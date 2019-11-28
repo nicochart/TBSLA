@@ -70,6 +70,10 @@ std::vector<double> tbsla::cpp::MatrixCOO::spmv(const std::vector<double> &v, in
 }
 
 void tbsla::cpp::MatrixCOO::push_back(int r, int c, double v) {
+  if(r >= this->n_row || r < 0)
+    return;
+  if(c >= this->n_col || c < 0)
+    return;
   this->values.push_back(v);
   this->row.push_back(r);
   this->col.push_back(c);
