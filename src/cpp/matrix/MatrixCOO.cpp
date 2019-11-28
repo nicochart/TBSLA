@@ -233,14 +233,30 @@ tbsla::cpp::MatrixCSR tbsla::cpp::MatrixCOO::toCSR() {
   std::vector<int> pc = applyPermutation<int>(p, this->col);
   std::vector<double> pv = applyPermutation<double>(p, this->values);
 
-  std::vector<int> cr(this->n_row + 1);
-  cr[0] = 0;
-  size_t incr = 0;
-  for(int i = 1; i < cr.size(); i++) {
-    while(pr[cr[i - 1]] == pr[incr] && incr <= this->row.size())
-      incr++;
-    cr[i] = incr;
+  if(this->values.size() == 0) {
+    std::vector<int> cr(this->n_row + 1, 0);
+    return tbsla::cpp::MatrixCSR(this->n_row, this->n_col, pv, cr, pc);
   }
 
+  std::vector<int> cr(this->n_row + 1);
+  cr[0] = 0;
+  size_t incr = 1;
+  for(int i = 0; i < pr[0]; i++) {
+    incr++;
+    cr[incr] = 0;
+  }
+  for(int i = 0; i < pr.size() - 1; i++) {
+    cr[incr]++;
+    if(pr[i] != pr[i + 1]) {
+      for(int j = 0; j < pr[i + 1] - pr[i]; j++) {
+        incr++;
+        cr[incr] = cr[incr - 1];
+      }
+    }
+  }
+  cr[incr]++;
+  for(int i = incr; i < this->n_row; i++) {
+    cr[i + 1] = cr[i];
+  }
   return tbsla::cpp::MatrixCSR(this->n_row, this->n_col, pv, cr, pc);
 }
