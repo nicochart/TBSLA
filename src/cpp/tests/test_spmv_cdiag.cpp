@@ -144,7 +144,7 @@ void test_cdiag(int nr, int nc, int c) {
 
 int main(int argc, char** argv) {
 
-  for(int i = 0; i <= 10; i++) {
+  for(int i = 0; i <= 15; i++) {
     std::cout << "=== test " << i << " ===" << std::endl;
     test_cdiag(10, 10, i);
     test_cdiag(5, 10, i);
