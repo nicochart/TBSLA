@@ -21,4 +21,12 @@ int main(int argc, char** argv) {
 
   tbsla::utils::vector::streamvector<double>(std::cout, "r", r);
   std::cout << std::endl;
+
+  std::vector<double> exp_res{20, 12, 10, 40, 85};
+  if(exp_res == r) {
+    return 0;
+  } else {
+    std::cerr << "Error : r has not the right values !" << std::endl;
+    return 1;
+  }
 }

@@ -5,6 +5,9 @@ project(TBSLA VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+include(CTest)
+enable_testing()
+
 add_subdirectory(cpp)
 
 if(TBSLA_ENABLE_MPI)
