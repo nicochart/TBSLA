@@ -30,11 +30,11 @@ tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col) {
 }
 
 std::ostream& tbsla::cpp::MatrixCOO::print_as_dense(std::ostream& os) {
-  std::vector<double> d(this->n_row * this->n_col);
+  std::vector<double> d(this->n_row * this->n_col, 0);
   os.precision(6);
   os << std::fixed;
   for(int i = 0; i < this->row.size(); i++) {
-    d[row[i] * this->n_col + col[i]] = this->values[i];
+    d[row[i] * this->n_col + col[i]] += this->values[i];
   }
   for(int i = 0; i < this->n_row; i++) {
     for(int j = 0; j < this->n_col; j++) {
