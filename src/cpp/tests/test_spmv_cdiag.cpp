@@ -144,10 +144,17 @@ void test_cdiag(int nr, int nc, int c) {
 
 int main(int argc, char** argv) {
 
-  for(int i = 0; i <= 15; i++) {
-    std::cout << "=== test " << i << " ===" << std::endl;
+  int t = 0;
+  for(int i = 0; i <= 12; i++) {
+    std::cout << "=== test " << t++ << " ===" << std::endl;
     test_cdiag(10, 10, i);
+  }
+  for(int i = 0; i <= 12; i++) {
+    std::cout << "=== test " << t++ << " ===" << std::endl;
     test_cdiag(5, 10, i);
+  }
+  for(int i = 0; i <= 12; i++) {
+    std::cout << "=== test " << t++ << " ===" << std::endl;
     test_cdiag(10, 5, i);
   }
 
