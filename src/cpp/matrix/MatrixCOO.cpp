@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <iomanip>
+#include <tuple>
 
 tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col, std::vector<double> & values, std::vector<int> & row,  std::vector<int> & col) {
   this->n_row = n_row;
@@ -265,6 +266,63 @@ tbsla::cpp::MatrixCSR tbsla::cpp::MatrixCOO::toCSR() {
   return tbsla::cpp::MatrixCSR(this->n_row, this->n_col, pv, cr, pc);
 }
 
+
+std::tuple<int, int, double> cdiag_value(int i, int nv, int nr, int nc, int cdiag) {
+  if(cdiag == 0) {
+    return std::make_tuple(i, i, 1);
+  }
+  if(nr == nc) {
+    if(i < std::max(std::min(nc - cdiag, cdiag), 0)) {
+      return std::make_tuple(i, i + cdiag, 1);
+    } else if (i < nv - cdiag) {
+      int it = (i - cdiag) / 2 + cdiag;
+      if(i % 2 == 0) {
+        return std::make_tuple(it, it - cdiag, 1);
+      } else {
+        return std::make_tuple(it, it + cdiag, 1);
+      }
+   } else {
+      int it = i - (nv - 2 * cdiag) / 2;
+      return std::make_tuple(it, it - cdiag, 1);
+    }
+  }
+
+  if(nc > nr) {
+    if(i < std::max(std::min(nc - cdiag, cdiag), 0)) {
+      return std::make_tuple(i, i + cdiag, 1);
+    } else if (i < std::max({ nr - cdiag, nc, nv - cdiag })) {
+      int it = (i - cdiag) / 2 + cdiag;
+      if(i % 2 == 0) {
+        return std::make_tuple(it, it - cdiag, 1);
+      } else {
+        return std::make_tuple(it, it + cdiag, 1);
+      }
+   } else {
+      int it = i - (nv - 2 * cdiag) / 2;
+      return std::make_tuple(it, it - cdiag, 1);
+    }
+  }
+
+  if(nc < nr) {
+    if(i < std::max(std::min(nc - cdiag, cdiag), 0)) {
+      return std::make_tuple(i, i + cdiag, 1);
+    } else if (i < std::max(cdiag + 2 * (nc - 2 * cdiag), 0)) {
+      int it = (i - cdiag) / 2 + cdiag;
+      if(i % 2 == 0) {
+        return std::make_tuple(it, it - cdiag, 1);
+      } else {
+        return std::make_tuple(it, it + cdiag, 1);
+      }
+   } else {
+      int it = i - (nc - 2 * cdiag);
+      if(cdiag > nc) {
+        it -= cdiag - nc;
+      }
+      return std::make_tuple(it, it - cdiag, 1);
+    }
+  }
+}
+
 void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag) {
   this->n_row = n_row;
   this->n_col = n_col;
@@ -274,6 +332,8 @@ void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag) {
   this->row.clear();
 
   int nv = std::max(std::min(n_row, n_col - cdiag), 0) + std::max(std::min(n_row - cdiag, n_col), 0);
+  if(cdiag == 0)
+    nv /= 2;
   if(nv == 0)
     return;
 
@@ -281,13 +341,8 @@ void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag) {
   this->col.reserve(nv);
   this->row.reserve(nv);
 
-  for(int i = 0; i < std::min(n_row, n_col - cdiag); i++) {
-    this->push_back(i, i + cdiag, 1);
-  }
-
-  if(cdiag != 0) {
-    for(int i = 0; i < std::min(n_row - cdiag, n_col); i++) {
-      this->push_back(i + cdiag, i, 1);
-    }
+  for(int i = 0; i < nv; i++) {
+    auto tuple = cdiag_value(i, nv, n_row, n_col, cdiag);
+    this->push_back(std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
   }
 }
