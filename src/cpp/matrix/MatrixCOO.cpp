@@ -290,7 +290,7 @@ std::tuple<int, int, double> cdiag_value(int i, int nv, int nr, int nc, int cdia
   if(nc > nr) {
     if(i < std::max(std::min(nc - cdiag, cdiag), 0)) {
       return std::make_tuple(i, i + cdiag, 1);
-    } else if (i < std::max({ nr - cdiag, nc, nv - cdiag })) {
+    } else if (i < std::max(cdiag + 2 * (nc - 2 * cdiag), 0)) {
       int it = (i - cdiag) / 2 + cdiag;
       if(i % 2 == 0) {
         return std::make_tuple(it, it - cdiag, 1);
@@ -298,7 +298,10 @@ std::tuple<int, int, double> cdiag_value(int i, int nv, int nr, int nc, int cdia
         return std::make_tuple(it, it + cdiag, 1);
       }
    } else {
-      int it = i - (nv - 2 * cdiag) / 2;
+      int it = i - (nc - 2 * cdiag);
+      if(cdiag > nc) {
+        it -= cdiag - nc;
+      }
       return std::make_tuple(it, it - cdiag, 1);
     }
   }
