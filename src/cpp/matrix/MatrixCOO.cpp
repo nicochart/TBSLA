@@ -295,58 +295,21 @@ std::tuple<int, int, double, int> cdiag_value(int i, int nv, int nr, int nc, int
   if(cdiag == 0) {
     return std::make_tuple(i, i, 1, 10);
   }
-  if(nr == nc) {
-    if(i < std::max(std::min(nc - cdiag, cdiag), 0)) {
-      return std::make_tuple(i, i + cdiag, 1, 20);
-    } else if (i < nv - cdiag) {
-      int it = (i - cdiag) / 2 + cdiag;
-      if(i % 2 == 0) {
-        return std::make_tuple(it, it - cdiag, 1, 21);
-      } else {
-        return std::make_tuple(it, it + cdiag, 1, 22);
-      }
-   } else {
-      int it = i - (nv - 2 * cdiag) / 2;
-      return std::make_tuple(it, it - cdiag, 1, 23);
+  if(i < std::max(std::min(nc - cdiag, cdiag), 0)) {
+    return std::make_tuple(i, i + cdiag, 1, 30);
+  } else if (i < std::max(cdiag + 2 * (nc - 2 * cdiag), 0)) {
+    int it = (i - cdiag) / 2 + cdiag;
+    if(i % 2 == 0) {
+      return std::make_tuple(it, it - cdiag, 1, 31);
+    } else {
+      return std::make_tuple(it, it + cdiag, 1, 32);
     }
-  }
-
-  if(nc > nr) {
-    if(i < std::max(std::min(nc - cdiag, cdiag), 0)) {
-      return std::make_tuple(i, i + cdiag, 1, 30);
-    } else if (i < std::max(cdiag + 2 * (nc - 2 * cdiag), 0)) {
-      int it = (i - cdiag) / 2 + cdiag;
-      if(i % 2 == 0) {
-        return std::make_tuple(it, it - cdiag, 1, 31);
-      } else {
-        return std::make_tuple(it, it + cdiag, 1, 32);
-      }
-   } else {
-      int it = i - (nc - 2 * cdiag);
-      if(cdiag > nc) {
-        it -= cdiag - nc;
-      }
-      return std::make_tuple(it, it - cdiag, 1, 33);
+  } else {
+    int it = i - (nc - 2 * cdiag);
+    if(cdiag > nc) {
+      it -= cdiag - nc;
     }
-  }
-
-  if(nc < nr) {
-    if(i < std::max(std::min(nc - cdiag, cdiag), 0)) {
-      return std::make_tuple(i, i + cdiag, 1, 40);
-    } else if (i < std::max(cdiag + 2 * (nc - 2 * cdiag), 0)) {
-      int it = (i - cdiag) / 2 + cdiag;
-      if(i % 2 == 0) {
-        return std::make_tuple(it, it - cdiag, 1, 41);
-      } else {
-        return std::make_tuple(it, it + cdiag, 1, 42);
-      }
-   } else {
-      int it = i - (nc - 2 * cdiag);
-      if(cdiag > nc) {
-        it -= cdiag - nc;
-      }
-      return std::make_tuple(it, it - cdiag, 1, 43);
-    }
+    return std::make_tuple(it, it - cdiag, 1, 33);
   }
 }
 
