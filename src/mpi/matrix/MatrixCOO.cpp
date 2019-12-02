@@ -96,3 +96,10 @@ std::vector<double> tbsla::mpi::MatrixCOO::spmv(MPI_Comm comm, const std::vector
   MPI_Allreduce(send.data(), recv.data(), send.size(), MPI_DOUBLE, MPI_SUM, comm);
   return recv;
 }
+
+void tbsla::mpi::MatrixCOO::fill_cdiag(MPI_Comm comm, int nr, int nc, int cdiag) {
+  int world, rank;
+  MPI_Comm_size(comm, &world);
+  MPI_Comm_rank(comm, &rank);
+  this->tbsla::cpp::MatrixCOO::fill_cdiag(nr, nc, cdiag, rank, world);
+}

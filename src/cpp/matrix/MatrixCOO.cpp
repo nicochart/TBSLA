@@ -266,6 +266,30 @@ tbsla::cpp::MatrixCSR tbsla::cpp::MatrixCOO::toCSR() {
   return tbsla::cpp::MatrixCSR(this->n_row, this->n_col, pv, cr, pc);
 }
 
+/*
+ * compute the number of local values
+ *
+ */
+size_t lnv(size_t size, int local_pos, int number_pos) {
+  size_t n = size / number_pos;
+  size_t mod = size % number_pos;
+  if (local_pos < mod)
+    n++;
+  return n;
+}
+
+/*
+ * compute the position of the first local value in the global array
+ *
+ */
+size_t pflv(size_t size, int local_pos, int number_pos) {
+  size_t mod = size % number_pos;
+  size_t n = lnv(size, local_pos, number_pos) * local_pos;
+  if (local_pos >= mod) {
+    n += mod;
+  }
+  return n;
+}
 
 std::tuple<int, int, double, int> cdiag_value(int i, int nv, int nr, int nc, int cdiag) {
   if(cdiag == 0) {
@@ -326,7 +350,7 @@ std::tuple<int, int, double, int> cdiag_value(int i, int nv, int nr, int nc, int
   }
 }
 
-void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag) {
+void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int rp, int RN) {
   this->n_row = n_row;
   this->n_col = n_col;
 
@@ -344,7 +368,9 @@ void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag) {
   this->col.reserve(nv);
   this->row.reserve(nv);
 
-  for(int i = 0; i < nv; i++) {
+  int s = pflv(nv, rp, RN);
+  int n = lnv(nv, rp, RN);
+  for(int i = s; i < s + n; i++) {
     auto tuple = cdiag_value(i, nv, n_row, n_col, cdiag);
     this->push_back(std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
   }

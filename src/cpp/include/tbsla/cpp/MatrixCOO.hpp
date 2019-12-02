@@ -27,7 +27,7 @@ class MatrixCOO : public virtual Matrix {
     std::ostream& print(std::ostream& os) const;
 
     MatrixCSR toCSR();
-    void fill_cdiag(int n_row, int n_col, int cdiag);
+    void fill_cdiag(int n_row, int n_col, int cdiag, int rp = 0, int RN = 1);
 
   protected:
     std::vector<double> values;
