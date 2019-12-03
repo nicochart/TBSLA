@@ -40,9 +40,14 @@ void test_cdiag(int nr, int nc, int c) {
   tbsla::cpp::MatrixCOO mcoo;
   mcoo.fill_cdiag(nr, nc, c);
   test_matrix(mcoo, c);
+
   tbsla::cpp::MatrixCSR mcsr;
   mcsr = mcoo.toCSR();
   test_matrix(mcsr, c);
+
+  tbsla::cpp::MatrixCSR mcsr2;
+  mcsr2.fill_cdiag(nr, nc, c);
+  test_matrix(mcsr2, c);
 }
 
 int main(int argc, char** argv) {
