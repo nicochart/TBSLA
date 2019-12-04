@@ -1,0 +1,5 @@
+add_executable(hpx_test_spmv_cdiag test_spmv_cdiag.cpp)
+target_link_libraries(hpx_test_spmv_cdiag PUBLIC tbsla_hpx)
+target_link_libraries(hpx_test_spmv_cdiag PUBLIC tbsla)
+add_test(hpx_test_spmv_cdiag_test hpx_test_spmv_cdiag)
+

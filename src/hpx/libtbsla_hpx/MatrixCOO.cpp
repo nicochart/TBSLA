@@ -23,17 +23,37 @@ static Vector_client spmv_part(MatrixCOO_client const& A_p, Vector_client const&
 
 HPX_PLAIN_ACTION(spmv_part, spmv_part_action);
 
-Vector_client do_spmv(std::size_t N, std::string matrix_file) {
-  using hpx::dataflow;
 
+
+Vector_client spmv(std::vector<hpx::id_type> localities, std::vector<MatrixCOO_client> & tiles, Vector_client v) {
+  std::vector<Vector_client> spmv_res;
+  spmv_res.resize(tiles.size());
+  for (std::size_t i = 0; i != tiles.size(); ++i) {
+    spmv_res[i] = Vector_client(localities[i % localities.size()]);
+  }
+
+  spmv_part_action act_spmv;
+
+  using hpx::dataflow;
+  for (std::size_t i = 0; i != tiles.size(); ++i) {
+    using hpx::util::placeholders::_1;
+    using hpx::util::placeholders::_2;
+    using hpx::util::placeholders::_3;
+    auto Op = hpx::util::bind(act_spmv, localities[i % localities.size()], _1, _2, _3);
+    spmv_res[i] = dataflow(hpx::launch::async, Op, tiles[i], v, spmv_res[i]);
+  }
+
+  return reduce(spmv_res);
+}
+
+
+
+Vector_client do_spmv(std::size_t N, std::string matrix_file) {
   std::vector<hpx::id_type> localities = hpx::find_all_localities();
   std::size_t nl = localities.size();    // Number of localities
 
   std::vector<MatrixCOO_client> tiles;
   tiles.resize(N);
-
-  std::vector<Vector_client> spmv_res;
-  spmv_res.resize(N);
 
   for (std::size_t i = 0; i != N; ++i) {
     tiles[i] = MatrixCOO_client(localities[i % nl], i, N, matrix_file);
@@ -41,23 +61,25 @@ Vector_client do_spmv(std::size_t N, std::string matrix_file) {
 
   tiles[0].get_data().wait();
   tbsla::hpx::MatrixCOO m = tiles[0].get_data().get();
-  int n_row = m.get_n_row();
+  int n_col = m.get_n_col();
+
+
+  Vector_client v(localities[0], n_col);
+  return spmv(localities, tiles, v);
+}
+
+Vector_client do_spmv_cdiag(std::size_t N, int nr, int nc, int cdiag) {
+  std::vector<hpx::id_type> localities = hpx::find_all_localities();
+  std::size_t nl = localities.size();    // Number of localities
+
+  std::vector<MatrixCOO_client> tiles;
+  tiles.resize(N);
 
   for (std::size_t i = 0; i != N; ++i) {
-    spmv_res[i] = Vector_client(localities[i % nl], n_row);
+    tiles[i] = MatrixCOO_client(localities[i % nl], nr, nc, cdiag, i, N);
   }
 
-  Vector_client v(localities[0], n_row);
-  spmv_part_action act_spmv;
-
-  for (std::size_t i = 0; i != N; ++i) {
-    using hpx::util::placeholders::_1;
-    using hpx::util::placeholders::_2;
-    using hpx::util::placeholders::_3;
-    auto Op = hpx::util::bind(act_spmv, localities[i % nl], _1, _2, _3);
-    spmv_res[i] = dataflow(hpx::launch::async, Op, tiles[i], v, spmv_res[i]);
-  }
-
-  return reduce(spmv_res);
+  Vector_client v(localities[0], nc);
+  return spmv(localities, tiles, v);
 }
 

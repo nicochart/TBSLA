@@ -4,12 +4,16 @@
 #include <hpx/hpx.hpp>
 #include <hpx/serialization/serialize.hpp>
 #include <vector>
+#include <numeric>
 
 class Vector_data {
   public:
     std::vector<double> get_vect() const { return data_; }
     Vector_data(std::vector<double> v) : data_(v) {}
-    Vector_data(std::size_t n) : data_(n) {}
+    Vector_data(std::size_t n) : data_(n)
+    {
+      std::iota (std::begin(data_), std::end(data_), 0);
+    }
     Vector_data(Vector_data const& other) : data_(other.data_) {}
     Vector_data() : data_() {}
 
@@ -27,7 +31,10 @@ class Vector_data {
 struct Vector_server : hpx::components::component_base<Vector_server>
 {
     // construct new instances
-    Vector_server() {}
+    Vector_server()
+      : data_()
+    {
+    }
 
     Vector_server(Vector_data const& data)
       : data_(data)
@@ -68,6 +75,11 @@ struct Vector_client : hpx::components::client_base<Vector_client, Vector_server
 
     Vector_client(hpx::id_type where, Vector_data const& data)
       : base_type(hpx::new_<Vector_server>(hpx::colocated(where), data))
+    {
+    }
+
+    Vector_client(hpx::id_type where)
+      : base_type(hpx::new_<Vector_server>(hpx::colocated(where)))
     {
     }
 

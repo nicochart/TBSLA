@@ -17,12 +17,12 @@ static Vector_client reduce_part(Vector_client const& vc1, Vector_client const& 
     unwrapping([vc1](Vector_data const& v1, Vector_data const& v2) -> Vector_client {
       std::vector<double> vv1 = v1.get_vect();
       std::vector<double> vv2 = v2.get_vect();
-      Vector_data r(vv1.size());
-      std::vector<double> rv = r.get_vect();
+      std::vector<double> rv(vv1.size());
       if(vv1.size() == vv2.size()) {
          for(int i = 0; i < vv1.size(); i++)
            rv[i] = vv1[i] + vv2[i];
       }
+      Vector_data r(rv);
       return Vector_client(vc1.get_id(), r);
     }),
     vd1, vd2);
