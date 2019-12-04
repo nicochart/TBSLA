@@ -48,6 +48,9 @@ std::ostream& tbsla::cpp::MatrixCOO::print_as_dense(std::ostream& os) {
 }
 
 std::ostream& tbsla::cpp::MatrixCOO::print(std::ostream& os) const {
+  os << "-----------------" << std::endl;
+  os << "------ COO ------" << std::endl;
+  os << "-----------------" << std::endl;
   os << "n_row : " << this->n_row << std::endl;
   os << "n_col : " << this->n_col << std::endl;
   os << "n_values : " << this->values.size() << std::endl;
@@ -56,6 +59,8 @@ std::ostream& tbsla::cpp::MatrixCOO::print(std::ostream& os) const {
   tbsla::utils::vector::streamvector<int>(os, "row", this->row);
   os << std::endl;
   tbsla::utils::vector::streamvector<int>(os, "col", this->col);
+  os << std::endl;
+  os << "-----------------" << std::endl;
   return os;
 }
 

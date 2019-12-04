@@ -20,6 +20,9 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 }
 
 std::ostream& tbsla::cpp::MatrixCSR::print(std::ostream& os) const {
+  os << "-----------------" << std::endl;
+  os << "------ CSR ------" << std::endl;
+  os << "-----------------" << std::endl;
   os << "n_row : " << this->n_row << std::endl;
   os << "n_col : " << this->n_col << std::endl;
   os << "n_values : " << this->values.size() << std::endl;
@@ -28,6 +31,8 @@ std::ostream& tbsla::cpp::MatrixCSR::print(std::ostream& os) const {
   tbsla::utils::vector::streamvector<int>(os, "rowptr", this->rowptr);
   os << std::endl;
   tbsla::utils::vector::streamvector<int>(os, "colidx", this->colidx);
+  os << std::endl;
+  os << "-----------------" << std::endl;
   return os;
 }
 
