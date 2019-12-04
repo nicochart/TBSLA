@@ -2,13 +2,23 @@
 #include <hpx/hpx_init.hpp>
 
 #include <tbsla/hpx/MatrixCOO.hpp>
+#include <tbsla/hpx/MatrixCSR.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
 
 void test_cdiag(int N, int nr, int nc, int c) {
   std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << c << " ---- N : " << N << std::endl;
-  Vector_client r = do_spmv_cdiag(N, nr, nc, c);
+  Vector_client r = do_spmv_coo_cdiag(N, nr, nc, c);
   std::vector<double> r_data = r.get_data().get().get_vect();
   int res = tbsla::utils::vector::test_vres_cdiag(nr, nc, c, r_data, false);
+  std::cout << "return : " << res << std::endl;
+  if(res) {
+    tbsla::utils::vector::test_vres_cdiag(nr, nc, c, r_data, true);
+    throw "Result vector does not correspond to the expected results !";
+  }
+
+  r = do_spmv_csr_cdiag(N, nr, nc, c);
+  r_data = r.get_data().get().get_vect();
+  res = tbsla::utils::vector::test_vres_cdiag(nr, nc, c, r_data, false);
   std::cout << "return : " << res << std::endl;
   if(res) {
     tbsla::utils::vector::test_vres_cdiag(nr, nc, c, r_data, true);

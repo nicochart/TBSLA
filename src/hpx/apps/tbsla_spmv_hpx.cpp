@@ -21,7 +21,7 @@ int hpx_main(hpx::program_options::variables_map& vm)
 
     std::uint64_t t = hpx::util::high_resolution_clock::now();
 
-    Vector_client r = do_spmv(N, matrix_input);
+    Vector_client r = do_spmv_coo(N, matrix_input);
     r.get_data().wait();
 
     return hpx::finalize();
