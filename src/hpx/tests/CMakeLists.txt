@@ -3,3 +3,8 @@ target_link_libraries(hpx_test_spmv_cdiag PUBLIC tbsla_hpx)
 target_link_libraries(hpx_test_spmv_cdiag PUBLIC tbsla)
 add_test(hpx_test_spmv_cdiag_test hpx_test_spmv_cdiag)
 
+add_executable(hpx_test_a_axpx__cdiag test_a_axpx__cdiag.cpp)
+target_link_libraries(hpx_test_a_axpx__cdiag PUBLIC tbsla_hpx)
+target_link_libraries(hpx_test_a_axpx__cdiag PUBLIC tbsla)
+add_test(hpx_test_a_axpx__cdiag_test hpx_test_a_axpx__cdiag)
+

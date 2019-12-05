@@ -108,6 +108,7 @@ struct Vector_client : hpx::components::client_base<Vector_client, Vector_server
 };
 
 Vector_client reduce(std::vector<Vector_client>);
+Vector_client add_vectors(hpx::id_type where, Vector_client v1, Vector_client v2);
 
 
 #endif

@@ -113,5 +113,6 @@ struct MatrixCSR_client : ::hpx::components::client_base<MatrixCSR_client, Matri
 
 Vector_client do_spmv_csr(std::size_t N, std::string matrix_file);
 Vector_client do_spmv_csr_cdiag(Vector_client v, std::size_t N, int nr, int nc, int cdiag);
+Vector_client do_a_axpx__csr_cdiag(Vector_client v, std::size_t N, int nr, int nc, int cdiag);
 
 #endif

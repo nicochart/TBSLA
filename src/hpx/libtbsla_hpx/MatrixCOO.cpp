@@ -46,6 +46,11 @@ Vector_client spmv_coo(std::vector<hpx::id_type> localities, std::vector<MatrixC
   return reduce(spmv_res);
 }
 
+Vector_client a_axpx__coo(std::vector<hpx::id_type> localities, std::vector<MatrixCOO_client> & tiles, Vector_client v) {
+  Vector_client r = spmv_coo(localities, tiles, v);
+  r = add_vectors(localities[0], r, v);
+  return spmv_coo(localities, tiles, r);
+}
 
 
 Vector_client do_spmv_coo(std::size_t N, std::string matrix_file) {
@@ -82,3 +87,16 @@ Vector_client do_spmv_coo_cdiag(Vector_client v, std::size_t N, int nr, int nc, 
   return spmv_coo(localities, tiles, v);
 }
 
+Vector_client do_a_axpx__coo_cdiag(Vector_client v, std::size_t N, int nr, int nc, int cdiag) {
+  std::vector<hpx::id_type> localities = hpx::find_all_localities();
+  std::size_t nl = localities.size();    // Number of localities
+
+  std::vector<MatrixCOO_client> tiles;
+  tiles.resize(N);
+
+  for (std::size_t i = 0; i != N; ++i) {
+    tiles[i] = MatrixCOO_client(localities[i % nl], nr, nc, cdiag, i, N);
+  }
+
+  return a_axpx__coo(localities, tiles, v);
+}

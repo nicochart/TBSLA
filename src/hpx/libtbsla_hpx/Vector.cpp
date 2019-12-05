@@ -30,6 +30,16 @@ static Vector_client reduce_part(Vector_client const& vc1, Vector_client const& 
 
 HPX_PLAIN_ACTION(reduce_part, reduce_part_action);
 
+Vector_client add_vectors(hpx::id_type where, Vector_client v1, Vector_client v2) {
+  using hpx::util::placeholders::_1;
+  using hpx::util::placeholders::_2;
+  using hpx::dataflow;
+
+  reduce_part_action reduce_act;
+  auto Op = hpx::util::bind(reduce_act, where, _1, _2);
+  return dataflow(hpx::launch::async, Op, v1 ,v2);
+}
+
 std::vector<Vector_client> reduce_recursion(std::vector<Vector_client> vcs) {
   if(vcs.size() < 1) {
     throw "error in recursive reduction";

@@ -91,3 +91,22 @@ Vector_client do_spmv_csr_cdiag(Vector_client v, std::size_t N, int nr, int nc, 
   return spmv_csr(localities, tiles, v);
 }
 
+Vector_client a_axpx__csr(std::vector<hpx::id_type> localities, std::vector<MatrixCSR_client> & tiles, Vector_client v) {
+  Vector_client r = spmv_csr(localities, tiles, v);
+  r = add_vectors(localities[0], r, v);
+  return spmv_csr(localities, tiles, r);
+}
+
+Vector_client do_a_axpx__csr_cdiag(Vector_client v, std::size_t N, int nr, int nc, int cdiag) {
+  std::vector<hpx::id_type> localities = hpx::find_all_localities();
+  std::size_t nl = localities.size();    // Number of localities
+
+  std::vector<MatrixCSR_client> tiles;
+  tiles.resize(N);
+
+  for (std::size_t i = 0; i != N; ++i) {
+    tiles[i] = MatrixCSR_client(localities[i % nl], nr, nc, cdiag, i, N);
+  }
+
+  return a_axpx__csr(localities, tiles, v);
+}

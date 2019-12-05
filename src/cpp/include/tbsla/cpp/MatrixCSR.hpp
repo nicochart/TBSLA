@@ -13,6 +13,7 @@ class MatrixCSR : public virtual Matrix {
     MatrixCSR(int n_row, int n_col, std::vector<double> & values, std::vector<int> & rowptr, std::vector<int> & colidx);
     MatrixCSR() : values(0), rowptr(0), colidx(0) {};
     std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
+    std::vector<double> a_axpx_(const std::vector<double> &x, int vect_incr = 0) const;
     int const get_nnz();
     std::ostream & print_stats(std::ostream &os);
     std::ostream & print_infos(std::ostream &os);

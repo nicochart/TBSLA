@@ -1,6 +1,7 @@
 #include <tbsla/mpi/MatrixCSR.hpp>
 #include <tbsla/cpp/utils/range.hpp>
 #include <vector>
+#include <algorithm>
 #include <mpi.h>
 
 int tbsla::mpi::MatrixCSR::read_bin_mpiio(MPI_Comm comm, std::string filename) {
@@ -85,6 +86,12 @@ std::vector<double> tbsla::mpi::MatrixCSR::spmv(MPI_Comm comm, const std::vector
   std::vector<double> recv(send.size());
   MPI_Allreduce(send.data(), recv.data(), send.size(), MPI_DOUBLE, MPI_SUM, comm);
   return recv;
+}
+
+std::vector<double> tbsla::mpi::MatrixCSR::a_axpx_(MPI_Comm comm, const std::vector<double> &v, int vect_incr) {
+  std::vector<double> r = this->spmv(comm, v, vect_incr);
+  std::transform (r.begin(), r.end(), v.begin(), r.begin(), std::plus<double>());
+  return this->spmv(comm, r, vect_incr);
 }
 
 void tbsla::mpi::MatrixCSR::fill_cdiag(MPI_Comm comm, int nr, int nc, int cdiag) {

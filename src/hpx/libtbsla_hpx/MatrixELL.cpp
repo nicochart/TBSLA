@@ -91,3 +91,22 @@ Vector_client do_spmv_ell_cdiag(Vector_client v, std::size_t N, int nr, int nc, 
   return spmv_ell(localities, tiles, v);
 }
 
+Vector_client a_axpx__ell(std::vector<hpx::id_type> localities, std::vector<MatrixELL_client> & tiles, Vector_client v) {
+  Vector_client r = spmv_ell(localities, tiles, v);
+  r = add_vectors(localities[0], r, v);
+  return spmv_ell(localities, tiles, r);
+}
+
+Vector_client do_a_axpx__ell_cdiag(Vector_client v, std::size_t N, int nr, int nc, int cdiag) {
+  std::vector<hpx::id_type> localities = hpx::find_all_localities();
+  std::size_t nl = localities.size();    // Number of localities
+
+  std::vector<MatrixELL_client> tiles;
+  tiles.resize(N);
+
+  for (std::size_t i = 0; i != N; ++i) {
+    tiles[i] = MatrixELL_client(localities[i % nl], nr, nc, cdiag, i, N);
+  }
+
+  return a_axpx__ell(localities, tiles, v);
+}
