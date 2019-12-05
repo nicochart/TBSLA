@@ -1,5 +1,6 @@
 list(APPEND SRC_LIST MatrixCSR.cpp)
 list(APPEND SRC_LIST MatrixCOO.cpp)
+list(APPEND SRC_LIST MatrixELL.cpp)
 
 message("list SRCLISMPI ${SRC_LIST}")
 

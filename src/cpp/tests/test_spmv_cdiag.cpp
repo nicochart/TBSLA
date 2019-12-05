@@ -1,5 +1,6 @@
 #include <tbsla/cpp/MatrixCOO.hpp>
 #include <tbsla/cpp/MatrixCSR.hpp>
+#include <tbsla/cpp/MatrixELL.hpp>
 #include <tbsla/cpp/Matrix.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
 
@@ -48,6 +49,10 @@ void test_cdiag(int nr, int nc, int c) {
   tbsla::cpp::MatrixCSR mcsr2;
   mcsr2.fill_cdiag(nr, nc, c);
   test_matrix(mcsr2, c);
+
+  tbsla::cpp::MatrixELL mell;
+  mell.fill_cdiag(nr, nc, c);
+  test_matrix(mell, c);
 }
 
 int main(int argc, char** argv) {

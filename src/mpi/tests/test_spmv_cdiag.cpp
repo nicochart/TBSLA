@@ -1,6 +1,7 @@
 #include <tbsla/mpi/Matrix.hpp>
 #include <tbsla/mpi/MatrixCOO.hpp>
 #include <tbsla/mpi/MatrixCSR.hpp>
+#include <tbsla/mpi/MatrixELL.hpp>
 
 #include <tbsla/cpp/utils/vector.hpp>
 
@@ -57,6 +58,10 @@ void test_cdiag(int nr, int nc, int cdiag) {
   tbsla::mpi::MatrixCSR mcsr;
   mcsr.fill_cdiag(MPI_COMM_WORLD, nr, nc, cdiag);
   test_matrix(mcsr, nr, nc, cdiag);
+
+  tbsla::mpi::MatrixELL mell;
+  mell.fill_cdiag(MPI_COMM_WORLD, nr, nc, cdiag);
+  test_matrix(mell, nr, nc, cdiag);
 }
 
 int main(int argc, char** argv) {

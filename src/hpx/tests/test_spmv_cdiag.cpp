@@ -3,6 +3,7 @@
 
 #include <tbsla/hpx/MatrixCOO.hpp>
 #include <tbsla/hpx/MatrixCSR.hpp>
+#include <tbsla/hpx/MatrixELL.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
 
 void test_cdiag(int N, int nr, int nc, int c) {
@@ -17,6 +18,15 @@ void test_cdiag(int N, int nr, int nc, int c) {
   }
 
   r = do_spmv_csr_cdiag(N, nr, nc, c);
+  r_data = r.get_data().get().get_vect();
+  res = tbsla::utils::vector::test_vres_cdiag(nr, nc, c, r_data, false);
+  std::cout << "return : " << res << std::endl;
+  if(res) {
+    tbsla::utils::vector::test_vres_cdiag(nr, nc, c, r_data, true);
+    throw "Result vector does not correspond to the expected results !";
+  }
+
+  r = do_spmv_ell_cdiag(N, nr, nc, c);
   r_data = r.get_data().get().get_vect();
   res = tbsla::utils::vector::test_vres_cdiag(nr, nc, c, r_data, false);
   std::cout << "return : " << res << std::endl;
