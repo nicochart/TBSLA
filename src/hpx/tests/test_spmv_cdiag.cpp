@@ -14,28 +14,28 @@ void test_cdiag(int N, int nr, int nc, int c) {
   std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << c << " ---- N : " << N << std::endl;
   Vector_client r = do_spmv_coo_cdiag(v, N, nr, nc, c);
   std::vector<double> r_data = r.get_data().get().get_vect();
-  int res = tbsla::utils::vector::test_vres_cdiag(nr, nc, c, v_data, r_data, false);
+  int res = tbsla::utils::vector::test_spmv_cdiag(nr, nc, c, v_data, r_data, false);
   std::cout << "return : " << res << std::endl;
   if(res) {
-    tbsla::utils::vector::test_vres_cdiag(nr, nc, c, v_data, r_data, true);
+    tbsla::utils::vector::test_spmv_cdiag(nr, nc, c, v_data, r_data, true);
     throw "Result vector does not correspond to the expected results !";
   }
 
   r = do_spmv_csr_cdiag(v, N, nr, nc, c);
   r_data = r.get_data().get().get_vect();
-  res = tbsla::utils::vector::test_vres_cdiag(nr, nc, c, v_data, r_data, false);
+  res = tbsla::utils::vector::test_spmv_cdiag(nr, nc, c, v_data, r_data, false);
   std::cout << "return : " << res << std::endl;
   if(res) {
-    tbsla::utils::vector::test_vres_cdiag(nr, nc, c, v_data, r_data, true);
+    tbsla::utils::vector::test_spmv_cdiag(nr, nc, c, v_data, r_data, true);
     throw "Result vector does not correspond to the expected results !";
   }
 
   r = do_spmv_ell_cdiag(v, N, nr, nc, c);
   r_data = r.get_data().get().get_vect();
-  res = tbsla::utils::vector::test_vres_cdiag(nr, nc, c, v_data, r_data, false);
+  res = tbsla::utils::vector::test_spmv_cdiag(nr, nc, c, v_data, r_data, false);
   std::cout << "return : " << res << std::endl;
   if(res) {
-    tbsla::utils::vector::test_vres_cdiag(nr, nc, c, v_data, r_data, true);
+    tbsla::utils::vector::test_spmv_cdiag(nr, nc, c, v_data, r_data, true);
     throw "Result vector does not correspond to the expected results !";
   }
 }

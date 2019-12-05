@@ -9,7 +9,7 @@ int check(int i, double v, double exp, int return_value, bool debug) {
   return 0;
 }
 
-int tbsla::utils::vector::test_vres_cdiag(int nr, int nc, int c, std::vector<double> & v, std::vector<double> & r, bool debug) {
+int tbsla::utils::vector::test_spmv_cdiag(int nr, int nc, int c, std::vector<double> & v, std::vector<double> & r, bool debug) {
   int i;
   for(i = 0; i < std::min(c, nr); i++) {
     int rv = check(i, r[i], i < nc - c ? v[i + c] : 0, 10, debug);

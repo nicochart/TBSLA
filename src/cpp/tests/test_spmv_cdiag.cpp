@@ -23,7 +23,7 @@ void test_matrix(tbsla::cpp::Matrix & m, int c) {
   }
   std::vector<double> r = m.spmv(v);
   int res;
-  res = tbsla::utils::vector::test_vres_cdiag(nr, nc, c, v, r, false);
+  res = tbsla::utils::vector::test_spmv_cdiag(nr, nc, c, v, r, false);
   std::cout << "return : " << res << std::endl;
   if (res) {
     tbsla::utils::vector::streamvector<double>(std::cout, "v", v);
@@ -31,7 +31,7 @@ void test_matrix(tbsla::cpp::Matrix & m, int c) {
     tbsla::utils::vector::streamvector<double>(std::cout, "r", r);
     std::cout << std::endl;
     print(m);
-    res = tbsla::utils::vector::test_vres_cdiag(nr, nc, c, v, r, true);
+    res = tbsla::utils::vector::test_spmv_cdiag(nr, nc, c, v, r, true);
     exit(res);
   }
 }
