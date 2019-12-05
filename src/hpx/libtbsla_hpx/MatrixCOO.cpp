@@ -68,7 +68,7 @@ Vector_client do_spmv_coo(std::size_t N, std::string matrix_file) {
   return spmv_coo(localities, tiles, v);
 }
 
-Vector_client do_spmv_coo_cdiag(std::size_t N, int nr, int nc, int cdiag) {
+Vector_client do_spmv_coo_cdiag(Vector_client v, std::size_t N, int nr, int nc, int cdiag) {
   std::vector<hpx::id_type> localities = hpx::find_all_localities();
   std::size_t nl = localities.size();    // Number of localities
 
@@ -79,7 +79,6 @@ Vector_client do_spmv_coo_cdiag(std::size_t N, int nr, int nc, int cdiag) {
     tiles[i] = MatrixCOO_client(localities[i % nl], nr, nc, cdiag, i, N);
   }
 
-  Vector_client v(localities[0], nc);
   return spmv_coo(localities, tiles, v);
 }
 

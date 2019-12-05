@@ -18,7 +18,7 @@ void streamvector(std::ostream &os, const std::string name, const std::vector<my
   }
 }
 
-int test_vres_cdiag(int nr, int nc, int c, std::vector<double> r, bool debug);
+int test_vres_cdiag(int nr, int nc, int c, std::vector<double> & v, std::vector<double> & r, bool debug);
 
 }}}
 

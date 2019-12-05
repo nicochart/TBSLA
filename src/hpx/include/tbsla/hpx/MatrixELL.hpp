@@ -112,6 +112,6 @@ struct MatrixELL_client : ::hpx::components::client_base<MatrixELL_client, Matri
 };
 
 Vector_client do_spmv_ell(std::size_t N, std::string matrix_file);
-Vector_client do_spmv_ell_cdiag(std::size_t N, int nr, int nc, int cdiag);
+Vector_client do_spmv_ell_cdiag(Vector_client v, std::size_t N, int nr, int nc, int cdiag);
 
 #endif

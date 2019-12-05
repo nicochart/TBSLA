@@ -20,7 +20,7 @@ void test_matrix(tbsla::mpi::Matrix & m, int nr, int nc, int cdiag) {
   std::vector<double> v(nc);
   std::iota (std::begin(v), std::end(v), 0);
   std::vector<double> r = m.spmv(MPI_COMM_WORLD, v);
-  int res = tbsla::utils::vector::test_vres_cdiag(nr, nc, cdiag, r, false);
+  int res = tbsla::utils::vector::test_vres_cdiag(nr, nc, cdiag, v, r, false);
   int res0;
   MPI_Allreduce(&res, &res0, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
   if(rank == 0) {
@@ -34,7 +34,7 @@ void test_matrix(tbsla::mpi::Matrix & m, int nr, int nc, int cdiag) {
       if(i == rank) {
         m.print_infos(std::cout);
         std::cout << m << std::endl;
-        res = tbsla::utils::vector::test_vres_cdiag(nr, nc, cdiag, r, true);
+        res = tbsla::utils::vector::test_vres_cdiag(nr, nc, cdiag, v, r, true);
         tbsla::utils::vector::streamvector<double>(std::cout, "r ", r);
         std::cout << std::endl;
       }

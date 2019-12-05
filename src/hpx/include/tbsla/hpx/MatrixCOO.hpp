@@ -115,6 +115,6 @@ struct MatrixCOO_client : ::hpx::components::client_base<MatrixCOO_client, Matri
 
 Vector_client do_spmv_coo(std::size_t N, std::string matrix_file);
 
-Vector_client do_spmv_coo_cdiag(std::size_t N, int nr, int nc, int cdiag);
+Vector_client do_spmv_coo_cdiag(Vector_client v, std::size_t N, int nr, int nc, int cdiag);
 
 #endif
