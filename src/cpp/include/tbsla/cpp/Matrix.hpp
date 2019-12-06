@@ -23,6 +23,8 @@ class Matrix {
     virtual std::istream & read(std::istream &is, std::size_t pos = 0, std::size_t n = 1) = 0;
     virtual std::ostream& print(std::ostream& os) const = 0;
 
+    virtual void fill_cdiag(int n_row, int n_col, int cdiag, int rp = 0, int RN = 1) = 0;
+
   protected:
     int n_row, n_col;
 
