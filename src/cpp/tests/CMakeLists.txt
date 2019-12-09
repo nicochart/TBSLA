@@ -18,6 +18,10 @@ add_executable(test_spmv_cdiag test_spmv_cdiag.cpp)
 target_link_libraries(test_spmv_cdiag PRIVATE tbsla)
 add_test(test_spmv_cdiag_test test_spmv_cdiag)
 
+add_executable(test_spmv_cqmat test_spmv_cqmat.cpp)
+target_link_libraries(test_spmv_cqmat PRIVATE tbsla)
+add_test(test_spmv_cqmat_test test_spmv_cqmat)
+
 add_executable(test_a_axpx__cdiag test_a_axpx__cdiag.cpp)
 target_link_libraries(test_a_axpx__cdiag PRIVATE tbsla)
 add_test(test_a_axpx__cdiag_test test_a_axpx__cdiag)

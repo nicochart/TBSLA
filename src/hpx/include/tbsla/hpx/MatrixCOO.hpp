@@ -20,6 +20,7 @@ class MatrixCOO : public tbsla::cpp::MatrixCOO, public virtual tbsla::hpx::Matri
   public:
     using tbsla::cpp::MatrixCOO::spmv;
     using tbsla::cpp::MatrixCOO::fill_cdiag;
+    using tbsla::cpp::MatrixCOO::fill_cqmat;
 
   private:
     friend ::hpx::serialization::access;
@@ -57,6 +58,12 @@ struct HPX_COMPONENT_EXPORT MatrixCOO_server : ::hpx::components::component_base
        data_.fill_cdiag(nr, nc, cdiag, pos, nt);
     }
 
+    MatrixCOO_server(std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t pos, std::size_t nt)
+      : data_()
+    {
+       data_.fill_cqmat(nr, nc, c, q, seed, pos, nt);
+    }
+
     // Access data.
     tbsla::hpx::MatrixCOO get_data() const
     {
@@ -92,6 +99,11 @@ struct MatrixCOO_client : ::hpx::components::client_base<MatrixCOO_client, Matri
     {
     }
 
+    MatrixCOO_client(hpx::id_type where, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t pos, std::size_t nt)
+      : base_type(hpx::new_<MatrixCOO_server>(hpx::colocated(where), nr, nc, c, q, seed, pos, nt))
+    {
+    }
+
     // Attach a future representing a (possibly remote) partition.
     MatrixCOO_client(hpx::future<hpx::id_type>&& id)
       : base_type(std::move(id))
@@ -116,6 +128,7 @@ struct MatrixCOO_client : ::hpx::components::client_base<MatrixCOO_client, Matri
 Vector_client do_spmv_coo(std::size_t N, std::string matrix_file);
 
 Vector_client do_spmv_coo_cdiag(Vector_client v, std::size_t N, int nr, int nc, int cdiag);
+Vector_client do_spmv_coo_cqmat(Vector_client v, std::size_t N, int nr, int nc, int c, double q, unsigned int seed);
 Vector_client do_a_axpx__coo_cdiag(Vector_client v, std::size_t N, int nr, int nc, int cdiag);
 
 #endif

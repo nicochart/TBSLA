@@ -194,3 +194,71 @@ void tbsla::cpp::MatrixELL::fill_cdiag(int n_row, int n_col, int cdiag, int rp, 
     }
   }
 }
+
+void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult, int rp, int RN) {
+  this->n_row = n_row;
+  this->n_col = n_col;
+
+  this->values.clear();
+  this->columns.clear();
+
+  int s = tbsla::utils::range::pflv(n_row, rp, RN);
+  int n = tbsla::utils::range::lnv(n_row, rp, RN);
+
+  int min_ = std::min(n_col - std::min(c, n_col) + 1, n_row);
+
+  int incr = 0, nv = 0;
+  for(int i = 0; i < min_; i++) {
+    if(i < s) {
+      incr += std::min(c, n_col);
+    }
+    if(i >= s && i < s + n) {
+      nv += std::min(c, n_col);
+    }
+    if(i >= s + n) {
+      break;
+    }
+  }
+  for(int i = 0; i < std::min(n_row, n_col) - min_; i++) {
+    if(i + min_ < s) {
+      incr += std::min(c, n_col) - i - 1;
+    }
+    if(i + min_ >= s && i + min_ < s + n) {
+      nv += std::min(c, n_col) - i - 1;
+    }
+    if(i + min_ >= s + n) {
+      break;
+    }
+  }
+  this->nnz = nv;
+  this->max_col = std::min(c, n_col);
+
+  if(nv == 0)
+    return;
+
+  this->values.reserve(std::min(c, n_col) * n);
+  this->columns.reserve(std::min(c, n_col) * n);
+
+  int i;
+  for(i = s; i < std::min(min_, s + n); i++) {
+    for(int j = 0; j < std::min(c, n_col); j++) {
+      auto curr = tbsla::utils::cdiag::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
+      this->columns.push_back(std::get<1>(curr));
+      this->values.push_back(std::get<2>(curr));
+      incr++;
+    }
+  }
+  for(; i < std::min({n_row, s + n}); i++) {
+    int j = 0;
+    for(; j < std::min(c, n_col) - i + min_ - 1; j++) {
+      auto curr = tbsla::utils::cdiag::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
+      this->columns.push_back(std::get<1>(curr));
+      this->values.push_back(std::get<2>(curr));
+      incr++;
+    }
+    for(; j < std::min(c, n_col); j++) {
+      this->columns.push_back(0);
+      this->values.push_back(0);
+    }
+  }
+}

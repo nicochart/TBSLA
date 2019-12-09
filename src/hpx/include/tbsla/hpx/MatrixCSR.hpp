@@ -17,6 +17,7 @@ class MatrixCSR : public tbsla::cpp::MatrixCSR, public tbsla::hpx::Matrix {
   public:
     std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
     void fill_cdiag(int n_row, int n_col, int cdiag, int rp = 0, int RN = 1);
+    void fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed, int rp = 0, int RN = 1);
   protected:
     int row_incr = 0; // index of the first value of the local array in the global array
 
@@ -55,6 +56,12 @@ struct HPX_COMPONENT_EXPORT MatrixCSR_server : ::hpx::components::component_base
        data_.fill_cdiag(nr, nc, cdiag, pos, nt);
     }
 
+    MatrixCSR_server(std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t pos, std::size_t nt)
+      : data_()
+    {
+       data_.fill_cqmat(nr, nc, c, q, seed, pos, nt);
+    }
+
     // Access data.
     tbsla::hpx::MatrixCSR get_data() const
     {
@@ -90,6 +97,11 @@ struct MatrixCSR_client : ::hpx::components::client_base<MatrixCSR_client, Matri
     {
     }
 
+    MatrixCSR_client(hpx::id_type where, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t pos, std::size_t nt)
+      : base_type(hpx::new_<MatrixCSR_server>(hpx::colocated(where), nr, nc, c, q, seed, pos, nt))
+    {
+    }
+
     // Attach a future representing a (possibly remote) partition.
     MatrixCSR_client(hpx::future<hpx::id_type>&& id)
       : base_type(std::move(id))
@@ -113,6 +125,7 @@ struct MatrixCSR_client : ::hpx::components::client_base<MatrixCSR_client, Matri
 
 Vector_client do_spmv_csr(std::size_t N, std::string matrix_file);
 Vector_client do_spmv_csr_cdiag(Vector_client v, std::size_t N, int nr, int nc, int cdiag);
+Vector_client do_spmv_csr_cqmat(Vector_client v, std::size_t N, int nr, int nc, int c, double q, unsigned int seed);
 Vector_client do_a_axpx__csr_cdiag(Vector_client v, std::size_t N, int nr, int nc, int cdiag);
 
 #endif

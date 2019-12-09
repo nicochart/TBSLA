@@ -14,6 +14,7 @@ class Matrix : public virtual tbsla::cpp::Matrix {
   public:
     virtual int read_bin_mpiio(MPI_Comm comm, std::string filename) = 0;
     virtual void fill_cdiag(MPI_Comm comm, int nr, int nc, int cdiag) = 0;
+    virtual void fill_cqmat(MPI_Comm comm, int n_row, int n_col, int c, double q, unsigned int seed_mult) = 0;
     virtual std::vector<double> spmv(MPI_Comm comm, const std::vector<double> &v, int vect_incr = 0) = 0;
     virtual std::vector<double> a_axpx_(MPI_Comm comm, const std::vector<double> &v, int vect_incr = 0) = 0;
     int const get_gnnz() {return gnnz;};

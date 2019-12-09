@@ -304,3 +304,34 @@ void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int rp, 
     this->push_back(std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
   }
 }
+
+void tbsla::cpp::MatrixCOO::fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult, int rp, int RN) {
+  this->n_row = n_row;
+  this->n_col = n_col;
+
+  this->values.clear();
+  this->col.clear();
+  this->row.clear();
+
+  int nv = 0;
+  for(int i = 0; i < std::min(n_col - std::min(c, n_col) + 1, n_row); i++) {
+    nv += std::min(c, n_col);
+  }
+  for(int i = 0; i < std::min(n_row, n_col) - std::min(n_col - std::min(c, n_col) + 1, n_row); i++) {
+    nv += std::min(c, n_col) - i - 1;
+  }
+  if(nv == 0)
+    return;
+
+  int s = tbsla::utils::range::pflv(nv, rp, RN);
+  int n = tbsla::utils::range::lnv(nv, rp, RN);
+
+  this->values.reserve(n);
+  this->col.reserve(n);
+  this->row.reserve(n);
+
+  for(int i = s; i < s + n; i++) {
+    auto tuple = tbsla::utils::cdiag::cqmat_value(i, n_row, n_col, c, q, seed_mult);
+    this->push_back(std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
+  }
+}

@@ -28,3 +28,11 @@ void tbsla::mpi::MatrixELL::fill_cdiag(MPI_Comm comm, int nr, int nc, int cdiag)
   this->row_incr = tbsla::utils::range::pflv(nr, rank, world);
   this->tbsla::cpp::MatrixELL::fill_cdiag(nr, nc, cdiag, rank, world);
 }
+
+void tbsla::mpi::MatrixELL::fill_cqmat(MPI_Comm comm, int nr, int nc, int c, double q, unsigned int seed_mult) {
+  int world, rank;
+  MPI_Comm_size(comm, &world);
+  MPI_Comm_rank(comm, &rank);
+  this->row_incr = tbsla::utils::range::pflv(nr, rank, world);
+  this->tbsla::cpp::MatrixELL::fill_cqmat(nr, nc, c, q, seed_mult, rank, world);
+}

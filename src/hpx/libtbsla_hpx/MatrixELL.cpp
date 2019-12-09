@@ -12,6 +12,11 @@ void tbsla::hpx::MatrixELL::fill_cdiag(int n_row, int n_col, int cdiag, int rp, 
   this->row_incr = tbsla::utils::range::pflv(n_row, rp, RN);
 }
 
+void tbsla::hpx::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed, int rp, int RN){
+  this->tbsla::cpp::MatrixELL::fill_cqmat(n_row, n_col, c, q, seed, rp, RN);
+  this->row_incr = tbsla::utils::range::pflv(n_row, rp, RN);
+}
+
 std::vector<double> tbsla::hpx::MatrixELL::spmv(const std::vector<double> &v, int vect_incr) const {
   return this->tbsla::cpp::MatrixELL::spmv(v, this->row_incr + vect_incr);
 }
@@ -86,6 +91,20 @@ Vector_client do_spmv_ell_cdiag(Vector_client v, std::size_t N, int nr, int nc, 
 
   for (std::size_t i = 0; i != N; ++i) {
     tiles[i] = MatrixELL_client(localities[i % nl], nr, nc, cdiag, i, N);
+  }
+
+  return spmv_ell(localities, tiles, v);
+}
+
+Vector_client do_spmv_ell_cqmat(Vector_client v, std::size_t N, int nr, int nc, int c, double q, unsigned int seed) {
+  std::vector<hpx::id_type> localities = hpx::find_all_localities();
+  std::size_t nl = localities.size();    // Number of localities
+
+  std::vector<MatrixELL_client> tiles;
+  tiles.resize(N);
+
+  for (std::size_t i = 0; i != N; ++i) {
+    tiles[i] = MatrixELL_client(localities[i % nl], nr, nc, c, q, seed, i, N);
   }
 
   return spmv_ell(localities, tiles, v);
