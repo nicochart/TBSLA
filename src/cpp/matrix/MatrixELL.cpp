@@ -1,6 +1,6 @@
 #include <tbsla/cpp/MatrixELL.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
-#include <tbsla/cpp/utils/cdiag.hpp>
+#include <tbsla/cpp/utils/values_generation.hpp>
 #include <tbsla/cpp/utils/range.hpp>
 #include <numeric>
 #include <algorithm>
@@ -126,7 +126,7 @@ void tbsla::cpp::MatrixELL::fill_cdiag(int n_row, int n_col, int cdiag, int rp, 
     this->columns.reserve(n);
     this->max_col = 1;
     for(int i = s; i < std::min(s + n, n_col); i++) {
-      auto curr = tbsla::utils::cdiag::cdiag_value(i, nnz, n_row, n_col, cdiag);
+      auto curr = tbsla::utils::values_generation::cdiag_value(i, nnz, n_row, n_col, cdiag);
       this->columns.push_back(std::get<1>(curr));
       this->values.push_back(std::get<2>(curr));
     }
@@ -151,7 +151,7 @@ void tbsla::cpp::MatrixELL::fill_cdiag(int n_row, int n_col, int cdiag, int rp, 
 
     for(i = s; i < std::min( {cdiag, n_row, s + n} ); i++) {
       if(i < n_col - cdiag) {
-        auto curr = tbsla::utils::cdiag::cdiag_value(incr, nnz, n_row, n_col, cdiag);
+        auto curr = tbsla::utils::values_generation::cdiag_value(incr, nnz, n_row, n_col, cdiag);
         this->columns.push_back(std::get<1>(curr));
         this->values.push_back(std::get<2>(curr));
         incr++;
@@ -164,16 +164,16 @@ void tbsla::cpp::MatrixELL::fill_cdiag(int n_row, int n_col, int cdiag, int rp, 
     }
     for(; i < std::min( {n_row, n_col - cdiag, s + n} ); i++) {
       if(cdiag == 0) {
-        auto curr = tbsla::utils::cdiag::cdiag_value(incr, nnz, n_row, n_col, cdiag);
+        auto curr = tbsla::utils::values_generation::cdiag_value(incr, nnz, n_row, n_col, cdiag);
         this->columns.push_back(std::get<1>(curr));
         this->values.push_back(std::get<2>(curr));
         incr++;
       } else {
-        auto curr = tbsla::utils::cdiag::cdiag_value(incr, nnz, n_row, n_col, cdiag);
+        auto curr = tbsla::utils::values_generation::cdiag_value(incr, nnz, n_row, n_col, cdiag);
         this->columns.push_back(std::get<1>(curr));
         this->values.push_back(std::get<2>(curr));
         incr++;
-        curr = tbsla::utils::cdiag::cdiag_value(incr, nnz, n_row, n_col, cdiag);
+        curr = tbsla::utils::values_generation::cdiag_value(incr, nnz, n_row, n_col, cdiag);
         this->columns.push_back(std::get<1>(curr));
         this->values.push_back(std::get<2>(curr));
         incr++;
@@ -181,7 +181,7 @@ void tbsla::cpp::MatrixELL::fill_cdiag(int n_row, int n_col, int cdiag, int rp, 
     }
     for(; i < std::min({n_row, s + n}); i++) {
       if(i < n_col + cdiag) {
-        auto curr = tbsla::utils::cdiag::cdiag_value(incr, nnz, n_row, n_col, cdiag);
+        auto curr = tbsla::utils::values_generation::cdiag_value(incr, nnz, n_row, n_col, cdiag);
         this->columns.push_back(std::get<1>(curr));
         this->values.push_back(std::get<2>(curr));
         incr++;
@@ -242,7 +242,7 @@ void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, un
   int i;
   for(i = s; i < std::min(min_, s + n); i++) {
     for(int j = 0; j < std::min(c, n_col); j++) {
-      auto curr = tbsla::utils::cdiag::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
+      auto curr = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
       this->columns.push_back(std::get<1>(curr));
       this->values.push_back(std::get<2>(curr));
       incr++;
@@ -251,7 +251,7 @@ void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, un
   for(; i < std::min({n_row, s + n}); i++) {
     int j = 0;
     for(; j < std::min(c, n_col) - i + min_ - 1; j++) {
-      auto curr = tbsla::utils::cdiag::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
+      auto curr = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
       this->columns.push_back(std::get<1>(curr));
       this->values.push_back(std::get<2>(curr));
       incr++;

@@ -1,6 +1,6 @@
 #include <tbsla/cpp/MatrixCOO.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
-#include <tbsla/cpp/utils/cdiag.hpp>
+#include <tbsla/cpp/utils/values_generation.hpp>
 #include <tbsla/cpp/utils/range.hpp>
 #include <numeric>
 #include <algorithm>
@@ -300,7 +300,7 @@ void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int rp, 
   int s = tbsla::utils::range::pflv(nv, rp, RN);
   int n = tbsla::utils::range::lnv(nv, rp, RN);
   for(int i = s; i < s + n; i++) {
-    auto tuple = tbsla::utils::cdiag::cdiag_value(i, nv, n_row, n_col, cdiag);
+    auto tuple = tbsla::utils::values_generation::cdiag_value(i, nv, n_row, n_col, cdiag);
     this->push_back(std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
   }
 }
@@ -331,7 +331,7 @@ void tbsla::cpp::MatrixCOO::fill_cqmat(int n_row, int n_col, int c, double q, un
   this->row.reserve(n);
 
   for(int i = s; i < s + n; i++) {
-    auto tuple = tbsla::utils::cdiag::cqmat_value(i, n_row, n_col, c, q, seed_mult);
+    auto tuple = tbsla::utils::values_generation::cqmat_value(i, n_row, n_col, c, q, seed_mult);
     this->push_back(std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
   }
 }

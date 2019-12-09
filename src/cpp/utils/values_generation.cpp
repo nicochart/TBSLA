@@ -1,7 +1,7 @@
-#include <tbsla/cpp/utils/cdiag.hpp>
+#include <tbsla/cpp/utils/values_generation.hpp>
 #include <cstdlib>
 
-std::tuple<int, int, double, int> tbsla::utils::cdiag::cdiag_value(int i, int nv, int nr, int nc, int cdiag) {
+std::tuple<int, int, double, int> tbsla::utils::values_generation::cdiag_value(int i, int nv, int nr, int nc, int cdiag) {
   if(cdiag == 0) {
     return std::make_tuple(i, i, 1, 10);
   }
@@ -23,7 +23,7 @@ std::tuple<int, int, double, int> tbsla::utils::cdiag::cdiag_value(int i, int nv
   }
 }
 
-std::tuple<int, int, double, int> tbsla::utils::cdiag::cqmat_value(int i, int nr, int nc, int c_, double q, unsigned int seed_mult) {
+std::tuple<int, int, double, int> tbsla::utils::values_generation::cqmat_value(int i, int nr, int nc, int c_, double q, unsigned int seed_mult) {
   unsigned int seedp = i;
   if(seed_mult > 0) {
     seedp = seed_mult * i;
