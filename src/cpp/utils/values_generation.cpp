@@ -30,7 +30,7 @@ std::tuple<int, int, double, int> tbsla::utils::values_generation::cqmat_value(i
   }
   int c = std::min(nc, c_);
   if(i < c * std::min(nc - c + 1, nr)) {
-    return std::make_tuple(i / c, (double)(rand_r(&seedp) / RAND_MAX) < q ? rand_r(&seedp) % nc : i / c + i % c, 1, 30);
+    return std::make_tuple(i / c, ((double)rand_r(&seedp) / RAND_MAX) < q ? rand_r(&seedp) % nc : i / c + i % c, 1, 30);
   } else {
     int n_full_rows = std::min(nc - c + 1, nr);
     int it = i - c * std::min(nc - c + 1, nr);
