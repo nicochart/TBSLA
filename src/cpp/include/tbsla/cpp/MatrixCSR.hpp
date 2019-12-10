@@ -17,6 +17,7 @@ class MatrixCSR : public virtual Matrix {
     int const get_nnz();
     std::ostream & print_stats(std::ostream &os);
     std::ostream & print_infos(std::ostream &os);
+    std::ostream & print_as_dense(std::ostream &os);
     std::ostream & write(std::ostream &os);
     std::istream & read(std::istream &is, std::size_t pos = 0, std::size_t n = 1);
     std::ostream& print(std::ostream& os) const;

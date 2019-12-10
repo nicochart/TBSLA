@@ -2,6 +2,10 @@ add_executable(tbsla_spmv tbsla_spmv.cpp)
 target_link_libraries(tbsla_spmv PRIVATE tbsla)
 install(TARGETS tbsla_spmv DESTINATION bin)
 
+add_executable(tbsla_gen_matrix tbsla_gen_matrix.cpp)
+target_link_libraries(tbsla_gen_matrix PRIVATE tbsla)
+install(TARGETS tbsla_gen_matrix DESTINATION bin)
+
 add_executable(tbsla_mm_to_binCOO tbsla_mm_to_binCOO.cpp)
 target_link_libraries(tbsla_mm_to_binCOO PRIVATE tbsla)
 install(TARGETS tbsla_mm_to_binCOO DESTINATION bin)

@@ -36,6 +36,17 @@ std::ostream& tbsla::cpp::MatrixCSR::print(std::ostream& os) const {
   return os;
 }
 
+std::ostream& tbsla::cpp::MatrixCSR::print_as_dense(std::ostream& os) {
+  std::vector<double> d(this->n_row * this->n_col, 0);
+  for (int i = 0; i < this->rowptr.size() - 1; i++) {
+    for (int j = this->rowptr[i] - this->rowptr.front(); j < this->rowptr[i + 1] - this->rowptr.front(); j++) {
+       d[i * this->n_col + this->colidx[j]] += this->values[j];
+    }
+  }
+  tbsla::utils::vector::print_dense_matrix(this->n_row, this->n_col, d, os);
+  return os;
+}
+
 std::vector<double> tbsla::cpp::MatrixCSR::spmv(const std::vector<double> &v, int vect_incr) const {
   std::vector<double> r (this->n_row, 0);
   if (this->values.size() == 0)

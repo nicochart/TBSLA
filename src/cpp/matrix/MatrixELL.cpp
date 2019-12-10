@@ -23,6 +23,17 @@ std::ostream& tbsla::cpp::MatrixELL::print(std::ostream& os) const {
   return os;
 }
 
+std::ostream& tbsla::cpp::MatrixELL::print_as_dense(std::ostream& os) {
+  std::vector<double> d(this->n_row * this->n_col, 0);
+  for (int i = 0; i < std::min((size_t)this->n_row, this->values.size() / this->max_col); i++) {
+    for (int j = 0; j < this->max_col; j++) {
+      d[i * this->n_col + this->columns[i * this->max_col + j]] += this->values[i * this->max_col + j];
+    }
+  }
+  tbsla::utils::vector::print_dense_matrix(this->n_row, this->n_col, d, os);
+  return os;
+}
+
 std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::MatrixELL &m) {
   return m.print(os);
 }

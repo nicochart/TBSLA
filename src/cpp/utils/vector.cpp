@@ -1,6 +1,8 @@
 #include <tbsla/cpp/utils/vector.hpp>
 
 #include <algorithm>
+#include <cmath>
+#include <iomanip>
 
 int check(int i, double v, double exp, int return_value, bool debug) {
   if(debug)
@@ -73,3 +75,20 @@ int tbsla::utils::vector::test_a_axpx__cdiag(int nr, int nc, int c, std::vector<
   return 0;
 }
 
+void tbsla::utils::vector::print_dense_matrix(int nr, int nc, std::vector<double> & m, std::ostream& os) {
+  int i, j, max_p = 1, log_r;
+  for (i = 0; i < nr * nc; i++) {
+    log_r = log10(fabs(m[i])) + 1;
+    if (log_r > max_p) {
+      max_p = log_r;
+    }
+  }
+  os << std::fixed;
+  os.precision(max_p);
+  for(i = 0; i < nr; i++) {
+    for(j = 0; j < nc; j++) {
+      os << std::setw(max_p + 3) << m[i * nc + j] << "  ";
+    }
+    os << std::endl;
+  }
+}
