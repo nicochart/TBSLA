@@ -11,9 +11,9 @@
 #include <hpx/include/components.hpp>
 #include <hpx/include/serialization.hpp>
 
-namespace tbsla { namespace hpx {
+namespace tbsla { namespace hpx_ { namespace detail {
 
-class MatrixELL : public tbsla::cpp::MatrixELL, public tbsla::hpx::Matrix {
+class MatrixELL : public tbsla::cpp::MatrixELL, public tbsla::hpx_::detail::Matrix {
   public:
     std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
     void fill_cdiag(int n_row, int n_col, int cdiag, int rp = 0, int RN = 1);
@@ -26,23 +26,25 @@ class MatrixELL : public tbsla::cpp::MatrixELL, public tbsla::hpx::Matrix {
     template <typename Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
-        ar& columns& values& row_incr& max_col;
+        ar& columns& values& gnnz& row_incr;
     }
 };
 
-}}
+}}}
 
-struct HPX_COMPONENT_EXPORT MatrixELL_server : ::hpx::components::component_base<MatrixELL_server>
+
+namespace tbsla { namespace hpx_ { namespace server {
+struct HPX_COMPONENT_EXPORT MatrixELL : ::hpx::components::component_base<MatrixELL>
 {
     // construct new instances
-    MatrixELL_server() {}
+    MatrixELL() {}
 
-    MatrixELL_server(tbsla::hpx::MatrixELL const& data)
+    MatrixELL(tbsla::hpx_::detail::MatrixELL const& data)
       : data_(data)
     {
     }
 
-    MatrixELL_server(std::size_t i, std::size_t n, std::string matrix_file)
+    MatrixELL(std::size_t i, std::size_t n, std::string matrix_file)
       : data_()
     {
        std::ifstream is(matrix_file, std::ifstream::binary);
@@ -50,82 +52,109 @@ struct HPX_COMPONENT_EXPORT MatrixELL_server : ::hpx::components::component_base
        is.close();
     }
 
-    MatrixELL_server(std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t pos, std::size_t nt)
+    MatrixELL(std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t pos, std::size_t nt)
       : data_()
     {
        data_.fill_cdiag(nr, nc, cdiag, pos, nt);
     }
 
-    MatrixELL_server(std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t pos, std::size_t nt)
+    MatrixELL(std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t pos, std::size_t nt)
       : data_()
     {
        data_.fill_cqmat(nr, nc, c, q, seed, pos, nt);
     }
 
     // Access data.
-    tbsla::hpx::MatrixELL get_data() const
+    tbsla::hpx_::detail::MatrixELL get_data() const
     {
         return data_;
     }
+    HPX_DEFINE_COMPONENT_ACTION(MatrixELL, get_data);
 
-    HPX_DEFINE_COMPONENT_DIRECT_ACTION(MatrixELL_server, get_data, get_data_action);
 
 private:
-    tbsla::hpx::MatrixELL data_;
+    tbsla::hpx_::detail::MatrixELL data_;
 };
 
 
+}}}
 
-struct MatrixELL_client : ::hpx::components::client_base<MatrixELL_client, MatrixELL_server>
+HPX_REGISTER_ACTION_DECLARATION(tbsla::hpx_::server::MatrixELL::get_data_action)
+
+namespace tbsla { namespace hpx_ { namespace client {
+
+struct MatrixELL : ::hpx::components::client_base<MatrixELL, tbsla::hpx_::server::MatrixELL>
 {
-    typedef ::hpx::components::client_base<MatrixELL_client, MatrixELL_server> base_type;
+    typedef ::hpx::components::client_base<MatrixELL, tbsla::hpx_::server::MatrixELL> base_type;
 
-    MatrixELL_client() {}
+    MatrixELL() {}
 
-    MatrixELL_client(hpx::id_type where, tbsla::hpx::MatrixELL const& data)
-      : base_type(hpx::new_<MatrixELL_server>(hpx::colocated(where), data))
+    MatrixELL(hpx::id_type where, tbsla::hpx_::detail::MatrixELL const& data)
+      : base_type(hpx::new_<tbsla::hpx_::server::MatrixELL>(hpx::colocated(where), data))
     {
     }
 
-    MatrixELL_client(hpx::id_type where, std::size_t i, std::size_t n, std::string matrix_file)
-      : base_type(hpx::new_<MatrixELL_server>(hpx::colocated(where), i, n, matrix_file))
+    MatrixELL(hpx::id_type where, std::size_t i, std::size_t n, std::string matrix_file)
+      : base_type(hpx::new_<tbsla::hpx_::server::MatrixELL>(hpx::colocated(where), i, n, matrix_file))
     {
     }
 
-    MatrixELL_client(hpx::id_type where, std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t pos, std::size_t nt)
-      : base_type(hpx::new_<MatrixELL_server>(hpx::colocated(where), nr, nc, cdiag, pos, nt))
+    MatrixELL(hpx::id_type where, std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t pos, std::size_t nt)
+      : base_type(hpx::new_<tbsla::hpx_::server::MatrixELL>(hpx::colocated(where), nr, nc, cdiag, pos, nt))
     {
     }
 
-    MatrixELL_client(hpx::id_type where, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t pos, std::size_t nt)
-      : base_type(hpx::new_<MatrixELL_server>(hpx::colocated(where), nr, nc, c, q, seed, pos, nt))
+    MatrixELL(hpx::id_type where, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t pos, std::size_t nt)
+      : base_type(hpx::new_<tbsla::hpx_::server::MatrixELL>(hpx::colocated(where), nr, nc, c, q, seed, pos, nt))
     {
     }
 
     // Attach a future representing a (possibly remote) partition.
-    MatrixELL_client(hpx::future<hpx::id_type>&& id)
+    MatrixELL(hpx::future<hpx::id_type>&& id)
       : base_type(std::move(id))
     {
     }
 
     // Unwrap a future<partition> (a partition already holds a future to the
     // id of the referenced object, thus unwrapping accesses this inner future).
-    MatrixELL_client(hpx::future<MatrixELL_client>&& c)
+    MatrixELL(hpx::future<MatrixELL>&& c)
       : base_type(std::move(c))
     {
     }
 
-    ::hpx::future<tbsla::hpx::MatrixELL> get_data() const
+    ::hpx::future<tbsla::hpx_::detail::MatrixELL> get_data() const
     {
-        MatrixELL_server::get_data_action act;
+        tbsla::hpx_::server::MatrixELL::get_data_action act;
         return ::hpx::async(act, get_id());
     }
 
 };
 
-Vector_client do_spmv_ell(std::size_t N, std::string matrix_file);
-Vector_client do_spmv_ell_cdiag(Vector_client v, std::size_t N, int nr, int nc, int cdiag);
-Vector_client do_spmv_ell_cqmat(Vector_client v, std::size_t N, int nr, int nc, int c, double q, unsigned int seed);
-Vector_client do_a_axpx__ell_cdiag(Vector_client v, std::size_t N, int nr, int nc, int cdiag);
+}}}
+
+namespace tbsla { namespace hpx_ { namespace detail {
+
+static Vector_client spmv_part(tbsla::hpx_::client::MatrixELL const& A_p, Vector_client const& v_p, Vector_client const& r_p);
+
+}}}
+
+namespace tbsla { namespace hpx_ {
+
+class MatrixELL : public tbsla::hpx_::Matrix {
+  public:
+    void fill_cdiag(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t nt);
+    void fill_cqmat(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t nt);
+    void wait();
+    void read(std::vector<hpx::id_type> localities, std::string matrix_file, std::size_t nt);
+    std::size_t get_n_col();
+    std::size_t get_n_row();
+    Vector_client spmv(Vector_client v);
+    Vector_client a_axpx_(Vector_client v);
+  private:
+    std::vector<tbsla::hpx_::client::MatrixELL> tiles;
+    std::vector<hpx::id_type> localities;
+};
+
+}}
 
 #endif

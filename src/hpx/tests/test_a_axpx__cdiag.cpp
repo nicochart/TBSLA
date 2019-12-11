@@ -6,13 +6,14 @@
 #include <tbsla/hpx/MatrixELL.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
 
-void test_cdiag(int N, int nr, int nc, int c) {
+void test_mat(tbsla::hpx_::Matrix & m, int N, int nr, int nc, int c) {
   std::vector<hpx::id_type> localities = hpx::find_all_localities();
   Vector_client v(localities[0], nc);
   std::vector<double> v_data = v.get_data().get().get_vect();
 
-  std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << c << " ---- N : " << N << std::endl;
-  Vector_client r = do_a_axpx__coo_cdiag(v, N, nr, nc, c);
+  m.fill_cdiag(localities, nr, nc, c, N);
+  m.wait();
+  Vector_client r = m.a_axpx_(v);
   std::vector<double> r_data = r.get_data().get().get_vect();
   int res = tbsla::utils::vector::test_a_axpx__cdiag(nr, nc, c, v_data, r_data, false);
   std::cout << "return : " << res << std::endl;
@@ -20,24 +21,18 @@ void test_cdiag(int N, int nr, int nc, int c) {
     tbsla::utils::vector::test_a_axpx__cdiag(nr, nc, c, v_data, r_data, true);
     throw "Result vector does not correspond to the expected results !";
   }
+}
 
-  r = do_a_axpx__csr_cdiag(v, N, nr, nc, c);
-  r_data = r.get_data().get().get_vect();
-  res = tbsla::utils::vector::test_a_axpx__cdiag(nr, nc, c, v_data, r_data, false);
-  std::cout << "return : " << res << std::endl;
-  if(res) {
-    tbsla::utils::vector::test_a_axpx__cdiag(nr, nc, c, v_data, r_data, true);
-    throw "Result vector does not correspond to the expected results !";
-  }
+void test_cdiag(int N, int nr, int nc, int c) {
+  std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << c << " ---- N : " << N << std::endl;
+  tbsla::hpx_::MatrixCOO mcoo;
+  test_mat(mcoo, N, nr, nc, c);
 
-  r = do_a_axpx__ell_cdiag(v, N, nr, nc, c);
-  r_data = r.get_data().get().get_vect();
-  res = tbsla::utils::vector::test_a_axpx__cdiag(nr, nc, c, v_data, r_data, false);
-  std::cout << "return : " << res << std::endl;
-  if(res) {
-    tbsla::utils::vector::test_a_axpx__cdiag(nr, nc, c, v_data, r_data, true);
-    throw "Result vector does not correspond to the expected results !";
-  }
+  tbsla::hpx_::MatrixCSR mcsr;
+  test_mat(mcsr, N, nr, nc, c);
+
+  tbsla::hpx_::MatrixELL mell;
+  test_mat(mell, N, nr, nc, c);
 }
 
 int hpx_main(hpx::program_options::variables_map& vm)

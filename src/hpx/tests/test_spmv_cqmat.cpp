@@ -12,10 +12,16 @@ void test_cqmat(int N, int nr, int nc, int c, double q, unsigned int seed) {
   std::vector<double> v_data = v.get_data().get().get_vect();
 
   std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << c << "; q : " << q << "; s : " << seed << " ---- N : " << N << std::endl;
-  Vector_client r = do_spmv_coo_cqmat(v, N, nr, nc, c, q, seed);
+  tbsla::hpx_::MatrixCOO mcoo;
+  mcoo.fill_cqmat(localities, nr, nc, c, q, seed, N);
+  mcoo.wait();
+  Vector_client r = mcoo.spmv(v);
   std::vector<double> rcoo = r.get_data().get().get_vect();
 
-  r = do_spmv_csr_cqmat(v, N, nr, nc, c, q, seed);
+  tbsla::hpx_::MatrixCOO mcsr;
+  mcsr.wait();
+  mcsr.fill_cqmat(localities, nr, nc, c, q, seed, N);
+  r = mcsr.spmv(v);
   std::vector<double> rcsr = r.get_data().get().get_vect();
   if(rcsr != rcoo) {
     tbsla::utils::vector::streamvector<double>(std::cout, "v ", v_data);
@@ -27,7 +33,10 @@ void test_cqmat(int N, int nr, int nc, int c, double q, unsigned int seed) {
     throw "Result vector does not correspond to the expected results !";
   }
 
-  r = do_spmv_ell_cqmat(v, N, nr, nc, c, q, seed);
+  tbsla::hpx_::MatrixELL mell;
+  mell.fill_cqmat(localities, nr, nc, c, q, seed, N);
+  mell.wait();
+  r = mell.spmv(v);
   std::vector<double> rell = r.get_data().get().get_vect();
   if(rell != rcoo) {
     tbsla::utils::vector::streamvector<double>(std::cout, "v ", v_data);
