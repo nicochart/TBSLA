@@ -153,10 +153,10 @@ void tbsla::cpp::MatrixELL::fill_cdiag(int n_row, int n_col, int cdiag, int rp, 
       incr += std::max(std::min(n_col - cdiag, s), 0);
     } else if(s < std::min(n_row, n_col - cdiag)) {
       incr += std::max(std::min(n_col - cdiag, cdiag), 0);
-      incr += (cdiag == 0 ? 1 : 2) * (s - std::min(n_col - cdiag, cdiag));
+      incr += 2 * (s - std::min(n_col - cdiag, cdiag));
     } else {
       incr += std::max(std::min(n_col - cdiag, cdiag), 0);
-      incr += (cdiag == 0 ? 1 : 2) * (std::max(n_col - 2 * cdiag, 0));
+      incr += 2 * std::max(n_col - 2 * cdiag, 0);
       incr += s - (n_col - cdiag) - (cdiag - std::min(n_col - cdiag, cdiag));
     }
 
@@ -174,21 +174,14 @@ void tbsla::cpp::MatrixELL::fill_cdiag(int n_row, int n_col, int cdiag, int rp, 
       this->values.push_back(0);
     }
     for(; i < std::min( {n_row, n_col - cdiag, s + n} ); i++) {
-      if(cdiag == 0) {
-        auto curr = tbsla::utils::values_generation::cdiag_value(incr, nnz, n_row, n_col, cdiag);
-        this->columns.push_back(std::get<1>(curr));
-        this->values.push_back(std::get<2>(curr));
-        incr++;
-      } else {
-        auto curr = tbsla::utils::values_generation::cdiag_value(incr, nnz, n_row, n_col, cdiag);
-        this->columns.push_back(std::get<1>(curr));
-        this->values.push_back(std::get<2>(curr));
-        incr++;
-        curr = tbsla::utils::values_generation::cdiag_value(incr, nnz, n_row, n_col, cdiag);
-        this->columns.push_back(std::get<1>(curr));
-        this->values.push_back(std::get<2>(curr));
-        incr++;
-      }
+      auto curr = tbsla::utils::values_generation::cdiag_value(incr, nnz, n_row, n_col, cdiag);
+      this->columns.push_back(std::get<1>(curr));
+      this->values.push_back(std::get<2>(curr));
+      incr++;
+      curr = tbsla::utils::values_generation::cdiag_value(incr, nnz, n_row, n_col, cdiag);
+      this->columns.push_back(std::get<1>(curr));
+      this->values.push_back(std::get<2>(curr));
+      incr++;
     }
     for(; i < std::min({n_row, s + n}); i++) {
       if(i < n_col + cdiag) {
