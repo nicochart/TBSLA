@@ -104,12 +104,14 @@ int main(int argc, char** argv) {
   std::vector<double> vec(m->get_n_col());
   std::generate(begin(vec), end(vec), gen);
 
+  MPI_Barrier(MPI_COMM_WORLD);
   auto t_op_start = now();
   if(op == "spmv") {
     std::vector<double> res = m->spmv(MPI_COMM_WORLD, vec);
   } else if(op == "a_axpx") {
     std::vector<double> res = m->a_axpx_(MPI_COMM_WORLD, vec);
   }
+  MPI_Barrier(MPI_COMM_WORLD);
   auto t_op_end = now();
 
 
