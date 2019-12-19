@@ -8,8 +8,7 @@ import sys
 from datetime import datetime
 import time
 
-parser = argparse.ArgumentParser(description="Run TBSLA application")
-cap.init_parser(parser)
+parser = argparse.ArgumentParser(description="Run TBSLA application", parents=[cap.init_parser()])
 args = parser.parse_args()
 
 machine = importlib.import_module("machine." + args.machine)

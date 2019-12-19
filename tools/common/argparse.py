@@ -1,6 +1,7 @@
+import argparse
 
-
-def init_parser(parser):
+def init_parser():
+  parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument("--NC", dest="NC", help="Number of columns", type=int, required=True)
   parser.add_argument("--NR", dest="NR", help="Number of rows", type=int, required=True)
   parser.add_argument("--C", dest="C", help="Number of diagonals", type=int, default=10)
@@ -15,4 +16,4 @@ def init_parser(parser):
   parser.add_argument("--lang", dest="lang", help="Language", type=str, required=True)
   parser.add_argument("--wall-time", dest="walltime", help="Wall time", type=str, default="00:20:00")
   parser.add_argument("--res-file", dest="resfile", help="Result file where the performances timings are stored.", type=str, default="results.json")
-
+  return parser

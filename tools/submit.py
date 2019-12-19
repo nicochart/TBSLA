@@ -5,8 +5,7 @@ import common.argparse as cap
 import importlib
 import subprocess
 
-parser = argparse.ArgumentParser(description="Submit TBSLA run to the job scheduler")
-cap.init_parser(parser)
+parser = argparse.ArgumentParser(description="Submit TBSLA run to the job scheduler", parents=[cap.init_parser()])
 args = parser.parse_args()
 
 if args.op == "a_axpx" and args.NR != args.NC:
