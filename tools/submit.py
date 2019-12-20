@@ -15,17 +15,22 @@ if args.op == "a_axpx" and args.NR != args.NC:
 machine = importlib.import_module("machine." + args.machine)
 
 header = machine.get_header(args)
-header += "python tools/run.py"
 
-for i in range(1, len(sys.argv)):
-  header += " " + sys.argv[i]
-header += "\n"
-
-fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_nr{args.NR}_nc{args.NC}"
 if args.matrixtype == "cqmat":
-  fname += f"_cqmat_c{args.C}_q{args.Q}_q{args.S}"
-if args.matrixtype == "cdiag":
-  fname += f"_cdiag_c{args.C}"
+  nbq = 10
+  for s in range(1, 3):
+    for q in range(0, nbq + 1):
+      header += f"python tools/run.py --Q {q / nbq} --S {s}"
+      for i in range(1, len(sys.argv)):
+        header += " " + sys.argv[i]
+      header += "\n"
+else:
+  header += "python tools/run.py"
+  for i in range(1, len(sys.argv)):
+    header += " " + sys.argv[i]
+  header += "\n"
+
+fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_nr{args.NR}_nc{args.NC}_{args.matrixtype}_c{args.C}"
 
 if args.lang == "HPX":
   fname += f"__N{args.N}"

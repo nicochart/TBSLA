@@ -8,8 +8,8 @@ import sys
 from datetime import datetime
 import time
 
-parser = argparse.ArgumentParser(description="Run TBSLA application", parents=[cap.init_parser()])
-args = parser.parse_args()
+parser = argparse.ArgumentParser(description="Run TBSLA application", parents=[cap.init_parser(), cap.add_qs()])
+args, unknown = parser.parse_known_args()
 
 machine = importlib.import_module("machine." + args.machine)
 ncores = machine.get_cores_per_node(args) * args.nodes
