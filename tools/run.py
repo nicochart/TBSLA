@@ -55,6 +55,9 @@ dic = dict()
 if len(r) > 0:
   dic = json.loads(r[0])
 
+if not dic:
+  success = "false"
+
 for k, v in vars(args).items():
   if k in dic:
     dic[k + "_out"] = v
