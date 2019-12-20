@@ -25,7 +25,7 @@ def get_header(args):
 
   header = f"""\
 #@ class            = clallmds+
-#@ job_name         = tbsla-{datetime.now().strftime("%Y%m%d_%H%M")}-{args.lang}
+#@ job_name         = logs/tbsla-{datetime.now().strftime("%Y%m%d_%H%M")}-{args.lang}
 #@ total_tasks      = {ncores}
 #@ node             = {args.nodes}
 #@ wall_clock_limit = {args.walltime}
