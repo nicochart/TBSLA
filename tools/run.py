@@ -73,5 +73,7 @@ dic["date"] = datetime.now().strftime("%Y%m%d_%H%M%S")
 dic["time_app_out"] = (end - start) / 1e9
 dic["cores"] = ncores
 
+dic.update(machine.get_additional_info(args))
+
 print(json.dumps(dic))
 print(json.dumps(dic), file=open(args.resfile, 'a'))

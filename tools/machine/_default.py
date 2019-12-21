@@ -10,3 +10,7 @@ def get_cores_per_node(args):
 
 def get_mpirun(args):
   return "mpirun"
+
+def get_additional_info(args):
+  dic = dict()
+  return dic

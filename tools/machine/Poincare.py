@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 
 def get_cores_per_node(args):
   return 16
@@ -42,3 +43,9 @@ def get_header(args):
   header += "\n"
 
   return header
+
+def get_additional_info(args):
+  dic = dict()
+  dic['log_file'] = os.environ['LOADL_STEP_OUT']
+  return dic
+
