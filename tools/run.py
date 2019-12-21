@@ -34,7 +34,9 @@ command += f" --S {args.S}"
 command += f" --{args.matrixtype}"
 command += f" --format {args.format}"
 
-print(command)
+print()
+print()
+print(datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), " ::: ", command)
 
 start = time.time_ns()
 p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
