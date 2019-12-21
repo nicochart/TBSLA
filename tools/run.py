@@ -39,7 +39,11 @@ print(command)
 start = time.time_ns()
 p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 success = "true"
-if p.wait() != 0:
+try:
+  if p.wait(timeout = args.timeout) != 0:
+    success = "false"
+except subprocess.TimeoutExpired:
+  p.kill()
   success = "false"
 end = time.time_ns()
 outs, errs = p.communicate()

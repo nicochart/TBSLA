@@ -14,6 +14,7 @@ def init_parser():
   parser.add_argument("--lang", dest="lang", help="Language", type=str, required=True)
   parser.add_argument("--wall-time", dest="walltime", help="Wall time", type=str, default="00:20:00")
   parser.add_argument("--res-file", dest="resfile", help="Result file where the performances timings are stored.", type=str, default="results.json")
+  parser.add_argument("--timeout", dest="timeout", help="Timeout for the run of an application in seconds.", type=int, default=60)
   return parser
 
 def add_qs():
