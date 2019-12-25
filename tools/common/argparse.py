@@ -8,13 +8,22 @@ def init_parser():
   parser.add_argument("--N", dest="N", help="Number of submatrices", type=int, default=10)
   parser.add_argument("--op", dest="op", help="Operation", type=str, required=True, choices=['spmv', 'a_axpx'])
   parser.add_argument("--format", dest="format", help="Matrix format", type=str, required=True)
-  parser.add_argument("--machine", dest="machine", help="configuration", type=str, default="_default")
   parser.add_argument("--matrix-type", dest="matrixtype", help="Matrix generation type(cqmat, cdiag)", type=str, required=True, choices=['cdiag', 'cqmat'])
+  return parser
+
+def add_submit():
+  parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument("--nodes", dest="nodes", help="Nodes used", type=int, required=True)
   parser.add_argument("--lang", dest="lang", help="Language", type=str, required=True)
   parser.add_argument("--wall-time", dest="walltime", help="Wall time", type=str, default="00:20:00")
-  parser.add_argument("--res-file", dest="resfile", help="Result file where the performances timings are stored.", type=str, default="results.json")
-  parser.add_argument("--timeout", dest="timeout", help="Timeout for the run of an application in seconds.", type=int, default=60)
+  return parser
+
+def add_common(required=False):
+  parser = argparse.ArgumentParser(add_help=False)
+  parser.add_argument("--resfile", dest="resfile", help="Result file where the performances timings are stored.", type=str, default="results.json", required=required)
+  parser.add_argument("--machine", dest="machine", help="configuration", type=str, default="_default", required=required)
+  parser.add_argument("--timeout", dest="timeout", help="Timeout for the run of an application in seconds.", type=int, default=60, required=required)
+  parser.add_argument("--dry", dest="dry", help="Do not submit the application", action='store_const', default="False", const="True")
   return parser
 
 def add_qs():
