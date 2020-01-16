@@ -13,10 +13,10 @@ module purge
 module load python/anaconda3-2018.12
 unset LD_PRELOAD
 
-module load cmake/3.14.1-gnu54 gnu/7.3.0 openmpi/2.1.2_intel15.0.0_tm gdb/7.5.1
+module load cmake/3.14.1-gnu54 gnu/7.3.0 openmpi/2.1.2_intel15.0.0_tm gdb/7.5.1 mkl/11.2
 export OMPI_MCA_shmem_mmap_enable_nfs_warning=0
 export PATH=$PATH:${HOME}/install/tbsla/bin
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HOME}/install/hpx/d3954a10947/release/lib64:${HOME}/install/boost/1.69.0/release/lib:${HOME}/install/jemalloc/5.2.0/lib:${HOME}/install/hwloc/2.0.4/lib
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${HOME}/install/hpx/d3954a10947/release/lib64:${HOME}/install/boost/1.69.0/release/lib:${HOME}/install/jemalloc/5.2.0/lib:${HOME}/install/hwloc/2.0.4/lib:${HOME}/install/petsc/3.12.3/release/lib
 """
   return env
 

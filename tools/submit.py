@@ -29,6 +29,12 @@ command += ' " '
 if args.lang == "MPI":
   command += machine.get_mpirun(args) + f" -n {ncores} tbsla_perf_mpi"
 
+if args.lang == "PETSC":
+  command += machine.get_mpirun(args) + f" -n {ncores} tbsla_perf_petsc"
+  if args.format != "PETSC":
+    print("The matrix format should be PETSC")
+    sys.exit(1)
+
 if args.lang == "HPX":
   if args.nodes == 1:
     command += f"tbsla_perf_hpx"
