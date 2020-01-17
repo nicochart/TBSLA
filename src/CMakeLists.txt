@@ -17,3 +17,7 @@ endif()
 if(TBSLA_ENABLE_HPX)
     add_subdirectory(hpx)
 endif()
+
+if(TBSLA_ENABLE_PETSC)
+    add_subdirectory(petsc)
+endif()
