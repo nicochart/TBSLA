@@ -59,7 +59,7 @@ std::vector<Vector_client> reduce_recursion(std::vector<Vector_client> vcs) {
     for(int i = 0; i < div2; i++) {
       using hpx::util::placeholders::_1;
       using hpx::util::placeholders::_2;
-      auto Op = hpx::util::bind(reduce_act, localities[i % nl], _1, _2);
+      auto Op = hpx::util::bind(reduce_act, localities[i * nl / div2], _1, _2);
       new_vcs.push_back(dataflow(hpx::launch::async, Op, vcs[2 * i], vcs[2 * i + 1]));
     }
     if(mod == 1) {

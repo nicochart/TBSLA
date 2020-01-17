@@ -39,7 +39,7 @@ void tbsla::hpx_::MatrixELL::fill_cdiag(std::vector<hpx::id_type> localities, st
   int nl = this->localities.size();
 
   for (std::size_t i = 0; i != nt; ++i) {
-    this->tiles[i] = tbsla::hpx_::client::MatrixELL(this->localities[i % nl], nr, nc, cdiag, i, nt);
+    this->tiles[i] = tbsla::hpx_::client::MatrixELL(this->localities[i * nl / nt], nr, nc, cdiag, i, nt);
   }
 }
 
@@ -49,7 +49,7 @@ void tbsla::hpx_::MatrixELL::fill_cqmat(std::vector<hpx::id_type> localities, st
   int nl = this->localities.size();
 
   for (std::size_t i = 0; i != nt; ++i) {
-    this->tiles[i] = tbsla::hpx_::client::MatrixELL(this->localities[i % nl], nr, nc, c, q, seed, i, nt);
+    this->tiles[i] = tbsla::hpx_::client::MatrixELL(this->localities[i * nl / nt], nr, nc, c, q, seed, i, nt);
   }
 }
 
@@ -59,7 +59,7 @@ void tbsla::hpx_::MatrixELL::read(std::vector<hpx::id_type> localities, std::str
   int nl = this->localities.size();
 
   for (std::size_t i = 0; i != nt; ++i) {
-    this->tiles[i] = tbsla::hpx_::client::MatrixELL(this->localities[i % nl], i, nt, matrix_file);
+    this->tiles[i] = tbsla::hpx_::client::MatrixELL(this->localities[i * nl / nt], i, nt, matrix_file);
   }
 }
 
@@ -85,7 +85,7 @@ Vector_client tbsla::hpx_::MatrixELL::spmv(Vector_client v) {
   std::vector<Vector_client> spmv_res;
   spmv_res.resize(this->tiles.size());
   for (std::size_t i = 0; i != this->tiles.size(); ++i) {
-    spmv_res[i] = Vector_client(this->localities[i % this->localities.size()]);
+    spmv_res[i] = Vector_client(this->localities[i * this->localities.size() / this->tiles.size()]);
   }
 
   spmv_ell_part_action act_spmv;
@@ -95,7 +95,7 @@ Vector_client tbsla::hpx_::MatrixELL::spmv(Vector_client v) {
     using hpx::util::placeholders::_1;
     using hpx::util::placeholders::_2;
     using hpx::util::placeholders::_3;
-    auto Op = hpx::util::bind(act_spmv, this->localities[i % this->localities.size()], _1, _2, _3);
+    auto Op = hpx::util::bind(act_spmv, this->localities[i * this->localities.size() / this->tiles.size()], _1, _2, _3);
     spmv_res[i] = dataflow(hpx::launch::async, Op, this->tiles[i], v, spmv_res[i]);
   }
 
