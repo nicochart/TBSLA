@@ -10,21 +10,20 @@
 #include <numeric>
 #include <iostream>
 
-void test_cqmat(int nr, int nc, int c, double q, unsigned int seed) {
+void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int pr, int pc, int NR, int NC) {
   int world, rank;
   MPI_Comm_size(MPI_COMM_WORLD, &world);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << q << ": " << q << "; s : " << seed << "----  r : " << rank << "/" << world << std::endl;
 
   std::vector<double> v(nc);
   std::iota (std::begin(v), std::end(v), 0);
 
   tbsla::mpi::MatrixCOO mcoo;
-  mcoo.fill_cqmat(MPI_COMM_WORLD, nr, nc, c, q, seed);
+  mcoo.fill_cqmat(nr, nc, c, q, seed, pr, pc, NR, NC);
   std::vector<double> rcoo = mcoo.spmv(MPI_COMM_WORLD, v);
 
   tbsla::mpi::MatrixCSR mcsr;
-  mcsr.fill_cqmat(MPI_COMM_WORLD, nr, nc, c, q, seed);
+  mcsr.fill_cqmat(nr, nc, c, q, seed, pr, pc, NR, NC);
   std::vector<double> rcsr = mcsr.spmv(MPI_COMM_WORLD, v);
   if(rcsr != rcoo) {
     for(int i = 0; i < world; i++) {
@@ -47,7 +46,7 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed) {
   }
 
   tbsla::mpi::MatrixELL mell;
-  mell.fill_cqmat(MPI_COMM_WORLD, nr, nc, c, q, seed);
+  mell.fill_cqmat(nr, nc, c, q, seed, pr, pc, NR, NC);
   std::vector<double> rell = mell.spmv(MPI_COMM_WORLD, v);
   if(rell != rcoo) {
     for(int i = 0; i < world; i++) {
@@ -73,7 +72,26 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed) {
 void test_mat(int nr, int nc, int c) {
   for(double s = 0; s < 4; s++) {
     for(double q = 0; q <= 1; q += 0.1) {
-      test_cqmat(nr, nc, c, q, s);
+      int world, rank;
+      MPI_Comm_size(MPI_COMM_WORLD, &world);
+      MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+      if (rank == 0)
+        std::cout << "--- row ---- nr : " << nr << "; nc : " << nc << "; c : " << q << ": " << q << "; s : " << s << "----" << std::endl;
+      MPI_Barrier(MPI_COMM_WORLD);
+      test_cqmat(nr, nc, c, q, s, rank, 0, world, 1);
+      MPI_Barrier(MPI_COMM_WORLD);
+      if (rank == 0)
+        std::cout << "--- col ---- nr : " << nr << "; nc : " << nc << "; c : " << q << ": " << q << "; s : " << s << "----" << std::endl;
+      MPI_Barrier(MPI_COMM_WORLD);
+      test_cqmat(nr, nc, c, q, s, 0, rank, 1, world);
+      MPI_Barrier(MPI_COMM_WORLD);
+      if(world % 2 == 0 && world / 2 > 1) {
+        if (rank == 0)
+          std::cout << "--- mix ---- nr : " << nr << "; nc : " << nc << "; c : " << q << ": " << q << "; s : " << s << "----" << std::endl;
+        MPI_Barrier(MPI_COMM_WORLD);
+        test_cqmat(nr, nc, c, q, s, rank / 2, rank % 2, world / 2, 2);
+        MPI_Barrier(MPI_COMM_WORLD);
+      }
     }
   }
 }

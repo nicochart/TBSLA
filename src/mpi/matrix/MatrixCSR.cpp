@@ -46,11 +46,11 @@ int tbsla::mpi::MatrixCSR::read_bin_mpiio(MPI_Comm comm, std::string filename) {
 
   this->rowptr.resize(n_read + 1);
   if (rank < mod) {
-    this->row_incr = rank * n_read;
+    this->f_row = rank * n_read;
   } else {
-    this->row_incr = rank * n_read + mod;
+    this->f_row = rank * n_read + mod;
   }
-  depla_local = depla_general + this->row_incr * sizeof(int);
+  depla_local = depla_general + this->f_row * sizeof(int);
   MPI_File_read_at_all(fh, depla_local, this->rowptr.data(), n_read + 1, MPI_INT, &status);
   depla_general += vec_size * sizeof(int);
 
@@ -82,7 +82,7 @@ int tbsla::mpi::MatrixCSR::read_bin_mpiio(MPI_Comm comm, std::string filename) {
 }
 
 std::vector<double> tbsla::mpi::MatrixCSR::spmv(MPI_Comm comm, const std::vector<double> &v, int vect_incr) {
-  std::vector<double> send = this->spmv(v, this->row_incr + vect_incr);
+  std::vector<double> send = this->spmv(v, vect_incr);
   std::vector<double> recv(send.size());
   MPI_Allreduce(send.data(), recv.data(), send.size(), MPI_DOUBLE, MPI_SUM, comm);
   return recv;
@@ -92,20 +92,4 @@ std::vector<double> tbsla::mpi::MatrixCSR::a_axpx_(MPI_Comm comm, const std::vec
   std::vector<double> r = this->spmv(comm, v, vect_incr);
   std::transform (r.begin(), r.end(), v.begin(), r.begin(), std::plus<double>());
   return this->spmv(comm, r, vect_incr);
-}
-
-void tbsla::mpi::MatrixCSR::fill_cdiag(MPI_Comm comm, int nr, int nc, int cdiag) {
-  int world, rank;
-  MPI_Comm_size(comm, &world);
-  MPI_Comm_rank(comm, &rank);
-  this->row_incr = tbsla::utils::range::pflv(nr, rank, world);
-  this->tbsla::cpp::MatrixCSR::fill_cdiag(nr, nc, cdiag, rank, world);
-}
-
-void tbsla::mpi::MatrixCSR::fill_cqmat(MPI_Comm comm, int nr, int nc, int c, double q, unsigned int seed_mult) {
-  int world, rank;
-  MPI_Comm_size(comm, &world);
-  MPI_Comm_rank(comm, &rank);
-  this->row_incr = tbsla::utils::range::pflv(nr, rank, world);
-  this->tbsla::cpp::MatrixCSR::fill_cqmat(nr, nc, c, q, seed_mult, rank, world);
 }

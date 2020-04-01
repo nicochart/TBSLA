@@ -25,10 +25,9 @@ namespace tbsla { namespace hpx_ {
 
 class Matrix {
   public:
-    virtual void fill_cdiag(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t nt) = 0;
-    virtual void fill_cqmat(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t nt) = 0;
+    virtual void fill_cdiag(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t gr, std::size_t gc) = 0;
+    virtual void fill_cqmat(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t gr, std::size_t gc) = 0;
     virtual void wait() = 0;
-    virtual void read(std::vector<hpx::id_type> localities, std::string matrix_file, std::size_t nt) = 0;
     virtual std::size_t get_n_col() = 0;
     virtual std::size_t get_n_row() = 0;
     virtual Vector_client spmv(Vector_client v) = 0;

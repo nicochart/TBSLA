@@ -6,21 +6,21 @@
 #include <tbsla/hpx/MatrixELL.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
 
-void test_cqmat(int N, int nr, int nc, int c, double q, unsigned int seed) {
+void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int gr, int gc) {
   std::vector<hpx::id_type> localities = hpx::find_all_localities();
   Vector_client v(localities[0], nc);
   std::vector<double> v_data = v.get_data().get().get_vect();
 
-  std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << c << "; q : " << q << "; s : " << seed << " ---- N : " << N << std::endl;
+  std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << c << "; q : " << q << "; s : " << seed << " ---- gr : " << gr << "; gc : " << gc << std::endl;
   tbsla::hpx_::MatrixCOO mcoo;
-  mcoo.fill_cqmat(localities, nr, nc, c, q, seed, N);
+  mcoo.fill_cqmat(localities, nr, nc, c, q, seed, gr, gc);
   mcoo.wait();
   Vector_client r = mcoo.spmv(v);
   std::vector<double> rcoo = r.get_data().get().get_vect();
 
   tbsla::hpx_::MatrixCOO mcsr;
   mcsr.wait();
-  mcsr.fill_cqmat(localities, nr, nc, c, q, seed, N);
+  mcsr.fill_cqmat(localities, nr, nc, c, q, seed, gr, gc);
   r = mcsr.spmv(v);
   std::vector<double> rcsr = r.get_data().get().get_vect();
   if(rcsr != rcoo) {
@@ -34,7 +34,7 @@ void test_cqmat(int N, int nr, int nc, int c, double q, unsigned int seed) {
   }
 
   tbsla::hpx_::MatrixELL mell;
-  mell.fill_cqmat(localities, nr, nc, c, q, seed, N);
+  mell.fill_cqmat(localities, nr, nc, c, q, seed, gr, gc);
   mell.wait();
   r = mell.spmv(v);
   std::vector<double> rell = r.get_data().get().get_vect();
@@ -49,10 +49,10 @@ void test_cqmat(int N, int nr, int nc, int c, double q, unsigned int seed) {
   }
 }
 
-void test_mat(int N, int nr, int nc, int c) {
+void test_mat(int nr, int nc, int c, int gr, int gc) {
   for(double s = 0; s < 2; s++) {
     for(double q = 0; q <= 1; q += 0.2) {
-      test_cqmat(N, nr, nc, c, q, s);
+      test_cqmat(nr, nc, c, q, s, gr, gc);
     }
   }
 }
@@ -60,40 +60,36 @@ void test_mat(int N, int nr, int nc, int c) {
 int hpx_main(hpx::program_options::variables_map& vm)
 {
   int t = 0;
-  for(int i = 0; i <= 12; i++) {
+  for(int i = 0; i <= 10; i++) {
     std::cout << "=== test " << t++ << " ===" << std::endl;
     for(int nt = 1; nt <= 4; nt++) {
-      test_mat(nt, 30, 30, 2 * i);
-    }
-    for(int nt = 1; nt <= 3; nt++) {
-      test_mat(nt * 10, 30, 30, 2 * i);
+      test_mat(30, 30, 2 * i, nt, 1);
+      test_mat(30, 30, 2 * i, 1, nt);
+      test_mat(30, 30, 2 * i, nt, nt);
+
+      test_mat(30, 20, 2 * i, nt, 1);
+      test_mat(30, 20, 2 * i, 1, nt);
+      test_mat(30, 20, 2 * i, nt, nt);
+
+      test_mat(20, 30, 2 * i, nt, 1);
+      test_mat(20, 30, 2 * i, 1, nt);
+      test_mat(20, 30, 2 * i, nt, nt);
     }
   }
-  for(int i = 0; i <= 12; i++) {
+  for(int i = 0; i <= 10; i++) {
     std::cout << "=== test " << t++ << " ===" << std::endl;
     for(int nt = 1; nt <= 4; nt++) {
-      test_mat(nt, 20, 30, 2 * i);
-    }
-    for(int nt = 1; nt <= 3; nt++) {
-      test_mat(nt * 10, 20, 30, 2 * i);
-    }
-  }
-  for(int i = 0; i <= 12; i++) {
-    std::cout << "=== test " << t++ << " ===" << std::endl;
-    for(int nt = 1; nt <= 4; nt++) {
-      test_mat(nt, 30, 20, 2 * i);
-    }
-    for(int nt = 1; nt <= 3; nt++) {
-      test_mat(nt * 10, 30, 20, 2 * i);
-    }
-  }
-  for(int i = 0; i <= 12; i++) {
-    std::cout << "=== test " << t++ << " ===" << std::endl;
-    for(int nt = 1; nt <= 4; nt++) {
-      test_mat(nt, 100, 100, 2 * i);
-    }
-    for(int nt = 1; nt <= 3; nt++) {
-      test_mat(nt * 10, 100, 100, 2 * i);
+      test_mat(100, 100, 2 * i, nt, 1);
+      test_mat(100, 100, 2 * i, 1, nt);
+      test_mat(100, 100, 2 * i, nt, nt);
+
+      test_mat(80, 100, 2 * i, nt, 1);
+      test_mat(80, 100, 2 * i, 1, nt);
+      test_mat(80, 100, 2 * i, nt, nt);
+
+      test_mat(100, 80, 2 * i, nt, 1);
+      test_mat(100, 80, 2 * i, 1, nt);
+      test_mat(100, 80, 2 * i, nt, nt);
     }
   }
   std::cout << "=== finished without error === " << std::endl;

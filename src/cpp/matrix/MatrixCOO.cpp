@@ -15,6 +15,10 @@ tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col, std::vector<double> & val
   this->values = values;
   this->row = row;
   this->col = col;
+  this->ln_row = n_row;
+  this->ln_col = n_col;
+  this->f_row = 0;
+  this->f_col = 0;
 }
 
 tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col, int n_values) {
@@ -271,7 +275,7 @@ tbsla::cpp::MatrixCSR tbsla::cpp::MatrixCOO::toCSR() {
   return tbsla::cpp::MatrixCSR(this->n_row, this->n_col, pv, cr, pc);
 }
 
-void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int rp, int RN) {
+void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int pr, int pc, int NR, int NC) {
   this->n_row = n_row;
   this->n_col = n_col;
 
@@ -279,9 +283,28 @@ void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int rp, 
   this->col.clear();
   this->row.clear();
 
-  int nv = std::max(std::min(n_row, n_col - cdiag), 0) + std::max(std::min(n_row - cdiag, n_col), 0);
-  if(cdiag == 0)
-    nv /= 2;
+  this->ln_row = tbsla::utils::range::lnv(n_row, pr, NR);
+  this->f_row = tbsla::utils::range::pflv(n_row, pr, NR);
+  this->ln_col = tbsla::utils::range::lnv(n_col, pc, NC);
+  this->f_col = tbsla::utils::range::pflv(n_col, pc, NC);
+
+  int nv = 0;
+  for(int i = f_row; i < f_row + ln_row; i++) {
+    int ii, jj;
+    jj = i - cdiag;
+    ii = i;
+    if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
+      nv++;
+    }
+    if(cdiag != 0) {
+      jj = i + cdiag;
+      ii = i;
+      if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
+        nv++;
+      }
+    }
+  }
+
   if(nv == 0)
     return;
 
@@ -289,15 +312,24 @@ void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int rp, 
   this->col.reserve(nv);
   this->row.reserve(nv);
 
-  int s = tbsla::utils::range::pflv(nv, rp, RN);
-  int n = tbsla::utils::range::lnv(nv, rp, RN);
-  for(int i = s; i < s + n; i++) {
-    auto tuple = tbsla::utils::values_generation::cdiag_value(i, nv, n_row, n_col, cdiag);
-    this->push_back(std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
+  for(int i = f_row; i < f_row + ln_row; i++) {
+    int ii, jj;
+    jj = i - cdiag;
+    ii = i;
+    if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
+      this->push_back(ii, jj, 1);
+    }
+    if(cdiag != 0) {
+      jj = i + cdiag;
+      ii = i;
+      if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
+        this->push_back(ii, jj, 1);
+      }
+    }
   }
 }
 
-void tbsla::cpp::MatrixCOO::fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult, int rp, int RN) {
+void tbsla::cpp::MatrixCOO::fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult, int pr, int pc, int NR, int NC) {
   this->n_row = n_row;
   this->n_col = n_col;
 
@@ -305,25 +337,76 @@ void tbsla::cpp::MatrixCOO::fill_cqmat(int n_row, int n_col, int c, double q, un
   this->col.clear();
   this->row.clear();
 
-  int nv = 0;
-  for(int i = 0; i < std::min(n_col - std::min(c, n_col) + 1, n_row); i++) {
-    nv += std::min(c, n_col);
+  this->ln_row = tbsla::utils::range::lnv(n_row, pr, NR);
+  this->f_row = tbsla::utils::range::pflv(n_row, pr, NR);
+  this->ln_col = tbsla::utils::range::lnv(n_col, pc, NC);
+  this->f_col = tbsla::utils::range::pflv(n_col, pc, NC);
+
+  int min_ = std::min(n_col - std::min(c, n_col) + 1, n_row);
+
+  int incr = 0, nv = 0;
+  for(int i = 0; i < min_; i++) {
+    if(i < f_row) {
+      incr += std::min(c, n_col);
+    }
+    if(i >= f_row && i < f_row + ln_row) {
+      nv += std::min(c, n_col);
+    }
+    if(i >= f_row + ln_row) {
+      break;
+    }
   }
-  for(int i = 0; i < std::min(n_row, n_col) - std::min(n_col - std::min(c, n_col) + 1, n_row); i++) {
-    nv += std::min(c, n_col) - i - 1;
+  for(int i = 0; i < std::min(n_row, n_col) - min_; i++) {
+    if(i + min_ < f_row) {
+      incr += std::min(c, n_col) - i - 1;
+    }
+    if(i + min_ >= f_row && i + min_ < f_row + ln_row) {
+      nv += std::min(c, n_col) - i - 1;
+    }
+    if(i + min_ >= f_row + ln_row) {
+      break;
+    }
   }
+
   if(nv == 0)
     return;
 
-  int s = tbsla::utils::range::pflv(nv, rp, RN);
-  int n = tbsla::utils::range::lnv(nv, rp, RN);
 
-  this->values.reserve(n);
-  this->col.reserve(n);
-  this->row.reserve(n);
+  this->values.reserve(ln_row * ln_col * q);
+  this->col.reserve(ln_row * ln_col * q);
+  this->row.reserve(ln_row * ln_col * q);
 
-  for(int i = s; i < s + n; i++) {
-    auto tuple = tbsla::utils::values_generation::cqmat_value(i, n_row, n_col, c, q, seed_mult);
-    this->push_back(std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
+  int i;
+  for(i = f_row; i < std::min(min_, f_row + ln_row); i++) {
+    for(int j = 0; j < std::min(c, n_col); j++) {
+      auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
+      int ii, jj;
+      double v;
+      ii = std::get<0>(tuple);
+      jj = std::get<1>(tuple);
+      v = std::get<2>(tuple);
+      if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
+        this->push_back(ii, jj, v);
+      }
+      incr++;
+    }
   }
+  for(; i < std::min({n_row, n_col, f_row + ln_row}); i++) {
+    for(int j = 0; j < std::min(c, n_col) - i + min_ - 1; j++) {
+      auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
+      int ii, jj;
+      double v;
+      ii = std::get<0>(tuple);
+      jj = std::get<1>(tuple);
+      v = std::get<2>(tuple);
+      if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
+        this->push_back(ii, jj, v);
+      }
+      incr++;
+    }
+  }
+
+  this->values.shrink_to_fit();
+  this->col.shrink_to_fit();
+  this->row.shrink_to_fit();
 }

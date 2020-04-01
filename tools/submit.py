@@ -40,11 +40,12 @@ if args.lang == "HPX":
     command += f"tbsla_perf_hpx"
   else:
     command += machine.get_mpirun(args) + f" -n {args.nodes} tbsla_perf_hpx -l {args.nodes}"
-  command += f" --N {args.N}"
 
 command += f" --op {args.op}"
 command += f" --NR {args.NR}"
 command += f" --NC {args.NC}"
+command += f" --GR {args.GR}"
+command += f" --GC {args.GC}"
 command += f" --C {args.C}"
 command += f" --{args.matrixtype}"
 command += f" --format {args.format}"
@@ -59,12 +60,7 @@ if args.matrixtype == "cqmat":
 else:
   header += command +  f'" --dic "{dict_to_pass}"\n\n'
 
-fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_nr{args.NR}_nc{args.NC}_{args.matrixtype}_c{args.C}"
-
-if args.lang == "HPX":
-  fname += f"__N{args.N}"
-
-fname += ".sh"
+fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_nr{args.NR}_nc{args.NC}_{args.matrixtype}_c{args.C}_gr{args.GR}_gc{args.GC}.sh"
 
 if os.path.isfile(fname):
   os.remove(fname)

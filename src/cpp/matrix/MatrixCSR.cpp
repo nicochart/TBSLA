@@ -13,6 +13,10 @@ tbsla::cpp::MatrixCSR::MatrixCSR(int n_row, int n_col, std::vector<double> & val
   this->values = values;
   this->rowptr = rowptr;
   this->colidx = colidx;
+  this->ln_row = n_row;
+  this->ln_col = n_col;
+  this->f_row = 0;
+  this->f_col = 0;
 }
 
 std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::MatrixCSR &m) {
@@ -38,9 +42,15 @@ std::ostream& tbsla::cpp::MatrixCSR::print(std::ostream& os) const {
 
 std::ostream& tbsla::cpp::MatrixCSR::print_as_dense(std::ostream& os) {
   std::vector<double> d(this->n_row * this->n_col, 0);
-  for (int i = 0; i < this->rowptr.size() - 1; i++) {
-    for (int j = this->rowptr[i] - this->rowptr.front(); j < this->rowptr[i + 1] - this->rowptr.front(); j++) {
-       d[i * this->n_col + this->colidx[j]] += this->values[j];
+  if(this->values.size() != 0) {
+    int incr = 0;
+    for (int i = 0; i < this->rowptr.size() - 1; i++) {
+      for (int j = this->rowptr[i] - this->rowptr.front(); j < this->rowptr[i + 1] - this->rowptr.front(); j++) {
+         if(incr < this->values.size())
+           d[i * this->n_col + this->colidx[j]] += this->values[j];
+         else
+           break;
+      }
     }
   }
   tbsla::utils::vector::print_dense_matrix(this->n_row, this->n_col, d, os);
@@ -53,7 +63,7 @@ std::vector<double> tbsla::cpp::MatrixCSR::spmv(const std::vector<double> &v, in
     return r;
   for (int i = 0; i < this->rowptr.size() - 1; i++) {
     for (int j = this->rowptr[i] - this->rowptr.front(); j < this->rowptr[i + 1] - this->rowptr.front(); j++) {
-       r[i + vect_incr] += this->values[j] * v[this->colidx[j]];
+       r[i + this->f_row] += this->values[j] * v[this->colidx[j]];
     }
   }
   return r;
@@ -140,7 +150,7 @@ std::istream & tbsla::cpp::MatrixCSR::read(std::istream &is, std::size_t pos, st
   return is;
 }
 
-void tbsla::cpp::MatrixCSR::fill_cdiag(int n_row, int n_col, int cdiag, int rp, int RN) {
+void tbsla::cpp::MatrixCSR::fill_cdiag(int n_row, int n_col, int cdiag, int pr, int pc, int NR, int NC) {
   this->n_row = n_row;
   this->n_col = n_col;
 
@@ -148,73 +158,60 @@ void tbsla::cpp::MatrixCSR::fill_cdiag(int n_row, int n_col, int cdiag, int rp, 
   this->colidx.clear();
   this->rowptr.clear();
 
-  int nv = std::max(std::min(n_row, n_col - cdiag), 0) + std::max(std::min(n_row - cdiag, n_col), 0);
-  if(cdiag == 0)
-    nv /= 2;
+  ln_row = tbsla::utils::range::lnv(n_row, pr, NR);
+  f_row = tbsla::utils::range::pflv(n_row, pr, NR);
+  ln_col = tbsla::utils::range::lnv(n_col, pc, NC);
+  f_col = tbsla::utils::range::pflv(n_col, pc, NC);
+
+  int nv = 0;
+  for(int i = f_row; i < f_row + ln_row; i++) {
+    int ii, jj;
+    jj = i - cdiag;
+    ii = i;
+    if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
+      nv++;
+    }
+    if(cdiag != 0) {
+      jj = i + cdiag;
+      ii = i;
+      if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
+        nv++;
+      }
+    }
+  }
+
   if(nv == 0)
     return;
 
-  int s = tbsla::utils::range::pflv(n_row, rp, RN);
-  int n = tbsla::utils::range::lnv(n_row, rp, RN);
+  this->values.reserve(nv);
+  this->colidx.reserve(nv);
+  this->rowptr.reserve(ln_row + 1);
 
-  this->values.reserve(2 * n);
-  this->colidx.reserve(2 * n);
-  this->rowptr.reserve(n + 1);
-
-  int i;
   size_t incr = 0;
-
-  if(s < std::min(cdiag, n_row)) {
-    incr += std::max(std::min(n_col - cdiag, s), 0);
-  } else if(s < std::min(n_row, n_col - cdiag)) {
-    incr += std::max(std::min(n_col - cdiag, cdiag), 0);
-    incr += (cdiag == 0 ? 1 : 2) * (s - std::min(n_col - cdiag, cdiag));
-  } else {
-    incr += std::max(std::min(n_col - cdiag, cdiag), 0);
-    incr += (cdiag == 0 ? 1 : 2) * (std::max(n_col - 2 * cdiag, 0));
-    incr += s - (n_col - cdiag) - (cdiag - std::min(n_col - cdiag, cdiag));
-  }
   this->rowptr.push_back(incr);
-
-  for(i = s; i < std::min( {cdiag, n_row, s + n} ); i++) {
-    if(i < n_col - cdiag) {
-      auto curr = tbsla::utils::values_generation::cdiag_value(incr, nv, n_row, n_col, cdiag);
-      this->colidx.push_back(std::get<1>(curr));
-      this->values.push_back(std::get<2>(curr));
+  for(int i = f_row; i < f_row + ln_row; i++) {
+    int ii, jj;
+    jj = i - cdiag;
+    ii = i;
+    if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
+      this->colidx.push_back(jj);
+      this->values.push_back(1);
       incr++;
     }
-    this->rowptr.push_back(incr);
-  }
-  for(; i < std::min( {n_row, n_col - cdiag, s + n} ); i++) {
-    if(cdiag == 0) {
-      auto curr = tbsla::utils::values_generation::cdiag_value(incr, nv, n_row, n_col, cdiag);
-      this->colidx.push_back(std::get<1>(curr));
-      this->values.push_back(std::get<2>(curr));
-      incr++;
-    } else {
-      auto curr = tbsla::utils::values_generation::cdiag_value(incr, nv, n_row, n_col, cdiag);
-      this->colidx.push_back(std::get<1>(curr));
-      this->values.push_back(std::get<2>(curr));
-      incr++;
-      curr = tbsla::utils::values_generation::cdiag_value(incr, nv, n_row, n_col, cdiag);
-      this->colidx.push_back(std::get<1>(curr));
-      this->values.push_back(std::get<2>(curr));
-      incr++;
-    }
-    this->rowptr.push_back(incr);
-  }
-  for(; i < std::min({n_row, s + n}); i++) {
-    if(i < n_col + cdiag) {
-      auto curr = tbsla::utils::values_generation::cdiag_value(incr, nv, n_row, n_col, cdiag);
-      this->colidx.push_back(std::get<1>(curr));
-      this->values.push_back(std::get<2>(curr));
-      incr++;
+    if(cdiag != 0) {
+      jj = i + cdiag;
+      ii = i;
+      if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
+        this->colidx.push_back(jj);
+        this->values.push_back(1);
+        incr++;
+      }
     }
     this->rowptr.push_back(incr);
   }
 }
 
-void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult, int rp, int RN) {
+void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult, int pr, int pc, int NR, int NC) {
   this->n_row = n_row;
   this->n_col = n_col;
 
@@ -222,31 +219,34 @@ void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, un
   this->colidx.clear();
   this->rowptr.clear();
 
-  int s = tbsla::utils::range::pflv(n_row, rp, RN);
-  int n = tbsla::utils::range::lnv(n_row, rp, RN);
+
+  ln_row = tbsla::utils::range::lnv(n_row, pr, NR);
+  f_row = tbsla::utils::range::pflv(n_row, pr, NR);
+  ln_col = tbsla::utils::range::lnv(n_col, pc, NC);
+  f_col = tbsla::utils::range::pflv(n_col, pc, NC);
 
   int min_ = std::min(n_col - std::min(c, n_col) + 1, n_row);
 
   int incr = 0, nv = 0;
   for(int i = 0; i < min_; i++) {
-    if(i < s) {
+    if(i < f_row) {
       incr += std::min(c, n_col);
     }
-    if(i >= s && i < s + n) {
+    if(i >= f_row && i < f_row + ln_row) {
       nv += std::min(c, n_col);
     }
-    if(i >= s + n) {
+    if(i >= f_row + ln_row) {
       break;
     }
   }
   for(int i = 0; i < std::min(n_row, n_col) - min_; i++) {
-    if(i + min_ < s) {
+    if(i + min_ < f_row) {
       incr += std::min(c, n_col) - i - 1;
     }
-    if(i + min_ >= s && i + min_ < s + n) {
+    if(i + min_ >= f_row && i + min_ < f_row + ln_row) {
       nv += std::min(c, n_col) - i - 1;
     }
-    if(i + min_ >= s + n) {
+    if(i + min_ >= f_row + ln_row) {
       break;
     }
   }
@@ -254,29 +254,49 @@ void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, un
   if(nv == 0)
     return;
 
+  this->values.reserve(ln_row * ln_col * q);
+  this->colidx.reserve(ln_row * ln_col * q);
+  this->rowptr.reserve(ln_row + 1);
 
-  this->values.reserve(nv);
-  this->colidx.reserve(nv);
-  this->rowptr.reserve(n + 1);
-
-  this->rowptr.push_back(incr);
   int i;
-  for(i = s; i < std::min(min_, s + n); i++) {
+  int lincr = 0;
+  this->rowptr.push_back(lincr);
+  for(i = f_row; i < std::min(min_, f_row + ln_row); i++) {
     for(int j = 0; j < std::min(c, n_col); j++) {
-      auto curr = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
-      this->colidx.push_back(std::get<1>(curr));
-      this->values.push_back(std::get<2>(curr));
+      auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
+      int ii, jj;
+      double v;
+      ii = std::get<0>(tuple);
+      jj = std::get<1>(tuple);
+      v = std::get<2>(tuple);
+      if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
+        this->colidx.push_back(jj);
+        this->values.push_back(v);
+        lincr++;
+      }
       incr++;
     }
-    this->rowptr.push_back(incr);
+    this->rowptr.push_back(lincr);
   }
-  for(; i < std::min({n_row, n_col, s + n}); i++) {
+  for(; i < std::min({n_row, n_col, f_row + ln_row}); i++) {
     for(int j = 0; j < std::min(c, n_col) - i + min_ - 1; j++) {
-      auto curr = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
-      this->colidx.push_back(std::get<1>(curr));
-      this->values.push_back(std::get<2>(curr));
+      auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
+      int ii, jj;
+      double v;
+      ii = std::get<0>(tuple);
+      jj = std::get<1>(tuple);
+      v = std::get<2>(tuple);
+      if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
+        this->colidx.push_back(jj);
+        this->values.push_back(v);
+        lincr++;
+      }
       incr++;
     }
-    this->rowptr.push_back(incr);
+    this->rowptr.push_back(lincr);
   }
+
+  this->values.shrink_to_fit();
+  this->colidx.shrink_to_fit();
+  this->rowptr.shrink_to_fit();
 }

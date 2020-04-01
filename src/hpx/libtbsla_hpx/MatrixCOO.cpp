@@ -18,36 +18,31 @@ std::size_t tbsla::hpx_::MatrixCOO::get_n_row() {
   return tiles[0].get_data().get().get_n_row();
 }
 
-void tbsla::hpx_::MatrixCOO::fill_cdiag(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t nt) {
-  this->tiles.resize(nt);
+void tbsla::hpx_::MatrixCOO::fill_cdiag(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t gr, std::size_t gc) {
+  this->tiles.resize(gr * gc);
   this->localities = localities;
-  int nl = this->localities.size();
+  std::size_t nl = this->localities.size();
+  std::size_t nt = this->tiles.size();
 
-  for (std::size_t i = 0; i != nt; ++i) {
-    this->tiles[i] = tbsla::hpx_::client::MatrixCOO(this->localities[i * nl / nt], nr, nc, cdiag, i, nt);
+  for (std::size_t pr = 0; pr < gr; pr++) {
+    for (std::size_t pc = 0; pc < gc; pc++) {
+      this->tiles[pr * gc + pc] = tbsla::hpx_::client::MatrixCOO(this->localities[(pr * gc + pc) * nl / nt], nr, nc, cdiag, pr, pc, gr, gc);
+    }
   }
 }
 
-void tbsla::hpx_::MatrixCOO::fill_cqmat(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t nt) {
-  this->tiles.resize(nt);
+void tbsla::hpx_::MatrixCOO::fill_cqmat(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t gr, std::size_t gc) {
+  this->tiles.resize(gr * gc);
   this->localities = localities;
-  int nl = this->localities.size();
+  std::size_t nl = this->localities.size();
+  std::size_t nt = this->tiles.size();
 
-  for (std::size_t i = 0; i != nt; ++i) {
-    this->tiles[i] = tbsla::hpx_::client::MatrixCOO(this->localities[i * nl / nt], nr, nc, c, q, seed, i, nt);
+  for (std::size_t pr = 0; pr < gr; pr++) {
+    for (std::size_t pc = 0; pc < gc; pc++) {
+      this->tiles[pr * gc + pc] = tbsla::hpx_::client::MatrixCOO(this->localities[(pr * gc + pc) * nl / nt], nr, nc, c, q, seed, pr, pc, gr, gc);
+    }
   }
 }
-
-void tbsla::hpx_::MatrixCOO::read(std::vector<hpx::id_type> localities, std::string matrix_file, std::size_t nt) {
-  this->tiles.resize(nt);
-  this->localities = localities;
-  int nl = this->localities.size();
-
-  for (std::size_t i = 0; i != nt; ++i) {
-    this->tiles[i] = tbsla::hpx_::client::MatrixCOO(this->localities[i * nl / nt], i, nt, matrix_file);
-  }
-}
-
 
 static Vector_client tbsla::hpx_::detail::spmv_part(tbsla::hpx_::client::MatrixCOO const& A_p, Vector_client const& v_p, Vector_client const& r_p) {
   using hpx::dataflow;

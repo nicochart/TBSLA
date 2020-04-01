@@ -21,8 +21,8 @@ class MatrixCSR : public virtual Matrix {
     std::ostream & write(std::ostream &os);
     std::istream & read(std::istream &is, std::size_t pos = 0, std::size_t n = 1);
     std::ostream& print(std::ostream& os) const;
-    void fill_cdiag(int n_row, int n_col, int cdiag, int rp = 0, int RN = 1);
-    void fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult = 1, int rp = 0, int RN = 1);
+    void fill_cdiag(int n_row, int n_col, int cdiag, int pr = 0, int pc = 0, int NR = 1, int NC = 1);
+    void fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult = 1, int pr = 0, int pc = 0, int NR = 1, int NC = 1);
 
   protected:
     std::vector<double> values;

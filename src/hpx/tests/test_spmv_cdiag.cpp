@@ -6,12 +6,12 @@
 #include <tbsla/hpx/MatrixELL.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
 
-void test_mat(tbsla::hpx_::Matrix & m, int N, int nr, int nc, int c) {
+void test_mat(tbsla::hpx_::Matrix & m, int nr, int nc, int c, int gr, int gc) {
   std::vector<hpx::id_type> localities = hpx::find_all_localities();
   Vector_client v(localities[0], nc);
   std::vector<double> v_data = v.get_data().get().get_vect();
 
-  m.fill_cdiag(localities, nr, nc, c, N);
+  m.fill_cdiag(localities, nr, nc, c, gr, gc);
   m.wait();
   Vector_client r = m.spmv(v);
   std::vector<double> r_data = r.get_data().get().get_vect();
@@ -24,73 +24,51 @@ void test_mat(tbsla::hpx_::Matrix & m, int N, int nr, int nc, int c) {
 }
 
 
-void test_cdiag(int N, int nr, int nc, int c) {
-  std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << c << " ---- N : " << N << std::endl;
+void test_cdiag(int nr, int nc, int c, int gr, int gc) {
+  std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << c << " ---- gr : " << gr << "; gc : " << gc << std::endl;
   tbsla::hpx_::MatrixCOO mcoo;
-  test_mat(mcoo, N, nr, nc, c);
+  test_mat(mcoo, nr, nc, c, gr, gc);
 
   tbsla::hpx_::MatrixCSR mcsr;
-  test_mat(mcsr, N, nr, nc, c);
+  test_mat(mcsr, nr, nc, c, gr, gc);
 
   tbsla::hpx_::MatrixELL mell;
-  test_mat(mell, N, nr, nc, c);
+//  test_mat(mell, nr, nc, c, gr, gc);
 }
 
 int hpx_main(hpx::program_options::variables_map& vm)
 {
   int t = 0;
-  for(int i = 0; i <= 12; i++) {
+  for(int i = 0; i <= 10; i++) {
     std::cout << "=== test " << t++ << " ===" << std::endl;
     for(int nt = 1; nt <= 5; nt++) {
-      test_cdiag(nt, 10, 10, i);
+      test_cdiag(30, 30, 2 * i, nt, 1);
+      test_cdiag(30, 30, 2 * i, 1, nt);
+      test_cdiag(30, 30, 2 * i, nt, nt);
+
+      test_cdiag(20, 30, 2 * i, nt, 1);
+      test_cdiag(20, 30, 2 * i, 1, nt);
+      test_cdiag(20, 30, 2 * i, nt, nt);
+
+      test_cdiag(30, 20, 2 * i, nt, 1);
+      test_cdiag(30, 20, 2 * i, 1, nt);
+      test_cdiag(30, 20, 2 * i, nt, nt);
     }
   }
-  for(int i = 0; i <= 12; i++) {
+  for(int i = 0; i <= 10; i++) {
     std::cout << "=== test " << t++ << " ===" << std::endl;
     for(int nt = 1; nt <= 5; nt++) {
-      test_cdiag(nt, 10, 5, i);
-    }
-  }
-  for(int i = 0; i <= 12; i++) {
-    std::cout << "=== test " << t++ << " ===" << std::endl;
-    for(int nt = 1; nt <= 5; nt++) {
-      test_cdiag(nt, 5, 10, i);
-    }
-  }
-  for(int i = 0; i <= 12; i++) {
-    std::cout << "=== test " << t++ << " ===" << std::endl;
-    for(int nt = 1; nt <= 5; nt++) {
-      test_cdiag(nt, 30, 30, 2 * i);
-    }
-    for(int nt = 1; nt <= 3; nt++) {
-      test_cdiag(nt * 10, 30, 30, 2 * i);
-    }
-  }
-  for(int i = 0; i <= 12; i++) {
-    std::cout << "=== test " << t++ << " ===" << std::endl;
-    for(int nt = 1; nt <= 5; nt++) {
-      test_cdiag(nt, 20, 30, 2 * i);
-    }
-    for(int nt = 1; nt <= 3; nt++) {
-      test_cdiag(nt * 10, 20, 30, 2 * i);
-    }
-  }
-  for(int i = 0; i <= 12; i++) {
-    std::cout << "=== test " << t++ << " ===" << std::endl;
-    for(int nt = 1; nt <= 5; nt++) {
-      test_cdiag(nt, 30, 20, 2 * i);
-    }
-    for(int nt = 1; nt <= 3; nt++) {
-      test_cdiag(nt * 10, 30, 20, 2 * i);
-    }
-  }
-  for(int i = 0; i <= 12; i++) {
-    std::cout << "=== test " << t++ << " ===" << std::endl;
-    for(int nt = 1; nt <= 5; nt++) {
-      test_cdiag(nt, 100, 100, 2 * i);
-    }
-    for(int nt = 1; nt <= 3; nt++) {
-      test_cdiag(nt * 10, 100, 100, 2 * i);
+      test_cdiag(100, 100, 2 * i, nt, 1);
+      test_cdiag(100, 100, 2 * i, 1, nt);
+      test_cdiag(100, 100, 2 * i, nt, nt);
+
+      test_cdiag(80, 100, 2 * i, nt, 1);
+      test_cdiag(80, 100, 2 * i, 1, nt);
+      test_cdiag(80, 100, 2 * i, nt, nt);
+
+      test_cdiag(100, 80, 2 * i, nt, 1);
+      test_cdiag(100, 80, 2 * i, 1, nt);
+      test_cdiag(100, 80, 2 * i, nt, nt);
     }
   }
   std::cout << "=== finished without error === " << std::endl;

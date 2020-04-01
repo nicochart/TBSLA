@@ -11,11 +11,11 @@
 #include <iostream>
 
 
-void test_matrix(tbsla::mpi::Matrix & m, int nr, int nc, int cdiag) {
+void test_matrix(tbsla::mpi::Matrix & m, int nr, int nc, int cdiag, int pr, int pc, int NR, int NC) {
   int world, rank;
   MPI_Comm_size(MPI_COMM_WORLD, &world);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-  std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << cdiag << " ----  r : " << rank << "/" << world << std::endl;
+  m.fill_cdiag(nr, nc, cdiag, pr, pc, NR, NC);
 
   std::vector<double> v(nc);
   std::iota (std::begin(v), std::end(v), 0);
@@ -51,17 +51,39 @@ void test_matrix(tbsla::mpi::Matrix & m, int nr, int nc, int cdiag) {
 }
 
 void test_cdiag(int nr, int nc, int cdiag) {
+  int world, rank;
+  MPI_Comm_size(MPI_COMM_WORLD, &world);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   tbsla::mpi::MatrixCOO mcoo;
-  mcoo.fill_cdiag(MPI_COMM_WORLD, nr, nc, cdiag);
-  test_matrix(mcoo, nr, nc, cdiag);
-
   tbsla::mpi::MatrixCSR mcsr;
-  mcsr.fill_cdiag(MPI_COMM_WORLD, nr, nc, cdiag);
-  test_matrix(mcsr, nr, nc, cdiag);
-
   tbsla::mpi::MatrixELL mell;
-  mell.fill_cdiag(MPI_COMM_WORLD, nr, nc, cdiag);
-  test_matrix(mell, nr, nc, cdiag);
+
+  if(rank == 0)
+    std::cout << "--- row ---- nr : " << nr << "; nc : " << nc << "; c : " << cdiag << " ----" << std::endl;
+  MPI_Barrier(MPI_COMM_WORLD);
+  test_matrix(mcoo, nr, nc, cdiag, rank, 0, world, 1);
+  test_matrix(mcsr, nr, nc, cdiag, rank, 0, world, 1);
+  test_matrix(mell, nr, nc, cdiag, rank, 0, world, 1);
+
+  MPI_Barrier(MPI_COMM_WORLD);
+  if(rank == 0)
+    std::cout << "--- col ---- nr : " << nr << "; nc : " << nc << "; c : " << cdiag << " ----" << std::endl;
+  MPI_Barrier(MPI_COMM_WORLD);
+  test_matrix(mcoo, nr, nc, cdiag, 0, rank, 1, world);
+  test_matrix(mcsr, nr, nc, cdiag, 0, rank, 1 ,world);
+  test_matrix(mell, nr, nc, cdiag, 0, rank, 1, world);
+
+  if(world % 2 == 0 && world / 2 > 1) {
+    MPI_Barrier(MPI_COMM_WORLD);
+    if(rank == 0)
+      std::cout << "--- mix ---- nr : " << nr << "; nc : " << nc << "; c : " << cdiag << " ----" <<  std::endl;
+    MPI_Barrier(MPI_COMM_WORLD);
+    std::cout << "r " << rank / 2 << "; c " << rank % 2 <<  std::endl;
+    test_matrix(mcoo, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
+    test_matrix(mcsr, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
+    test_matrix(mell, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
+  }
+  MPI_Barrier(MPI_COMM_WORLD);
 }
 
 int main(int argc, char** argv) {

@@ -15,18 +15,16 @@ namespace tbsla { namespace hpx_ { namespace detail {
 
 class MatrixCSR : public tbsla::cpp::MatrixCSR, public tbsla::hpx_::detail::Matrix {
   public:
-    std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
-    void fill_cdiag(int n_row, int n_col, int cdiag, int rp = 0, int RN = 1);
-    void fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed, int rp = 0, int RN = 1);
-  protected:
-    int row_incr = 0; // index of the first value of the local array in the global array
+    using tbsla::cpp::MatrixCSR::spmv;
+    using tbsla::cpp::MatrixCSR::fill_cdiag;
+    using tbsla::cpp::MatrixCSR::fill_cqmat;
 
   private:
     friend ::hpx::serialization::access;
     template <typename Archive>
     void serialize(Archive& ar, const unsigned int version)
     {
-        ar& rowptr& colidx& values& gnnz& row_incr;
+        ar& rowptr& colidx& values& gnnz& f_row& f_col& ln_row& ln_col;
     }
 };
 
@@ -52,16 +50,16 @@ struct HPX_COMPONENT_EXPORT MatrixCSR : ::hpx::components::component_base<Matrix
        is.close();
     }
 
-    MatrixCSR(std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t pos, std::size_t nt)
+    MatrixCSR(std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t pr, std::size_t pc, std::size_t NR, std::size_t NC)
       : data_()
     {
-       data_.fill_cdiag(nr, nc, cdiag, pos, nt);
+       data_.fill_cdiag(nr, nc, cdiag, pr, pc, NR, NC);
     }
 
-    MatrixCSR(std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t pos, std::size_t nt)
+    MatrixCSR(std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t pr, std::size_t pc, std::size_t NR, std::size_t NC)
       : data_()
     {
-       data_.fill_cqmat(nr, nc, c, q, seed, pos, nt);
+       data_.fill_cqmat(nr, nc, c, q, seed, pr, pc, NR, NC);
     }
 
     // Access data.
@@ -99,13 +97,13 @@ struct MatrixCSR : ::hpx::components::client_base<MatrixCSR, tbsla::hpx_::server
     {
     }
 
-    MatrixCSR(hpx::id_type where, std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t pos, std::size_t nt)
-      : base_type(hpx::new_<tbsla::hpx_::server::MatrixCSR>(hpx::colocated(where), nr, nc, cdiag, pos, nt))
+    MatrixCSR(hpx::id_type where, std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t pr, std::size_t pc, std::size_t NR, std::size_t NC)
+      : base_type(hpx::new_<tbsla::hpx_::server::MatrixCSR>(hpx::colocated(where), nr, nc, cdiag, pr, pc, NR, NC))
     {
     }
 
-    MatrixCSR(hpx::id_type where, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t pos, std::size_t nt)
-      : base_type(hpx::new_<tbsla::hpx_::server::MatrixCSR>(hpx::colocated(where), nr, nc, c, q, seed, pos, nt))
+    MatrixCSR(hpx::id_type where, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t pr, std::size_t pc, std::size_t NR, std::size_t NC)
+      : base_type(hpx::new_<tbsla::hpx_::server::MatrixCSR>(hpx::colocated(where), nr, nc, c, q, seed, pr, pc, NR, NC))
     {
     }
 
@@ -142,10 +140,9 @@ namespace tbsla { namespace hpx_ {
 
 class MatrixCSR : public tbsla::hpx_::Matrix {
   public:
-    void fill_cdiag(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t nt);
-    void fill_cqmat(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t nt);
+    void fill_cdiag(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t gr, std::size_t gc);
+    void fill_cqmat(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t gr, std::size_t gc);
     void wait();
-    void read(std::vector<hpx::id_type> localities, std::string matrix_file, std::size_t nt);
     std::size_t get_n_col();
     std::size_t get_n_row();
     Vector_client spmv(Vector_client v);

@@ -103,17 +103,3 @@ std::vector<double> tbsla::mpi::MatrixCOO::a_axpx_(MPI_Comm comm, const std::vec
   std::transform (r.begin(), r.end(), v.begin(), r.begin(), std::plus<double>());
   return this->spmv(comm, r, vect_incr);
 }
-
-void tbsla::mpi::MatrixCOO::fill_cdiag(MPI_Comm comm, int nr, int nc, int cdiag) {
-  int world, rank;
-  MPI_Comm_size(comm, &world);
-  MPI_Comm_rank(comm, &rank);
-  this->tbsla::cpp::MatrixCOO::fill_cdiag(nr, nc, cdiag, rank, world);
-}
-
-void tbsla::mpi::MatrixCOO::fill_cqmat(MPI_Comm comm, int nr, int nc, int c, double q, unsigned int seed_mult) {
-  int world, rank;
-  MPI_Comm_size(comm, &world);
-  MPI_Comm_rank(comm, &rank);
-  this->tbsla::cpp::MatrixCOO::fill_cqmat(nr, nc, c, q, seed_mult, rank, world);
-}

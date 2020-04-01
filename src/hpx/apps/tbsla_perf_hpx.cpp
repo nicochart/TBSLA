@@ -13,7 +13,8 @@ int hpx_main(hpx::program_options::variables_map& vm)
 {
   std::string format = vm["format"].as<std::string>();
   std::string op = vm["op"].as<std::string>();
-  std::uint64_t N = vm["N"].as<std::uint64_t>();
+  std::uint64_t GR = vm["GR"].as<std::uint64_t>();
+  std::uint64_t GC = vm["GC"].as<std::uint64_t>();
   std::uint64_t NR = vm["NR"].as<std::uint64_t>();
   std::uint64_t NC = vm["NC"].as<std::uint64_t>();
   std::uint64_t C = vm["C"].as<std::uint64_t>();
@@ -23,7 +24,7 @@ int hpx_main(hpx::program_options::variables_map& vm)
   std::vector<hpx::id_type> localities = hpx::find_all_localities();
   std::size_t nl = localities.size();    // Number of localities
 
-  if (N < nl)
+  if (GR * GC < nl)
   {
     std::cout << "The number of tiles should not be smaller than "
                  "the number of localities"
@@ -63,9 +64,9 @@ int hpx_main(hpx::program_options::variables_map& vm)
 
   std::uint64_t t_app_start = hpx::util::high_resolution_clock::now();
   if(vm.count("cdiag")) {
-    m->fill_cdiag(localities, NR, NC, C, N);
+    m->fill_cdiag(localities, NR, NC, C, GR, GC);
   } else if(vm.count("cqmat")) {
-    m->fill_cqmat(localities, NR, NC, C, Q, S, N);
+    m->fill_cqmat(localities, NR, NC, C, Q, S, GR, GC);
   }
   m->wait();
 
@@ -95,7 +96,8 @@ int hpx_main(hpx::program_options::variables_map& vm)
   outmap["matrix_format"] = format;
   outmap["n_row"] = std::to_string(m->get_n_row());
   outmap["n_col"] = std::to_string(m->get_n_col());
-  outmap["n_tile"] = std::to_string(N);
+  outmap["gr"] = std::to_string(GR);
+  outmap["gc"] = std::to_string(GC);
   outmap["time_app_in"] = std::to_string((t_app_end - t_app_start) / 1e9);
   outmap["time_op"] = std::to_string((t_op_end - t_op_start) / 1e9);
   outmap["lang"] = "HPX";
@@ -126,8 +128,10 @@ int main(int argc, char* argv[])
 
   options_description desc_commandline;
   desc_commandline.add_options()
-    ("N", value<std::uint64_t>()->default_value(10),
-    "Number of submatrices")
+    ("GR", value<std::uint64_t>()->default_value(10),
+    "Number of submatrices in rows")
+    ("GC", value<std::uint64_t>()->default_value(10),
+    "Number of submatrices in columns")
     ("NR", value<std::uint64_t>()->default_value(1024),
     "Number of rows")
     ("NC", value<std::uint64_t>()->default_value(1024),

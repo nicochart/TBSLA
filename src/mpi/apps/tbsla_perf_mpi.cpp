@@ -32,11 +32,21 @@ int main(int argc, char** argv) {
   std::string nr_string = input.get_opt("--NR", "1024");
   std::string nc_string = input.get_opt("--NC", "1024");
 
+  std::string gr_string = input.get_opt("--GR", "1");
+  std::string gc_string = input.get_opt("--GC", "1");
+
   int NR = std::stoi(nr_string);
   int NC = std::stoi(nc_string);
+  int GR = std::stoi(gr_string);
+  int GC = std::stoi(gc_string);
   int C = -1;
   double Q = -1;
   int S = -1;
+
+  if(world != GR * GC) {
+    printf("The number of processes (%d) does not match the grid dimensions (%d x %d = %d).\n", world, GR, GC, GR * GC);
+    exit(99);
+  }
 
   if(input.has_opt("--cdiag")) {
     std::string c_string = input.get_opt("--C", "8");
@@ -87,9 +97,9 @@ int main(int argc, char** argv) {
 
 
   if(input.has_opt("--cdiag")) {
-    m->fill_cdiag(MPI_COMM_WORLD, NR, NC, C);
+    m->fill_cdiag(NR, NC, C, rank / GC, rank % GC, GR, GC);
   } else if(input.has_opt("--cqmat")) {
-    m->fill_cqmat(MPI_COMM_WORLD, NR, NC, C, Q, S);
+    m->fill_cqmat(NR, NC, C, Q, S, rank / GC, rank % GC, GR, GC);
   }
 
   if(input.has_opt("--print-infos")) {
@@ -123,6 +133,8 @@ int main(int argc, char** argv) {
     outmap["matrix_format"] = format;
     outmap["n_row"] = std::to_string(m->get_n_row());
     outmap["n_col"] = std::to_string(m->get_n_col());
+    outmap["gr"] = gr_string;
+    outmap["gc"] = gc_string;
     outmap["nnz"] = std::to_string(m->get_gnnz());
     outmap["time_app_in"] = std::to_string((t_app_end - t_app_start) / 1e9);
     outmap["time_op"] = std::to_string((t_op_end - t_op_start) / 1e9);
