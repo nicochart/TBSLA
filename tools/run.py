@@ -38,8 +38,7 @@ errs = errs.decode('utf-8')
 print(errs, file=sys.stderr)
 print(outs)
 
-l = outs.split('\n')[0]
-r = re.findall(r'^{.*}', l)
+r = re.findall(r'^{.*}', outs, re.M)
 dic = dict()
 if len(r) > 0:
   dic = json.loads(r[0])
