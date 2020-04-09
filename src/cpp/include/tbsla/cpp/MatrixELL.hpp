@@ -10,7 +10,7 @@ namespace tbsla { namespace cpp {
 
 class MatrixELL : public virtual Matrix {
   public:
-    MatrixELL() : values(0), columns(0), nnz(0), max_col(0) {};
+    MatrixELL() : values(0), columns(0), max_col(0) {};
     friend std::ostream & operator<<( std::ostream &os, const MatrixELL &m);
     std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
     std::vector<double> a_axpx_(const std::vector<double> &x, int vect_incr = 0) const;
@@ -27,7 +27,6 @@ class MatrixELL : public virtual Matrix {
   protected:
     std::vector<double> values;
     std::vector<int> columns;
-    int nnz;
     int max_col;
 };
 

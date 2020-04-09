@@ -251,14 +251,32 @@ void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, un
     }
   }
 
+  this->nnz = 0;
+  int incr_save = incr;
+
+  int i;
+  for(i = f_row; i < std::min({n_row, n_col, f_row + ln_row}); i++) {
+    for(int j = 0; j < std::min(c, n_col); j++) {
+      auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
+      int ii, jj;
+      ii = std::get<0>(tuple);
+      jj = std::get<1>(tuple);
+      if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
+        this->nnz++;
+      }
+      incr++;
+    }
+  }
+
+  incr = incr_save;
+
   if(nv == 0)
     return;
 
-  this->values.reserve(ln_row * ln_col * q);
-  this->colidx.reserve(ln_row * ln_col * q);
+  this->values.reserve(this->nnz);
+  this->colidx.reserve(this->nnz);
   this->rowptr.reserve(ln_row + 1);
 
-  int i;
   int lincr = 0;
   this->rowptr.push_back(lincr);
   for(i = f_row; i < std::min(min_, f_row + ln_row); i++) {
