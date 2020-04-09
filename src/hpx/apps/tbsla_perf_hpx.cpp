@@ -96,8 +96,8 @@ int hpx_main(hpx::program_options::variables_map& vm)
   outmap["matrix_format"] = format;
   outmap["n_row"] = std::to_string(m->get_n_row());
   outmap["n_col"] = std::to_string(m->get_n_col());
-  outmap["gr"] = std::to_string(GR);
-  outmap["gc"] = std::to_string(GC);
+  outmap["g_row"] = std::to_string(GR);
+  outmap["g_col"] = std::to_string(GC);
   outmap["time_app_in"] = std::to_string((t_app_end - t_app_start) / 1e9);
   outmap["time_op"] = std::to_string((t_op_end - t_op_start) / 1e9);
   outmap["lang"] = "HPX";
