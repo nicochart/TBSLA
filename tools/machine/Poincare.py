@@ -7,6 +7,9 @@ def get_cores_per_node(args):
 def get_mpirun(args):
   return "mpirun -x PATH -x LD_LIBRARY_PATH"
 
+def get_submit_cmd(args):
+  return "llsubmit"
+
 def get_env(args):
   env = """
 module purge
