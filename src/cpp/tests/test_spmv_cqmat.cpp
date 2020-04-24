@@ -1,6 +1,7 @@
 #include <tbsla/cpp/MatrixCOO.hpp>
 #include <tbsla/cpp/MatrixCSR.hpp>
 #include <tbsla/cpp/MatrixELL.hpp>
+#include <tbsla/cpp/MatrixDENSE.hpp>
 #include <tbsla/cpp/Matrix.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
 
@@ -67,6 +68,22 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
     tbsla::utils::vector::streamvector<double>(std::cout, "rcoo", rcoo);
     std::cout << std::endl;
     tbsla::utils::vector::streamvector<double>(std::cout, "rell", rell);
+    std::cout << std::endl;
+    exit(1);
+  }
+
+  tbsla::cpp::MatrixDENSE mdense;
+  mdense.fill_cqmat(nr, nc, c, q, s);
+  std::vector<double> rdense = mdense.spmv(v);
+  if(rcoo != rdense) {
+    print(mcoo);
+    mcoo.print_as_dense(std::cout);
+    print(mdense);
+    tbsla::utils::vector::streamvector<double>(std::cout, "v", v);
+    std::cout << std::endl;
+    tbsla::utils::vector::streamvector<double>(std::cout, "rcoo", rcoo);
+    std::cout << std::endl;
+    tbsla::utils::vector::streamvector<double>(std::cout, "rdense", rdense);
     std::cout << std::endl;
     exit(1);
   }

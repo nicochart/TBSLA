@@ -1,6 +1,7 @@
 list(APPEND SRC_LIST MatrixCOO.cpp)
 list(APPEND SRC_LIST MatrixCSR.cpp)
 list(APPEND SRC_LIST MatrixELL.cpp)
+list(APPEND SRC_LIST MatrixDENSE.cpp)
 list(APPEND SRC_LIST Vector.cpp)
 
 add_library(tbsla_hpx OBJECT ${SRC_LIST})

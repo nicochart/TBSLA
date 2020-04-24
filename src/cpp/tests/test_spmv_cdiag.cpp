@@ -1,6 +1,7 @@
 #include <tbsla/cpp/MatrixCOO.hpp>
 #include <tbsla/cpp/MatrixCSR.hpp>
 #include <tbsla/cpp/MatrixELL.hpp>
+#include <tbsla/cpp/MatrixDENSE.hpp>
 #include <tbsla/cpp/Matrix.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
 
@@ -53,6 +54,10 @@ void test_cdiag(int nr, int nc, int c) {
   tbsla::cpp::MatrixELL mell;
   mell.fill_cdiag(nr, nc, c);
   test_matrix(mell, c);
+
+  tbsla::cpp::MatrixDENSE mdense;
+  mdense.fill_cdiag(nr, nc, c);
+  test_matrix(mdense, c);
 }
 
 int main(int argc, char** argv) {

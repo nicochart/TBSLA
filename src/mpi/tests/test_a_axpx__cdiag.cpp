@@ -2,6 +2,7 @@
 #include <tbsla/mpi/MatrixCOO.hpp>
 #include <tbsla/mpi/MatrixCSR.hpp>
 #include <tbsla/mpi/MatrixELL.hpp>
+#include <tbsla/mpi/MatrixDENSE.hpp>
 
 #include <tbsla/cpp/utils/vector.hpp>
 
@@ -57,6 +58,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
   tbsla::mpi::MatrixCOO mcoo;
   tbsla::mpi::MatrixCSR mcsr;
   tbsla::mpi::MatrixELL mell;
+  tbsla::mpi::MatrixDENSE mdense;
 
   if(rank == 0)
     std::cout << "--- row ---- nr : " << nr << "; nc : " << nc << "; c : " << cdiag << " ----" << std::endl;
@@ -64,6 +66,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
   test_matrix(mcoo, nr, nc, cdiag, rank, 0, world, 1);
   test_matrix(mcsr, nr, nc, cdiag, rank, 0, world, 1);
   test_matrix(mell, nr, nc, cdiag, rank, 0, world, 1);
+  test_matrix(mdense, nr, nc, cdiag, rank, 0, world, 1);
 
   MPI_Barrier(MPI_COMM_WORLD);
   if(rank == 0)
@@ -72,6 +75,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
   test_matrix(mcoo, nr, nc, cdiag, 0, rank, 1, world);
   test_matrix(mcsr, nr, nc, cdiag, 0, rank, 1 ,world);
   test_matrix(mell, nr, nc, cdiag, 0, rank, 1, world);
+  test_matrix(mdense, nr, nc, cdiag, 0, rank, 1, world);
 
   if(world % 2 == 0 && world / 2 > 1) {
     MPI_Barrier(MPI_COMM_WORLD);
@@ -82,6 +86,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
     test_matrix(mcoo, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
     test_matrix(mcsr, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
     test_matrix(mell, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
+    test_matrix(mdense, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
   }
   MPI_Barrier(MPI_COMM_WORLD);
 }

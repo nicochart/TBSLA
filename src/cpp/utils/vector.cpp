@@ -75,7 +75,7 @@ int tbsla::utils::vector::test_a_axpx__cdiag(int nr, int nc, int c, std::vector<
   return 0;
 }
 
-void tbsla::utils::vector::print_dense_matrix(int nr, int nc, std::vector<double> & m, std::ostream& os) {
+void tbsla::utils::vector::print_dense_matrix(int nr, int nc, const std::vector<double> & m, std::ostream& os) {
   int i, j, max_p = 1, log_r;
   for (i = 0; i < nr * nc; i++) {
     log_r = log10(fabs(m[i])) + 1;

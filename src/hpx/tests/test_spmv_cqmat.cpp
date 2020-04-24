@@ -4,6 +4,7 @@
 #include <tbsla/hpx/MatrixCOO.hpp>
 #include <tbsla/hpx/MatrixCSR.hpp>
 #include <tbsla/hpx/MatrixELL.hpp>
+#include <tbsla/hpx/MatrixDENSE.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
 
 void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int gr, int gc) {
@@ -44,6 +45,21 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int gr, int 
     tbsla::utils::vector::streamvector<double>(std::cout, "rcoo ", rcoo);
     std::cout << std::endl;
     tbsla::utils::vector::streamvector<double>(std::cout, "rell ", rell);
+    std::cout << std::endl;
+    throw "Result vector does not correspond to the expected results !";
+  }
+
+  tbsla::hpx_::MatrixDENSE mdense;
+  mdense.fill_cqmat(localities, nr, nc, c, q, seed, gr, gc);
+  mdense.wait();
+  r = mdense.spmv(v);
+  std::vector<double> rdense = r.get_data().get().get_vect();
+  if(rdense != rcoo) {
+    tbsla::utils::vector::streamvector<double>(std::cout, "v ", v_data);
+    std::cout << std::endl;
+    tbsla::utils::vector::streamvector<double>(std::cout, "rcoo ", rcoo);
+    std::cout << std::endl;
+    tbsla::utils::vector::streamvector<double>(std::cout, "rdense ", rdense);
     std::cout << std::endl;
     throw "Result vector does not correspond to the expected results !";
   }

@@ -37,7 +37,7 @@ i = Ns
 while i <= Ne:
   print('# nb nodes : ', i)
   factors = decomp(i * 16)
-  for mf in {'COO', 'CSR', 'ELL'}:
+  for mf in {'COO', 'CSR', 'ELL', 'DENSE'}:
     g2 = 1
     for f in factors:
       g1 = int(i * 16 / g2)

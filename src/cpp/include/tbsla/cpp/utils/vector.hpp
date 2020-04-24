@@ -20,7 +20,7 @@ void streamvector(std::ostream &os, const std::string name, const std::vector<my
 
 int test_spmv_cdiag(int nr, int nc, int c, std::vector<double> & v, std::vector<double> & r, bool debug);
 int test_a_axpx__cdiag(int nr, int nc, int c, std::vector<double> & v, std::vector<double> & r, bool debug);
-void print_dense_matrix(int nr, int nc, std::vector<double> & m, std::ostream& os);
+void print_dense_matrix(int nr, int nc, const std::vector<double>& m, std::ostream& os);
 
 }}}
 

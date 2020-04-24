@@ -4,6 +4,7 @@
 #include <tbsla/hpx/MatrixCOO.hpp>
 #include <tbsla/hpx/MatrixCSR.hpp>
 #include <tbsla/hpx/MatrixELL.hpp>
+#include <tbsla/hpx/MatrixDENSE.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
 
 void test_mat(tbsla::hpx_::Matrix & m, int nr, int nc, int c, int gr, int gc) {
@@ -34,6 +35,9 @@ void test_cdiag(int nr, int nc, int c, int gr, int gc) {
 
   tbsla::hpx_::MatrixELL mell;
 //  test_mat(mell, nr, nc, c, gr, gc);
+
+  tbsla::hpx_::MatrixDENSE mdense;
+  test_mat(mdense, nr, nc, c, gr, gc);
 }
 
 int hpx_main(hpx::program_options::variables_map& vm)

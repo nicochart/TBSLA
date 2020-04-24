@@ -4,6 +4,7 @@
 #include <tbsla/hpx/MatrixCOO.hpp>
 #include <tbsla/hpx/MatrixCSR.hpp>
 #include <tbsla/hpx/MatrixELL.hpp>
+#include <tbsla/hpx/MatrixDENSE.hpp>
 
 #include <random>
 #include <map>
@@ -57,6 +58,8 @@ int hpx_main(hpx::program_options::variables_map& vm)
     m = new tbsla::hpx_::MatrixCSR();
   } else if(format == "ELL" | format == "ell") {
     m = new tbsla::hpx_::MatrixELL();
+  } else if(format == "DENSE" | format == "dense") {
+    m = new tbsla::hpx_::MatrixDENSE();
   } else {
     std::cerr << format << " unrecognized!" << std::endl;
     return hpx::finalize();

@@ -1,6 +1,7 @@
 #include <tbsla/cpp/MatrixCOO.hpp>
 #include <tbsla/cpp/MatrixCSR.hpp>
 #include <tbsla/cpp/MatrixELL.hpp>
+#include <tbsla/cpp/MatrixDENSE.hpp>
 #include <tbsla/cpp/utils/InputParser.hpp>
 
 int main(int argc, char** argv) {
@@ -57,6 +58,8 @@ int main(int argc, char** argv) {
     m = new tbsla::cpp::MatrixCSR();
   } else if(format == "ELL" | format == "ell") {
     m = new tbsla::cpp::MatrixELL();
+  } else if(format == "DENSE" | format == "dense") {
+    m = new tbsla::cpp::MatrixDENSE();
   } else {
     std::cerr << format << " unrecognized!" << std::endl;
     exit(1);

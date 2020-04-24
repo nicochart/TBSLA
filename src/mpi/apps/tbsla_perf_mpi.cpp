@@ -1,6 +1,7 @@
 #include <tbsla/mpi/MatrixCOO.hpp>
 #include <tbsla/mpi/MatrixCSR.hpp>
 #include <tbsla/mpi/MatrixELL.hpp>
+#include <tbsla/mpi/MatrixDENSE.hpp>
 #include <tbsla/cpp/utils/InputParser.hpp>
 
 #include <algorithm>
@@ -87,6 +88,8 @@ int main(int argc, char** argv) {
     m = new tbsla::mpi::MatrixCSR();
   } else if(format == "ELL" | format == "ell") {
     m = new tbsla::mpi::MatrixELL();
+  } else if(format == "DENSE" | format == "dense") {
+    m = new tbsla::mpi::MatrixDENSE();
   } else {
     if(rank == 0) {
       std::cerr << format << " unrecognized!" << std::endl;
