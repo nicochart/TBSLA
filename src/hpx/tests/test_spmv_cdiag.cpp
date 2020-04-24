@@ -34,7 +34,7 @@ void test_cdiag(int nr, int nc, int c, int gr, int gc) {
   test_mat(mcsr, nr, nc, c, gr, gc);
 
   tbsla::hpx_::MatrixELL mell;
-//  test_mat(mell, nr, nc, c, gr, gc);
+  test_mat(mell, nr, nc, c, gr, gc);
 
   tbsla::hpx_::MatrixDENSE mdense;
   test_mat(mdense, nr, nc, c, gr, gc);
