@@ -1,0 +1,46 @@
+extern "C" %{
+
+#include <math.h>
+#include "parsec/data_dist/hash_datadist.h"
+
+%}
+
+Matrix     [ type="parsec_hash_datadist_t*" ]
+Vector     [ type="parsec_hash_datadist_t*" ]
+Gr         [ type="int" ]
+Gc         [ type="int" ]
+
+
+SPMV(i, j)
+
+i = 0 .. Gr - 1
+j = 0 .. Gc - 1
+
+: Matrix(i * Gc + j)
+
+READ  M <- Matrix(i * Gc + j)                                      [type = MATRIX]
+RW    V <- Vector(i)                                               [type = VECTOR]
+        -> (i * Gc + j == 0) ? A ADD(0) : B ADD(i * Gc + j - 1)    [type = VECTOR]
+
+BODY
+{
+  printf("Gr %d\n", Gr);;
+  printf("Gc %d\n", Gc);;
+  printf("spmv i:%d, j:%d\n", i, j);
+  
+}
+END
+
+ADD(i)
+i = 0 .. Gr * Gc - 2
+
+: Matrix(i)
+
+RW    A  <- (i == 0) ? V SPMV(0, 0) : A ADD(i - 1)                 [type = VECTOR]
+         -> (i != Gr * Gc - 2) ? A ADD(i + 1) : Vector(0)          [type = VECTOR]
+READ  B  <- V SPMV((i + 1) / Gc, (i + 1) % Gc)                     [type = VECTOR]
+
+BODY
+  printf("ADD %d\n", i);
+END
+
