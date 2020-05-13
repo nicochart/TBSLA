@@ -132,7 +132,7 @@ struct MatrixELL : ::hpx::components::client_base<MatrixELL, tbsla::hpx_::server
 
 namespace tbsla { namespace hpx_ { namespace detail {
 
-static Vector_client spmv_part(tbsla::hpx_::client::MatrixELL const& A_p, Vector_client const& v_p, Vector_client const& r_p);
+static tbsla::hpx_::client::Vector spmv_part(tbsla::hpx_::client::MatrixELL const& A_p, tbsla::hpx_::client::Vector const& v_p, tbsla::hpx_::client::Vector const& r_p);
 
 }}}
 
@@ -145,8 +145,8 @@ class MatrixELL : public tbsla::hpx_::Matrix {
     void wait();
     std::size_t get_n_col();
     std::size_t get_n_row();
-    Vector_client spmv(Vector_client v);
-    Vector_client a_axpx_(Vector_client v);
+    tbsla::hpx_::client::Vector spmv(tbsla::hpx_::client::Vector v);
+    tbsla::hpx_::client::Vector a_axpx_(tbsla::hpx_::client::Vector v);
   private:
     std::vector<tbsla::hpx_::client::MatrixELL> tiles;
     std::vector<hpx::id_type> localities;

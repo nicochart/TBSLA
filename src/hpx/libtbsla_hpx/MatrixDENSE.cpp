@@ -45,16 +45,16 @@ void tbsla::hpx_::MatrixDENSE::fill_cqmat(std::vector<hpx::id_type> localities, 
   }
 }
 
-static Vector_client tbsla::hpx_::detail::spmv_part(tbsla::hpx_::client::MatrixDENSE const& A_p, Vector_client const& v_p, Vector_client const& r_p) {
+static tbsla::hpx_::client::Vector tbsla::hpx_::detail::spmv_part(tbsla::hpx_::client::MatrixDENSE const& A_p, tbsla::hpx_::client::Vector const& v_p, tbsla::hpx_::client::Vector const& r_p) {
   using hpx::dataflow;
   using hpx::util::unwrapping;
 
   hpx::shared_future<tbsla::hpx_::detail::MatrixDENSE> A_data = A_p.get_data();
-  hpx::shared_future<Vector_data> v_data = v_p.get_data();
+  hpx::shared_future<tbsla::hpx_::detail::Vector> v_data = v_p.get_data();
   return dataflow(hpx::launch::async,
-    unwrapping([r_p](tbsla::hpx_::detail::MatrixDENSE const& A, Vector_data const& v) -> Vector_client {
-      Vector_data r(A.spmv(v.get_vect(), 0));
-      return Vector_client(r_p.get_id(), r);
+    unwrapping([r_p](tbsla::hpx_::detail::MatrixDENSE const& A, tbsla::hpx_::detail::Vector const& v) -> tbsla::hpx_::client::Vector {
+      tbsla::hpx_::detail::Vector r(A.spmv(v.get_vect(), 0));
+      return tbsla::hpx_::client::Vector(r_p.get_id(), r);
     }),
     A_data, v_data);
 }
@@ -62,11 +62,11 @@ static Vector_client tbsla::hpx_::detail::spmv_part(tbsla::hpx_::client::MatrixD
 HPX_PLAIN_ACTION(tbsla::hpx_::detail::spmv_part, spmv_dense_part_action);
 
 
-Vector_client tbsla::hpx_::MatrixDENSE::spmv(Vector_client v) {
-  std::vector<Vector_client> spmv_res;
+tbsla::hpx_::client::Vector tbsla::hpx_::MatrixDENSE::spmv(tbsla::hpx_::client::Vector v) {
+  std::vector<tbsla::hpx_::client::Vector> spmv_res;
   spmv_res.resize(this->tiles.size());
   for (std::size_t i = 0; i != this->tiles.size(); ++i) {
-    spmv_res[i] = Vector_client(this->localities[i * this->localities.size() / this->tiles.size()]);
+    spmv_res[i] = tbsla::hpx_::client::Vector(this->localities[i * this->localities.size() / this->tiles.size()]);
   }
 
   spmv_dense_part_action act_spmv;
@@ -83,8 +83,8 @@ Vector_client tbsla::hpx_::MatrixDENSE::spmv(Vector_client v) {
   return reduce(spmv_res);
 }
 
-Vector_client tbsla::hpx_::MatrixDENSE::a_axpx_(Vector_client v) {
-  Vector_client r = this->spmv(v);
+tbsla::hpx_::client::Vector tbsla::hpx_::MatrixDENSE::a_axpx_(tbsla::hpx_::client::Vector v) {
+  tbsla::hpx_::client::Vector r = this->spmv(v);
   r = add_vectors(this->localities[0], r, v);
   return this->spmv(r);
 }

@@ -79,12 +79,12 @@ int hpx_main(hpx::program_options::variables_map& vm)
   auto gen = [&dist, &mersenne_engine](){ return dist(mersenne_engine); };
   std::vector<double> vec(NC);
   std::generate(begin(vec), end(vec), gen);
-  Vector_data vdata(vec);
-  Vector_client v(localities[0], vdata);
+  tbsla::hpx_::detail::Vector vdata(vec);
+  tbsla::hpx_::client::Vector v(localities[0], vdata);
   v.get_data().wait();
 
   std::uint64_t t_op_start = hpx::util::high_resolution_clock::now();
-  Vector_client r;
+  tbsla::hpx_::client::Vector r;
   if(op == "spmv") {
     r = m->spmv(v);
   } else if(op == "a_axpx") {

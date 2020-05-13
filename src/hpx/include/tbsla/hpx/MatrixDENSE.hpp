@@ -132,7 +132,7 @@ struct MatrixDENSE : ::hpx::components::client_base<MatrixDENSE, tbsla::hpx_::se
 
 namespace tbsla { namespace hpx_ { namespace detail {
 
-static Vector_client spmv_part(tbsla::hpx_::client::MatrixDENSE const& A_p, Vector_client const& v_p, Vector_client const& r_p);
+static tbsla::hpx_::client::Vector spmv_part(tbsla::hpx_::client::MatrixDENSE const& A_p, tbsla::hpx_::client::Vector const& v_p, tbsla::hpx_::client::Vector const& r_p);
 
 }}}
 
@@ -145,8 +145,8 @@ class MatrixDENSE : public tbsla::hpx_::Matrix {
     void wait();
     std::size_t get_n_col();
     std::size_t get_n_row();
-    Vector_client spmv(Vector_client v);
-    Vector_client a_axpx_(Vector_client v);
+    tbsla::hpx_::client::Vector spmv(tbsla::hpx_::client::Vector v);
+    tbsla::hpx_::client::Vector a_axpx_(tbsla::hpx_::client::Vector v);
   private:
     std::vector<tbsla::hpx_::client::MatrixDENSE> tiles;
     std::vector<hpx::id_type> localities;

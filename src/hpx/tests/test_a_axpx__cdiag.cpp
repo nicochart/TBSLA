@@ -9,12 +9,12 @@
 
 void test_mat(tbsla::hpx_::Matrix & m, int nr, int nc, int c, int gr, int gc) {
   std::vector<hpx::id_type> localities = hpx::find_all_localities();
-  Vector_client v(localities[0], nc);
+  tbsla::hpx_::client::Vector v(localities[0], nc);
   std::vector<double> v_data = v.get_data().get().get_vect();
 
   m.fill_cdiag(localities, nr, nc, c, gr, gc);
   m.wait();
-  Vector_client r = m.a_axpx_(v);
+  tbsla::hpx_::client::Vector r = m.a_axpx_(v);
   std::vector<double> r_data = r.get_data().get().get_vect();
   int res = tbsla::utils::vector::test_a_axpx__cdiag(nr, nc, c, v_data, r_data, false);
   std::cout << "return : " << res << std::endl;

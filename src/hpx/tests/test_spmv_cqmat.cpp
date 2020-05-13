@@ -9,14 +9,14 @@
 
 void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int gr, int gc) {
   std::vector<hpx::id_type> localities = hpx::find_all_localities();
-  Vector_client v(localities[0], nc);
+  tbsla::hpx_::client::Vector v(localities[0], nc);
   std::vector<double> v_data = v.get_data().get().get_vect();
 
   std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << c << "; q : " << q << "; s : " << seed << " ---- gr : " << gr << "; gc : " << gc << std::endl;
   tbsla::hpx_::MatrixCOO mcoo;
   mcoo.fill_cqmat(localities, nr, nc, c, q, seed, gr, gc);
   mcoo.wait();
-  Vector_client r = mcoo.spmv(v);
+  tbsla::hpx_::client::Vector r = mcoo.spmv(v);
   std::vector<double> rcoo = r.get_data().get().get_vect();
 
   tbsla::hpx_::MatrixCOO mcsr;

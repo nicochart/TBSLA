@@ -6,16 +6,18 @@
 #include <vector>
 #include <numeric>
 
-class Vector_data {
+namespace tbsla { namespace hpx_ { namespace detail {
+
+class Vector {
   public:
     std::vector<double> get_vect() const { return data_; }
-    Vector_data(std::vector<double> v) : data_(v) {}
-    Vector_data(std::size_t n) : data_(n)
+    Vector(std::vector<double> v) : data_(v) {}
+    Vector(std::size_t n) : data_(n)
     {
       std::iota (std::begin(data_), std::end(data_), 0);
     }
-    Vector_data(Vector_data const& other) : data_(other.data_) {}
-    Vector_data() : data_() {}
+    Vector(Vector const& other) : data_(other.data_) {}
+    Vector() : data_() {}
 
   private:
     friend ::hpx::serialization::access;
@@ -28,70 +30,76 @@ class Vector_data {
    std::vector<double> data_;
 };
 
-struct Vector_server : hpx::components::component_base<Vector_server>
+}}}
+
+namespace tbsla { namespace hpx_ { namespace server {
+
+struct Vector : hpx::components::component_base<Vector>
 {
     // construct new instances
-    Vector_server()
+    Vector()
       : data_()
     {
     }
 
-    Vector_server(Vector_data const& data)
+    Vector(tbsla::hpx_::detail::Vector const& data)
       : data_(data)
     {
     }
 
-    Vector_server(std::size_t n)
+    Vector(std::size_t n)
       : data_(n)
     {
     }
 
     // Access data.
-    Vector_data get_data() const
+    tbsla::hpx_::detail::Vector get_data() const
     {
         return data_;
     }
-
-    HPX_DEFINE_COMPONENT_DIRECT_ACTION(
-        Vector_server, get_data, get_Vector_data_action);
+    HPX_DEFINE_COMPONENT_ACTION(Vector, get_data);
 
 private:
-    Vector_data data_;
+    tbsla::hpx_::detail::Vector data_;
 };
 
+}}}
 
+HPX_REGISTER_ACTION_DECLARATION(tbsla::hpx_::server::Vector::get_data_action)
 
-struct Vector_client : hpx::components::client_base<Vector_client, Vector_server>
+namespace tbsla { namespace hpx_ { namespace client {
+
+struct Vector : hpx::components::client_base<Vector, tbsla::hpx_::server::Vector>
 {
-    typedef hpx::components::client_base<Vector_client, Vector_server> base_type;
+    typedef hpx::components::client_base<Vector, tbsla::hpx_::server::Vector> base_type;
 
-    Vector_client() {}
+    Vector() {}
 
     // Create new component on locality 'where' and initialize the held data
-    Vector_client(hpx::id_type where, std::size_t n)
-      : base_type(hpx::new_<Vector_server>(where, n))
+    Vector(hpx::id_type where, std::size_t n)
+      : base_type(hpx::new_<tbsla::hpx_::server::Vector>(where, n))
     {
     }
 
-    Vector_client(hpx::id_type where, Vector_data const& data)
-      : base_type(hpx::new_<Vector_server>(hpx::colocated(where), data))
+    Vector(hpx::id_type where, tbsla::hpx_::detail::Vector const& data)
+      : base_type(hpx::new_<tbsla::hpx_::server::Vector>(hpx::colocated(where), data))
     {
     }
 
-    Vector_client(hpx::id_type where)
-      : base_type(hpx::new_<Vector_server>(hpx::colocated(where)))
+    Vector(hpx::id_type where)
+      : base_type(hpx::new_<tbsla::hpx_::server::Vector>(hpx::colocated(where)))
     {
     }
 
     // Attach a future representing a (possibly remote) partition.
-    Vector_client(hpx::future<hpx::id_type>&& id)
+    Vector(hpx::future<hpx::id_type>&& id)
       : base_type(std::move(id))
     {
     }
 
     // Unwrap a future<partition> (a partition already holds a future to the
     // id of the referenced object, thus unwrapping accesses this inner future).
-    Vector_client(hpx::future<Vector_client>&& c)
+    Vector(hpx::future<tbsla::hpx_::client::Vector>&& c)
       : base_type(std::move(c))
     {
     }
@@ -99,16 +107,23 @@ struct Vector_client : hpx::components::client_base<Vector_client, Vector_server
     ///////////////////////////////////////////////////////////////////////////
     // Invoke the (remote) member function which gives us access to the data.
     // This is a pure helper function hiding the async.
-    hpx::future<Vector_data> get_data() const
+    hpx::future<tbsla::hpx_::detail::Vector> get_data() const
     {
-        Vector_server::get_Vector_data_action act;
+        tbsla::hpx_::server::Vector::get_data_action act;
         return hpx::async(act, get_id());
     }
 
 };
 
-Vector_client reduce(std::vector<Vector_client>);
-Vector_client add_vectors(hpx::id_type where, Vector_client v1, Vector_client v2);
+}}}
+
+tbsla::hpx_::client::Vector reduce(std::vector<tbsla::hpx_::client::Vector>);
+tbsla::hpx_::client::Vector add_vectors(hpx::id_type where, tbsla::hpx_::client::Vector v1, tbsla::hpx_::client::Vector v2);
+
+namespace tbsla { namespace hpx_ { namespace detail {
+  static tbsla::hpx_::client::Vector reduce_part(tbsla::hpx_::client::Vector const& vc1, tbsla::hpx_::client::Vector const& vc2);
+}}}
+
 
 
 #endif
