@@ -29,12 +29,12 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 }
 
 std::vector<double> tbsla::cpp::MatrixDENSE::spmv(const std::vector<double> &v, int vect_incr) const {
-  std::vector<double> r (this->n_row, 0);
+  std::vector<double> r (this->ln_row, 0);
   if(this->nnz == 0 || this->values.size() == 0)
     return r;
   for (int i = 0; i < this->ln_row; i++) {
     for (int j = 0; j < this->ln_col; j++) {
-      r[i + this->f_row] += this->values[i * this->ln_col + j] * v[j + this->f_col];
+      r[i] += this->values[i * this->ln_col + j] * v[j];
     }
   }
   return r;
@@ -99,6 +99,10 @@ std::istream & tbsla::cpp::MatrixDENSE::read(std::istream &is, std::size_t pos, 
 void tbsla::cpp::MatrixDENSE::fill_cdiag(int n_row, int n_col, int cdiag, int pr, int pc, int NR, int NC) {
   this->n_row = n_row;
   this->n_col = n_col;
+  this->pr = pr;
+  this->pc = pc;
+  this->NR = NR;
+  this->NC = NC;
 
   this->values.clear();
 
@@ -150,6 +154,10 @@ void tbsla::cpp::MatrixDENSE::fill_cdiag(int n_row, int n_col, int cdiag, int pr
 void tbsla::cpp::MatrixDENSE::fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult, int pr, int pc, int NR, int NC) {
   this->n_row = n_row;
   this->n_col = n_col;
+  this->pr = pr;
+  this->pc = pc;
+  this->NR = NR;
+  this->NC = NC;
 
   this->values.clear();
 

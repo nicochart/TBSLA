@@ -149,8 +149,8 @@ class MatrixCOO : public tbsla::hpx_::Matrix {
     void wait();
     std::size_t get_n_col();
     std::size_t get_n_row();
-    tbsla::hpx_::client::Vector spmv(tbsla::hpx_::client::Vector v);
-    tbsla::hpx_::client::Vector a_axpx_(tbsla::hpx_::client::Vector v);
+    tbsla::hpx_::Vector spmv(tbsla::hpx_::Vector v);
+    tbsla::hpx_::Vector a_axpx_(tbsla::hpx_::Vector v);
   private:
     std::vector<tbsla::hpx_::client::MatrixCOO> tiles;
     std::vector<hpx::id_type> localities;

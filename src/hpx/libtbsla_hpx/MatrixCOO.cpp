@@ -19,6 +19,8 @@ std::size_t tbsla::hpx_::MatrixCOO::get_n_row() {
 }
 
 void tbsla::hpx_::MatrixCOO::fill_cdiag(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t gr, std::size_t gc) {
+  this->gr = gr;
+  this->gc = gc;
   this->tiles.resize(gr * gc);
   this->localities = localities;
   std::size_t nl = this->localities.size();
@@ -32,6 +34,8 @@ void tbsla::hpx_::MatrixCOO::fill_cdiag(std::vector<hpx::id_type> localities, st
 }
 
 void tbsla::hpx_::MatrixCOO::fill_cqmat(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t gr, std::size_t gc) {
+  this->gr = gr;
+  this->gc = gc;
   this->tiles.resize(gr * gc);
   this->localities = localities;
   std::size_t nl = this->localities.size();
@@ -61,7 +65,7 @@ static tbsla::hpx_::client::Vector tbsla::hpx_::detail::spmv_part(tbsla::hpx_::c
 HPX_PLAIN_ACTION(tbsla::hpx_::detail::spmv_part, spmv_coo_part_action);
 
 
-tbsla::hpx_::client::Vector tbsla::hpx_::MatrixCOO::spmv(tbsla::hpx_::client::Vector v) {
+tbsla::hpx_::Vector tbsla::hpx_::MatrixCOO::spmv(tbsla::hpx_::Vector v) {
   std::vector<tbsla::hpx_::client::Vector> spmv_res;
   spmv_res.resize(this->tiles.size());
   for (std::size_t i = 0; i != this->tiles.size(); ++i) {
@@ -76,15 +80,15 @@ tbsla::hpx_::client::Vector tbsla::hpx_::MatrixCOO::spmv(tbsla::hpx_::client::Ve
     using hpx::util::placeholders::_2;
     using hpx::util::placeholders::_3;
     auto Op = hpx::util::bind(act_spmv, this->localities[i * this->localities.size() / this->tiles.size()], _1, _2, _3);
-    spmv_res[i] = dataflow(hpx::launch::async, Op, this->tiles[i], v, spmv_res[i]);
+    spmv_res[i] = dataflow(hpx::launch::async, Op, this->tiles[i], v.get_vectors().front(), spmv_res[i]);
   }
 
-  return reduce(spmv_res);
+  return reduce(tbsla::hpx_::Vector(spmv_res, v.get_gr(), v.get_gc()));
 }
 
-tbsla::hpx_::client::Vector tbsla::hpx_::MatrixCOO::a_axpx_(tbsla::hpx_::client::Vector v) {
-  tbsla::hpx_::client::Vector r = this->spmv(v);
-  r = add_vectors(this->localities[0], r, v);
+tbsla::hpx_::Vector tbsla::hpx_::MatrixCOO::a_axpx_(tbsla::hpx_::Vector v) {
+  tbsla::hpx_::Vector r = this->spmv(v);
+  r = add_vectors(r, v);
   return this->spmv(r);
 }
 

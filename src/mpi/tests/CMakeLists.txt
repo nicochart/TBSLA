@@ -17,6 +17,9 @@ function(add_tbsla_mpi_executable SRC)
   if(5 LESS ${MPIEXEC_MAX_NUMPROCS})
       add_test ("mpi_${SRC}_test5" ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 5 ${MPIEXEC_PREFLAGS} "mpi_${SRC}" ${MPIEXEC_POSTFLAGS})
   endif()
+  if(6 LESS ${MPIEXEC_MAX_NUMPROCS})
+      add_test ("mpi_${SRC}_test6" ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 6 ${MPIEXEC_PREFLAGS} "mpi_${SRC}" ${MPIEXEC_POSTFLAGS})
+  endif()
 endfunction()
 
 

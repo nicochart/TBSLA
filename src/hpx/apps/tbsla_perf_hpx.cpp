@@ -73,24 +73,22 @@ int hpx_main(hpx::program_options::variables_map& vm)
   }
   m->wait();
 
-  std::random_device rnd_device;
-  std::mt19937 mersenne_engine {rnd_device()};  // Generates random integers
-  std::uniform_real_distribution<double> dist {-1, 1};
-  auto gen = [&dist, &mersenne_engine](){ return dist(mersenne_engine); };
-  std::vector<double> vec(NC);
-  std::generate(begin(vec), end(vec), gen);
-  tbsla::hpx_::detail::Vector vdata(vec);
-  tbsla::hpx_::client::Vector v(localities[0], vdata);
-  v.get_data().wait();
+  tbsla::hpx_::Vector v(GC, GR, GC);
+  if(format == "COO" | format == "coo") {
+    v.init_single(NC);
+  } else {
+    v.init_split(NC);
+  }
+  v.wait();
 
   std::uint64_t t_op_start = hpx::util::high_resolution_clock::now();
-  tbsla::hpx_::client::Vector r;
+  tbsla::hpx_::Vector r;
   if(op == "spmv") {
     r = m->spmv(v);
   } else if(op == "a_axpx") {
     r = m->a_axpx_(v);
   }
-  r.get_data().wait();
+  r.wait();
   std::uint64_t t_op_end = hpx::util::high_resolution_clock::now();
   std::uint64_t t_app_end = hpx::util::high_resolution_clock::now();
 

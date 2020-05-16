@@ -30,8 +30,10 @@ class Matrix {
     virtual void wait() = 0;
     virtual std::size_t get_n_col() = 0;
     virtual std::size_t get_n_row() = 0;
-    virtual tbsla::hpx_::client::Vector spmv(tbsla::hpx_::client::Vector v) = 0;
-    virtual tbsla::hpx_::client::Vector a_axpx_(tbsla::hpx_::client::Vector v) = 0;
+    virtual tbsla::hpx_::Vector spmv(tbsla::hpx_::Vector v) = 0;
+    virtual tbsla::hpx_::Vector a_axpx_(tbsla::hpx_::Vector v) = 0;
+  protected:
+    int gr, gc;
 };
 
 }}

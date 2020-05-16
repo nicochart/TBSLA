@@ -20,6 +20,8 @@ std::size_t tbsla::hpx_::MatrixELL::get_n_row() {
 }
 
 void tbsla::hpx_::MatrixELL::fill_cdiag(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t cdiag, std::size_t gr, std::size_t gc) {
+  this->gr = gr;
+  this->gc = gc;
   this->tiles.resize(gr * gc);
   this->localities = localities;
   std::size_t nl = this->localities.size();
@@ -33,6 +35,8 @@ void tbsla::hpx_::MatrixELL::fill_cdiag(std::vector<hpx::id_type> localities, st
 }
 
 void tbsla::hpx_::MatrixELL::fill_cqmat(std::vector<hpx::id_type> localities, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed, std::size_t gr, std::size_t gc) {
+  this->gr = gr;
+  this->gc = gc;
   this->tiles.resize(gr * gc);
   this->localities = localities;
   std::size_t nl = this->localities.size();
@@ -62,7 +66,7 @@ static tbsla::hpx_::client::Vector tbsla::hpx_::detail::spmv_part(tbsla::hpx_::c
 HPX_PLAIN_ACTION(tbsla::hpx_::detail::spmv_part, spmv_ell_part_action);
 
 
-tbsla::hpx_::client::Vector tbsla::hpx_::MatrixELL::spmv(tbsla::hpx_::client::Vector v) {
+tbsla::hpx_::Vector tbsla::hpx_::MatrixELL::spmv(tbsla::hpx_::Vector v) {
   std::vector<tbsla::hpx_::client::Vector> spmv_res;
   spmv_res.resize(this->tiles.size());
   for (std::size_t i = 0; i != this->tiles.size(); ++i) {
@@ -72,20 +76,23 @@ tbsla::hpx_::client::Vector tbsla::hpx_::MatrixELL::spmv(tbsla::hpx_::client::Ve
   spmv_ell_part_action act_spmv;
 
   using hpx::dataflow;
-  for (std::size_t i = 0; i != this->tiles.size(); ++i) {
-    using hpx::util::placeholders::_1;
-    using hpx::util::placeholders::_2;
-    using hpx::util::placeholders::_3;
-    auto Op = hpx::util::bind(act_spmv, this->localities[i * this->localities.size() / this->tiles.size()], _1, _2, _3);
-    spmv_res[i] = dataflow(hpx::launch::async, Op, this->tiles[i], v, spmv_res[i]);
+  for (std::size_t i = 0; i < v.get_gr(); ++i) {
+    for (std::size_t j = 0; j < v.get_gc(); ++j) {
+      using hpx::util::placeholders::_1;
+      using hpx::util::placeholders::_2;
+      using hpx::util::placeholders::_3;
+      auto Op = hpx::util::bind(act_spmv, this->localities[(i * gc + j) * this->localities.size() / this->tiles.size()], _1, _2, _3);
+      spmv_res[i* gc + j] = dataflow(hpx::launch::async, Op, this->tiles[i * gc + j], v.get_vectors()[j], spmv_res[i * gc + j]);
+    }
   }
 
-  return reduce(spmv_res);
+  return gather_reduce(tbsla::hpx_::Vector(spmv_res, v.get_gr(), v.get_gc()));
 }
 
-tbsla::hpx_::client::Vector tbsla::hpx_::MatrixELL::a_axpx_(tbsla::hpx_::client::Vector v) {
-  tbsla::hpx_::client::Vector r = this->spmv(v);
-  r = add_vectors(this->localities[0], r, v);
+tbsla::hpx_::Vector tbsla::hpx_::MatrixELL::a_axpx_(tbsla::hpx_::Vector v) {
+  tbsla::hpx_::Vector r = this->spmv(v);
+  r.split(this->gc);
+  r = add_vectors(r, v);
   return this->spmv(r);
 }
 

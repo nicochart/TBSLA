@@ -29,7 +29,7 @@ void test_matrix(tbsla::mpi::Matrix & m, int nr, int nc, int cdiag, int pr, int 
   }
   if(res0) {
     int res;
-    std::vector<double> r = m.spmv(MPI_COMM_WORLD, v);
+    std::vector<double> r = m.a_axpx_(MPI_COMM_WORLD, v);
     for(int i = 0; i < world; i++) {
       MPI_Barrier(MPI_COMM_WORLD);
       if(i == rank) {

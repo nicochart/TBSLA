@@ -12,6 +12,10 @@ class Vector {
   public:
     std::vector<double> get_vect() const { return data_; }
     Vector(std::vector<double> v) : data_(v) {}
+    Vector(std::size_t n, std::size_t s) : data_(n)
+    {
+      std::iota (std::begin(data_), std::end(data_), s);
+    }
     Vector(std::size_t n) : data_(n)
     {
       std::iota (std::begin(data_), std::end(data_), 0);
@@ -52,6 +56,11 @@ struct Vector : hpx::components::component_base<Vector>
     {
     }
 
+    Vector(std::size_t n, std::size_t s)
+      : data_(n, s)
+    {
+    }
+
     // Access data.
     tbsla::hpx_::detail::Vector get_data() const
     {
@@ -78,6 +87,11 @@ struct Vector : hpx::components::client_base<Vector, tbsla::hpx_::server::Vector
     // Create new component on locality 'where' and initialize the held data
     Vector(hpx::id_type where, std::size_t n)
       : base_type(hpx::new_<tbsla::hpx_::server::Vector>(where, n))
+    {
+    }
+
+    Vector(hpx::id_type where, std::size_t n, std::size_t s)
+      : base_type(hpx::new_<tbsla::hpx_::server::Vector>(where, n, s))
     {
     }
 
@@ -117,13 +131,65 @@ struct Vector : hpx::components::client_base<Vector, tbsla::hpx_::server::Vector
 
 }}}
 
-tbsla::hpx_::client::Vector reduce(std::vector<tbsla::hpx_::client::Vector>);
-tbsla::hpx_::client::Vector add_vectors(hpx::id_type where, tbsla::hpx_::client::Vector v1, tbsla::hpx_::client::Vector v2);
-
 namespace tbsla { namespace hpx_ { namespace detail {
   static tbsla::hpx_::client::Vector reduce_part(tbsla::hpx_::client::Vector const& vc1, tbsla::hpx_::client::Vector const& vc2);
+  static tbsla::hpx_::client::Vector gather_part(tbsla::hpx_::client::Vector const& vc1, tbsla::hpx_::client::Vector const& vc2);
+  static tbsla::hpx_::client::Vector split_part(tbsla::hpx_::client::Vector const& v, int p, int m);
 }}}
 
+namespace tbsla { namespace hpx_ {
+
+class Vector {
+  public:
+    Vector() {};
+
+    /*
+     * gr : number of blocks in the row dimension
+     * gc : number of blocks in the column dimension
+     * s : number of subvectors
+    */
+    Vector(std::size_t gr, std::size_t gc, std::size_t s);
+
+    /*
+     * gr : number of blocks in the row dimension
+     * gc : number of blocks in the column dimension
+    */
+    Vector(std::vector<tbsla::hpx_::client::Vector> vectors, std::size_t gr, std::size_t gc);
+
+    /*
+     * nv : number of values in the global vector
+    */
+    void init_split(std::size_t nv);
+
+    /*
+     * nv : number of values in the global vector
+    */
+    void init_single(std::size_t nv);
+
+    /*
+     * s : number of subvectors
+    */
+    void split(std::size_t s);
+
+
+    void wait();
+
+    std::vector<tbsla::hpx_::client::Vector> get_vectors() {return vectors;}
+    std::size_t get_gr() {return gr;}
+    std::size_t get_gc() {return gc;}
+
+  private:
+    std::vector<tbsla::hpx_::client::Vector> vectors;
+    std::vector<hpx::id_type> localities;
+    std::size_t gr, gc;
+};
+
+}}
+
+tbsla::hpx_::Vector reduce(tbsla::hpx_::Vector);
+tbsla::hpx_::Vector gather(tbsla::hpx_::Vector);
+tbsla::hpx_::Vector gather_reduce(tbsla::hpx_::Vector);
+tbsla::hpx_::Vector add_vectors(tbsla::hpx_::Vector v1, tbsla::hpx_::Vector v2);
 
 
 #endif

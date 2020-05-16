@@ -25,7 +25,9 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int pr, int 
 
   tbsla::mpi::MatrixCSR mcsr;
   mcsr.fill_cqmat(nr, nc, c, q, seed, pr, pc, NR, NC);
-  std::vector<double> rcsr = mcsr.spmv(MPI_COMM_WORLD, v);
+  std::vector<double> vl(mcsr.get_ln_col());
+  std::iota (std::begin(vl), std::end(vl), mcsr.get_f_col());
+  std::vector<double> rcsr = mcsr.spmv(MPI_COMM_WORLD, vl);
   if(rcsr != rcoo) {
     for(int i = 0; i < world; i++) {
       MPI_Barrier(MPI_COMM_WORLD);
@@ -38,6 +40,8 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int pr, int 
     if(rank == 0) {
       tbsla::utils::vector::streamvector<double>(std::cout, "v ", v);
       std::cout << std::endl;
+      tbsla::utils::vector::streamvector<double>(std::cout, "vl ", vl);
+      std::cout << std::endl;
       tbsla::utils::vector::streamvector<double>(std::cout, "rcoo ", rcoo);
       std::cout << std::endl;
       tbsla::utils::vector::streamvector<double>(std::cout, "rcsr ", rcsr);
@@ -48,7 +52,7 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int pr, int 
 
   tbsla::mpi::MatrixELL mell;
   mell.fill_cqmat(nr, nc, c, q, seed, pr, pc, NR, NC);
-  std::vector<double> rell = mell.spmv(MPI_COMM_WORLD, v);
+  std::vector<double> rell = mell.spmv(MPI_COMM_WORLD, vl);
   if(rell != rcoo) {
     for(int i = 0; i < world; i++) {
       MPI_Barrier(MPI_COMM_WORLD);
@@ -61,6 +65,8 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int pr, int 
     if(rank == 0) {
       tbsla::utils::vector::streamvector<double>(std::cout, "v ", v);
       std::cout << std::endl;
+      tbsla::utils::vector::streamvector<double>(std::cout, "vl ", vl);
+      std::cout << std::endl;
       tbsla::utils::vector::streamvector<double>(std::cout, "rcoo ", rcoo);
       std::cout << std::endl;
       tbsla::utils::vector::streamvector<double>(std::cout, "rell ", rell);
@@ -71,7 +77,7 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int pr, int 
 
   tbsla::mpi::MatrixDENSE mdense;
   mdense.fill_cqmat(nr, nc, c, q, seed, pr, pc, NR, NC);
-  std::vector<double> rdense = mdense.spmv(MPI_COMM_WORLD, v);
+  std::vector<double> rdense = mdense.spmv(MPI_COMM_WORLD, vl);
   if(rdense != rcoo) {
     for(int i = 0; i < world; i++) {
       MPI_Barrier(MPI_COMM_WORLD);
@@ -83,6 +89,8 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int pr, int 
     }
     if(rank == 0) {
       tbsla::utils::vector::streamvector<double>(std::cout, "v ", v);
+      std::cout << std::endl;
+      tbsla::utils::vector::streamvector<double>(std::cout, "vl ", vl);
       std::cout << std::endl;
       tbsla::utils::vector::streamvector<double>(std::cout, "rcoo ", rcoo);
       std::cout << std::endl;

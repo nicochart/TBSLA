@@ -9,21 +9,26 @@
 
 void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int gr, int gc) {
   std::vector<hpx::id_type> localities = hpx::find_all_localities();
-  tbsla::hpx_::client::Vector v(localities[0], nc);
-  std::vector<double> v_data = v.get_data().get().get_vect();
+  tbsla::hpx_::Vector vcoo(gr, gc, 1);
+  vcoo.init_single(nc);
+  vcoo.wait();
+  std::vector<double> v_data = vcoo.get_vectors().front().get_data().get().get_vect();
 
   std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << c << "; q : " << q << "; s : " << seed << " ---- gr : " << gr << "; gc : " << gc << std::endl;
   tbsla::hpx_::MatrixCOO mcoo;
   mcoo.fill_cqmat(localities, nr, nc, c, q, seed, gr, gc);
   mcoo.wait();
-  tbsla::hpx_::client::Vector r = mcoo.spmv(v);
-  std::vector<double> rcoo = r.get_data().get().get_vect();
+  tbsla::hpx_::Vector r = mcoo.spmv(vcoo);
+  std::vector<double> rcoo = r.get_vectors().front().get_data().get().get_vect();
 
-  tbsla::hpx_::MatrixCOO mcsr;
+  tbsla::hpx_::Vector v(gr, gc, gc);
+  v.init_split(nc);
+  v.wait();
+  tbsla::hpx_::MatrixCSR mcsr;
   mcsr.wait();
   mcsr.fill_cqmat(localities, nr, nc, c, q, seed, gr, gc);
   r = mcsr.spmv(v);
-  std::vector<double> rcsr = r.get_data().get().get_vect();
+  std::vector<double> rcsr = r.get_vectors().front().get_data().get().get_vect();
   if(rcsr != rcoo) {
     tbsla::utils::vector::streamvector<double>(std::cout, "v ", v_data);
     std::cout << std::endl;
@@ -38,7 +43,7 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int gr, int 
   mell.fill_cqmat(localities, nr, nc, c, q, seed, gr, gc);
   mell.wait();
   r = mell.spmv(v);
-  std::vector<double> rell = r.get_data().get().get_vect();
+  std::vector<double> rell = r.get_vectors().front().get_data().get().get_vect();
   if(rell != rcoo) {
     tbsla::utils::vector::streamvector<double>(std::cout, "v ", v_data);
     std::cout << std::endl;
@@ -53,7 +58,7 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int gr, int 
   mdense.fill_cqmat(localities, nr, nc, c, q, seed, gr, gc);
   mdense.wait();
   r = mdense.spmv(v);
-  std::vector<double> rdense = r.get_data().get().get_vect();
+  std::vector<double> rdense = r.get_vectors().front().get_data().get().get_vect();
   if(rdense != rcoo) {
     tbsla::utils::vector::streamvector<double>(std::cout, "v ", v_data);
     std::cout << std::endl;

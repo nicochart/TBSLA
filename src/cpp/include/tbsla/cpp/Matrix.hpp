@@ -15,6 +15,10 @@ class Matrix {
 
     int const get_n_row() {return n_row;}
     int const get_n_col() {return n_col;}
+    int const get_f_row() {return f_row;}
+    int const get_f_col() {return f_col;}
+    int const get_ln_row() {return ln_row;}
+    int const get_ln_col() {return ln_col;}
     int const get_nnz();
 
     virtual std::ostream & print_stats(std::ostream &os) = 0;
@@ -28,7 +32,7 @@ class Matrix {
     virtual void fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult = 1, int pr = 0, int pc = 0, int NR = 1, int NC = 1) = 0;
 
   protected:
-    int n_row, n_col, f_row, f_col, ln_row, ln_col, nnz;
+    int n_row, n_col, f_row, f_col, ln_row, ln_col, nnz, pr, pc, NR, NC;
 
 };
 

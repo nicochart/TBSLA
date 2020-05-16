@@ -7,15 +7,40 @@
 #include <tbsla/hpx/MatrixDENSE.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
 
-void test_mat(tbsla::hpx_::Matrix & m, int nr, int nc, int c, int gr, int gc) {
+void test_mat_split_vector(tbsla::hpx_::Matrix & m, int nr, int nc, int c, int gr, int gc) {
   std::vector<hpx::id_type> localities = hpx::find_all_localities();
-  tbsla::hpx_::client::Vector v(localities[0], nc);
-  std::vector<double> v_data = v.get_data().get().get_vect();
+  tbsla::hpx_::Vector vcoo(gr, gc, 1);
+  vcoo.init_single(nc);
+  vcoo.wait();
+  std::vector<double> v_data = vcoo.get_vectors().front().get_data().get().get_vect();
+  tbsla::hpx_::Vector v(gr, gc, gc);
+  v.init_split(nc);
+  v.wait();
 
   m.fill_cdiag(localities, nr, nc, c, gr, gc);
   m.wait();
-  tbsla::hpx_::client::Vector r = m.a_axpx_(v);
-  std::vector<double> r_data = r.get_data().get().get_vect();
+  tbsla::hpx_::Vector r = m.a_axpx_(v);
+  std::vector<double> r_data = r.get_vectors().front().get_data().get().get_vect();
+  int res = tbsla::utils::vector::test_a_axpx__cdiag(nr, nc, c, v_data, r_data, false);
+  std::cout << "return : " << res << std::endl;
+  if(res) {
+    tbsla::utils::vector::test_a_axpx__cdiag(nr, nc, c, v_data, r_data, true);
+    std::cout.flush();
+    throw "Result vector does not correspond to the expected results !";
+  }
+}
+
+void test_mat(tbsla::hpx_::Matrix & m, int nr, int nc, int c, int gr, int gc) {
+  std::vector<hpx::id_type> localities = hpx::find_all_localities();
+  tbsla::hpx_::Vector vcoo(gr, gc, 1);
+  vcoo.init_single(nc);
+  vcoo.wait();
+  std::vector<double> v_data = vcoo.get_vectors().front().get_data().get().get_vect();
+
+  m.fill_cdiag(localities, nr, nc, c, gr, gc);
+  m.wait();
+  tbsla::hpx_::Vector r = m.a_axpx_(vcoo);
+  std::vector<double> r_data = r.get_vectors().front().get_data().get().get_vect();
   int res = tbsla::utils::vector::test_a_axpx__cdiag(nr, nc, c, v_data, r_data, false);
   std::cout << "return : " << res << std::endl;
   if(res) {
@@ -31,13 +56,13 @@ void test_cdiag(int nr, int nc, int c, int gr, int gc) {
   test_mat(mcoo, nr, nc, c, gr, gc);
 
   tbsla::hpx_::MatrixCSR mcsr;
-  test_mat(mcsr, nr, nc, c, gr, gc);
+  test_mat_split_vector(mcsr, nr, nc, c, gr, gc);
 
   tbsla::hpx_::MatrixELL mell;
-  test_mat(mell, nr, nc, c, gr, gc);
+  test_mat_split_vector(mell, nr, nc, c, gr, gc);
 
   tbsla::hpx_::MatrixDENSE mdense;
-  test_mat(mdense, nr, nc, c, gr, gc);
+  test_mat_split_vector(mdense, nr, nc, c, gr, gc);
 }
 
 int hpx_main(hpx::program_options::variables_map& vm)

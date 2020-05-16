@@ -58,12 +58,12 @@ std::ostream& tbsla::cpp::MatrixCSR::print_as_dense(std::ostream& os) {
 }
 
 std::vector<double> tbsla::cpp::MatrixCSR::spmv(const std::vector<double> &v, int vect_incr) const {
-  std::vector<double> r (this->n_row, 0);
+  std::vector<double> r (this->ln_row, 0);
   if (this->values.size() == 0)
     return r;
   for (int i = 0; i < this->rowptr.size() - 1; i++) {
     for (int j = this->rowptr[i] - this->rowptr.front(); j < this->rowptr[i + 1] - this->rowptr.front(); j++) {
-       r[i + this->f_row] += this->values[j] * v[this->colidx[j]];
+       r[i] += this->values[j] * v[this->colidx[j] - this->f_col];
     }
   }
   return r;
@@ -153,6 +153,10 @@ std::istream & tbsla::cpp::MatrixCSR::read(std::istream &is, std::size_t pos, st
 void tbsla::cpp::MatrixCSR::fill_cdiag(int n_row, int n_col, int cdiag, int pr, int pc, int NR, int NC) {
   this->n_row = n_row;
   this->n_col = n_col;
+  this->pr = pr;
+  this->pc = pc;
+  this->NR = NR;
+  this->NC = NC;
 
   this->values.clear();
   this->colidx.clear();
@@ -214,6 +218,10 @@ void tbsla::cpp::MatrixCSR::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
 void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult, int pr, int pc, int NR, int NC) {
   this->n_row = n_row;
   this->n_col = n_col;
+  this->pr = pr;
+  this->pc = pc;
+  this->NR = NR;
+  this->NC = NC;
 
   this->values.clear();
   this->colidx.clear();

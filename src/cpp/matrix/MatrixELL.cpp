@@ -39,12 +39,14 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 }
 
 std::vector<double> tbsla::cpp::MatrixELL::spmv(const std::vector<double> &v, int vect_incr) const {
-  std::vector<double> r (this->n_row, 0);
+  std::vector<double> r (this->ln_row, 0);
   if(this->nnz == 0 || this->max_col == 0)
     return r;
-  for (int i = 0; i < std::min((size_t)this->n_row, this->values.size() / this->max_col); i++) {
+  for (int i = 0; i < std::min((size_t)this->ln_row, this->values.size() / this->max_col); i++) {
     for (int j = 0; j < this->max_col; j++) {
-      r[i + this->f_row] += this->values[i * this->max_col + j] * v[this->columns[i * this->max_col + j]];
+      int idx = this->columns[i * this->max_col + j] - this->f_col;
+      if(idx < 0) idx = 0;
+      r[i] += this->values[i * this->max_col + j] * v[idx];
     }
   }
   return r;
@@ -120,6 +122,10 @@ std::istream & tbsla::cpp::MatrixELL::read(std::istream &is, std::size_t pos, st
 void tbsla::cpp::MatrixELL::fill_cdiag(int n_row, int n_col, int cdiag, int pr, int pc, int NR, int NC) {
   this->n_row = n_row;
   this->n_col = n_col;
+  this->pr = pr;
+  this->pc = pc;
+  this->NR = NR;
+  this->NC = NC;
 
   this->values.clear();
   this->columns.clear();
@@ -186,6 +192,10 @@ void tbsla::cpp::MatrixELL::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
 void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult, int pr, int pc, int NR, int NC) {
   this->n_row = n_row;
   this->n_col = n_col;
+  this->pr = pr;
+  this->pc = pc;
+  this->NR = NR;
+  this->NC = NC;
 
   this->values.clear();
   this->columns.clear();

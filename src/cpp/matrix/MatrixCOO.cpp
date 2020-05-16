@@ -278,6 +278,10 @@ tbsla::cpp::MatrixCSR tbsla::cpp::MatrixCOO::toCSR() {
 void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int pr, int pc, int NR, int NC) {
   this->n_row = n_row;
   this->n_col = n_col;
+  this->pr = pr;
+  this->pc = pc;
+  this->NR = NR;
+  this->NC = NC;
 
   this->values.clear();
   this->col.clear();
@@ -327,11 +331,17 @@ void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
       }
     }
   }
+  this->ln_row = this->NR;
+  this->ln_col = this->NC;
 }
 
 void tbsla::cpp::MatrixCOO::fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult, int pr, int pc, int NR, int NC) {
   this->n_row = n_row;
   this->n_col = n_col;
+  this->pr = pr;
+  this->pc = pc;
+  this->NR = NR;
+  this->NC = NC;
 
   this->values.clear();
   this->col.clear();
