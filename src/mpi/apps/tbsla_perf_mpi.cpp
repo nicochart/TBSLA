@@ -114,7 +114,7 @@ int main(int argc, char** argv) {
   std::mt19937 mersenne_engine {rnd_device()};  // Generates random integers
   std::uniform_real_distribution<double> dist {-1, 1};
   auto gen = [&dist, &mersenne_engine](){ return dist(mersenne_engine); };
-  std::vector<double> vec(m->get_ln_col());
+  std::vector<double> vec(m->get_n_col());
   std::generate(begin(vec), end(vec), gen);
 
   MPI_Barrier(MPI_COMM_WORLD);

@@ -73,7 +73,7 @@ int hpx_main(hpx::program_options::variables_map& vm)
   }
   m->wait();
 
-  tbsla::hpx_::Vector v(GC, GR, GC);
+  tbsla::hpx_::Vector v(GR, GC, GC);
   if(format == "COO" | format == "coo") {
     v.init_single(NC);
   } else {
