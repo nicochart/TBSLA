@@ -105,6 +105,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
 
   if(rank == 0)
     std::cout << "--- row ---- nr : " << nr << "; nc : " << nc << "; c : " << cdiag << " ----" <<  std::endl;
+  std::cout << std::flush;
   MPI_Barrier(MPI_COMM_WORLD);
   test_matrix(mcoo, nr, nc, cdiag, rank, 0, world, 1);
   test_matrix_split_vector(mcsr, nr, nc, cdiag, rank, 0, world, 1);
@@ -114,6 +115,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
   MPI_Barrier(MPI_COMM_WORLD);
   if(rank == 0)
     std::cout << "--- col ---- nr : " << nr << "; nc : " << nc << "; c : " << cdiag << " ----" <<  std::endl;
+  std::cout << std::flush;
   MPI_Barrier(MPI_COMM_WORLD);
   test_matrix(mcoo, nr, nc, cdiag, 0, rank, 1, world);
   test_matrix_split_vector(mcsr, nr, nc, cdiag, 0, rank, 1, world);
@@ -124,6 +126,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
     MPI_Barrier(MPI_COMM_WORLD);
     if(rank == 0)
       std::cout << "--- mix ---- nr : " << nr << "; nc : " << nc << "; c : " << cdiag << " ----" <<  std::endl;
+    std::cout << std::flush;
     MPI_Barrier(MPI_COMM_WORLD);
     test_matrix(mcoo, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
     test_matrix_split_vector(mcsr, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
@@ -135,6 +138,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
     MPI_Barrier(MPI_COMM_WORLD);
     if(rank == 0)
       std::cout << "--- mix %3 ---- nr : " << nr << "; nc : " << nc << "; c : " << cdiag << " ----" <<  std::endl;
+    std::cout << std::flush;
     MPI_Barrier(MPI_COMM_WORLD);
     test_matrix(mcoo, nr, nc, cdiag, rank / 3, rank % 3, world / 3, 3);
     test_matrix_split_vector(mcsr, nr, nc, cdiag, rank / 3, rank % 3, world / 3, 3);
