@@ -2,6 +2,7 @@
 #include <hpx/hpx_init.hpp>
 
 #include <tbsla/hpx/MatrixCOO.hpp>
+#include <tbsla/hpx/MatrixSCOO.hpp>
 #include <tbsla/hpx/MatrixCSR.hpp>
 #include <tbsla/hpx/MatrixELL.hpp>
 #include <tbsla/hpx/MatrixDENSE.hpp>
@@ -24,6 +25,21 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int gr, int 
   tbsla::hpx_::Vector v(gr, gc, gc);
   v.init_split(nc);
   v.wait();
+  tbsla::hpx_::MatrixSCOO mscoo;
+  mscoo.wait();
+  mscoo.fill_cqmat(localities, nr, nc, c, q, seed, gr, gc);
+  r = mscoo.spmv(v);
+  std::vector<double> rscoo = r.get_vectors().front().get_data().get().get_vect();
+  if(rscoo != rcoo) {
+    tbsla::utils::vector::streamvector<double>(std::cout, "v ", v_data);
+    std::cout << std::endl;
+    tbsla::utils::vector::streamvector<double>(std::cout, "rcoo ", rcoo);
+    std::cout << std::endl;
+    tbsla::utils::vector::streamvector<double>(std::cout, "rcsr ", rscoo);
+    std::cout << std::endl;
+    throw "Result vector does not correspond to the expected results !";
+  }
+
   tbsla::hpx_::MatrixCSR mcsr;
   mcsr.wait();
   mcsr.fill_cqmat(localities, nr, nc, c, q, seed, gr, gc);

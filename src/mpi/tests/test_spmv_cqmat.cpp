@@ -1,5 +1,6 @@
 #include <tbsla/mpi/Matrix.hpp>
 #include <tbsla/mpi/MatrixCOO.hpp>
+#include <tbsla/mpi/MatrixSCOO.hpp>
 #include <tbsla/mpi/MatrixCSR.hpp>
 #include <tbsla/mpi/MatrixELL.hpp>
 #include <tbsla/mpi/MatrixDENSE.hpp>
@@ -23,10 +24,35 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int pr, int 
   mcoo.fill_cqmat(nr, nc, c, q, seed, pr, pc, NR, NC);
   std::vector<double> rcoo = mcoo.spmv(MPI_COMM_WORLD, v);
 
+  tbsla::mpi::MatrixSCOO mscoo;
+  mscoo.fill_cqmat(nr, nc, c, q, seed, pr, pc, NR, NC);
+  std::vector<double> vl(mscoo.get_ln_col());
+  std::iota (std::begin(vl), std::end(vl), mscoo.get_f_col());
+  std::vector<double> rscoo = mscoo.spmv(MPI_COMM_WORLD, vl);
+  if(rscoo != rcoo) {
+    for(int i = 0; i < world; i++) {
+      MPI_Barrier(MPI_COMM_WORLD);
+      if(i == rank) {
+        std::cout << mcoo << std::endl;
+        std::cout << mscoo << std::endl;
+      }
+      MPI_Barrier(MPI_COMM_WORLD);
+    }
+    if(rank == 0) {
+      tbsla::utils::vector::streamvector<double>(std::cout, "v ", v);
+      std::cout << std::endl;
+      tbsla::utils::vector::streamvector<double>(std::cout, "vl ", vl);
+      std::cout << std::endl;
+      tbsla::utils::vector::streamvector<double>(std::cout, "rcoo ", rcoo);
+      std::cout << std::endl;
+      tbsla::utils::vector::streamvector<double>(std::cout, "rscoo ", rscoo);
+      std::cout << std::endl;
+      exit(1);
+    }
+  }
+
   tbsla::mpi::MatrixCSR mcsr;
   mcsr.fill_cqmat(nr, nc, c, q, seed, pr, pc, NR, NC);
-  std::vector<double> vl(mcsr.get_ln_col());
-  std::iota (std::begin(vl), std::end(vl), mcsr.get_f_col());
   std::vector<double> rcsr = mcsr.spmv(MPI_COMM_WORLD, vl);
   if(rcsr != rcoo) {
     for(int i = 0; i < world; i++) {

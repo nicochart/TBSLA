@@ -2,6 +2,7 @@
 #include <hpx/hpx_init.hpp>
 
 #include <tbsla/hpx/MatrixCOO.hpp>
+#include <tbsla/hpx/MatrixSCOO.hpp>
 #include <tbsla/hpx/MatrixCSR.hpp>
 #include <tbsla/hpx/MatrixELL.hpp>
 #include <tbsla/hpx/MatrixDENSE.hpp>
@@ -54,6 +55,8 @@ int hpx_main(hpx::program_options::variables_map& vm)
 
   if(format == "COO" | format == "coo") {
     m = new tbsla::hpx_::MatrixCOO();
+  } else if(format == "SCOO" | format == "scoo") {
+    m = new tbsla::hpx_::MatrixSCOO();
   } else if(format == "CSR" | format == "csr") {
     m = new tbsla::hpx_::MatrixCSR();
   } else if(format == "ELL" | format == "ell") {

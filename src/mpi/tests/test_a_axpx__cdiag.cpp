@@ -1,5 +1,6 @@
 #include <tbsla/mpi/Matrix.hpp>
 #include <tbsla/mpi/MatrixCOO.hpp>
+#include <tbsla/mpi/MatrixSCOO.hpp>
 #include <tbsla/mpi/MatrixCSR.hpp>
 #include <tbsla/mpi/MatrixELL.hpp>
 #include <tbsla/mpi/MatrixDENSE.hpp>
@@ -56,6 +57,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
   MPI_Comm_size(MPI_COMM_WORLD, &world);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   tbsla::mpi::MatrixCOO mcoo;
+  tbsla::mpi::MatrixSCOO mscoo;
   tbsla::mpi::MatrixCSR mcsr;
   tbsla::mpi::MatrixELL mell;
   tbsla::mpi::MatrixDENSE mdense;
@@ -64,6 +66,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
     std::cout << "--- row ---- nr : " << nr << "; nc : " << nc << "; c : " << cdiag << " ----" << std::endl;
   MPI_Barrier(MPI_COMM_WORLD);
   test_matrix(mcoo, nr, nc, cdiag, rank, 0, world, 1);
+  test_matrix(mscoo, nr, nc, cdiag, rank, 0, world, 1);
   test_matrix(mcsr, nr, nc, cdiag, rank, 0, world, 1);
   test_matrix(mell, nr, nc, cdiag, rank, 0, world, 1);
   test_matrix(mdense, nr, nc, cdiag, rank, 0, world, 1);
@@ -73,6 +76,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
     std::cout << "--- col ---- nr : " << nr << "; nc : " << nc << "; c : " << cdiag << " ----" << std::endl;
   MPI_Barrier(MPI_COMM_WORLD);
   test_matrix(mcoo, nr, nc, cdiag, 0, rank, 1, world);
+  test_matrix(mscoo, nr, nc, cdiag, 0, rank, 1, world);
   test_matrix(mcsr, nr, nc, cdiag, 0, rank, 1 ,world);
   test_matrix(mell, nr, nc, cdiag, 0, rank, 1, world);
   test_matrix(mdense, nr, nc, cdiag, 0, rank, 1, world);
@@ -84,6 +88,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
     MPI_Barrier(MPI_COMM_WORLD);
     std::cout << "r " << rank / 2 << "; c " << rank % 2 <<  std::endl;
     test_matrix(mcoo, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
+    test_matrix(mscoo, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
     test_matrix(mcsr, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
     test_matrix(mell, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
     test_matrix(mdense, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);

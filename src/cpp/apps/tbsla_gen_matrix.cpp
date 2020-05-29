@@ -1,4 +1,5 @@
 #include <tbsla/cpp/MatrixCOO.hpp>
+#include <tbsla/cpp/MatrixSCOO.hpp>
 #include <tbsla/cpp/MatrixCSR.hpp>
 #include <tbsla/cpp/MatrixELL.hpp>
 #include <tbsla/cpp/MatrixDENSE.hpp>
@@ -54,6 +55,8 @@ int main(int argc, char** argv) {
 
   if(format == "COO" | format == "coo") {
     m = new tbsla::cpp::MatrixCOO();
+  } else if(format == "SCOO" | format == "scoo") {
+    m = new tbsla::cpp::MatrixSCOO();
   } else if(format == "CSR" | format == "csr") {
     m = new tbsla::cpp::MatrixCSR();
   } else if(format == "ELL" | format == "ell") {

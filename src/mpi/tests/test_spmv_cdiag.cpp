@@ -1,5 +1,6 @@
 #include <tbsla/mpi/Matrix.hpp>
 #include <tbsla/mpi/MatrixCOO.hpp>
+#include <tbsla/mpi/MatrixSCOO.hpp>
 #include <tbsla/mpi/MatrixCSR.hpp>
 #include <tbsla/mpi/MatrixELL.hpp>
 #include <tbsla/mpi/MatrixDENSE.hpp>
@@ -99,6 +100,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
   MPI_Comm_size(MPI_COMM_WORLD, &world);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   tbsla::mpi::MatrixCOO mcoo;
+  tbsla::mpi::MatrixSCOO mscoo;
   tbsla::mpi::MatrixCSR mcsr;
   tbsla::mpi::MatrixELL mell;
   tbsla::mpi::MatrixDENSE mdense;
@@ -108,6 +110,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
   std::cout << std::flush;
   MPI_Barrier(MPI_COMM_WORLD);
   test_matrix(mcoo, nr, nc, cdiag, rank, 0, world, 1);
+  test_matrix_split_vector(mscoo, nr, nc, cdiag, rank, 0, world, 1);
   test_matrix_split_vector(mcsr, nr, nc, cdiag, rank, 0, world, 1);
   test_matrix_split_vector(mell, nr, nc, cdiag, rank, 0, world, 1);
   test_matrix_split_vector(mdense, nr, nc, cdiag, rank, 0, world, 1);
@@ -118,6 +121,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
   std::cout << std::flush;
   MPI_Barrier(MPI_COMM_WORLD);
   test_matrix(mcoo, nr, nc, cdiag, 0, rank, 1, world);
+  test_matrix_split_vector(mscoo, nr, nc, cdiag, 0, rank, 1, world);
   test_matrix_split_vector(mcsr, nr, nc, cdiag, 0, rank, 1, world);
   test_matrix_split_vector(mell, nr, nc, cdiag, 0, rank, 1, world);
   test_matrix_split_vector(mdense, nr, nc, cdiag, 0, rank, 1, world);
@@ -129,6 +133,7 @@ void test_cdiag(int nr, int nc, int cdiag) {
     std::cout << std::flush;
     MPI_Barrier(MPI_COMM_WORLD);
     test_matrix(mcoo, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
+    test_matrix_split_vector(mscoo, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
     test_matrix_split_vector(mcsr, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
     test_matrix_split_vector(mell, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
     test_matrix_split_vector(mdense, nr, nc, cdiag, rank / 2, rank % 2, world / 2, 2);
@@ -141,11 +146,13 @@ void test_cdiag(int nr, int nc, int cdiag) {
     std::cout << std::flush;
     MPI_Barrier(MPI_COMM_WORLD);
     test_matrix(mcoo, nr, nc, cdiag, rank / 3, rank % 3, world / 3, 3);
+    test_matrix_split_vector(mscoo, nr, nc, cdiag, rank / 3, rank % 3, world / 3, 3);
     test_matrix_split_vector(mcsr, nr, nc, cdiag, rank / 3, rank % 3, world / 3, 3);
     test_matrix_split_vector(mell, nr, nc, cdiag, rank / 3, rank % 3, world / 3, 3);
     test_matrix_split_vector(mdense, nr, nc, cdiag, rank / 3, rank % 3, world / 3, 3);
 
     test_matrix(mcoo, nr, nc, cdiag, rank % 3, rank / 3, 3, world / 3);
+    test_matrix_split_vector(mscoo, nr, nc, cdiag, rank % 3, rank / 3, 3, world / 3);
     test_matrix_split_vector(mcsr, nr, nc, cdiag, rank % 3, rank / 3, 3, world / 3);
     test_matrix_split_vector(mell, nr, nc, cdiag, rank % 3, rank / 3, 3, world / 3);
     test_matrix_split_vector(mdense, nr, nc, cdiag, rank % 3, rank / 3, 3, world / 3);

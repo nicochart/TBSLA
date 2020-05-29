@@ -1,4 +1,5 @@
 #include <tbsla/cpp/MatrixCOO.hpp>
+#include <tbsla/cpp/MatrixSCOO.hpp>
 #include <tbsla/cpp/MatrixCSR.hpp>
 #include <tbsla/cpp/MatrixELL.hpp>
 #include <tbsla/cpp/MatrixDENSE.hpp>
@@ -42,6 +43,10 @@ void test_cdiag(int nr, int nc, int c) {
   tbsla::cpp::MatrixCOO mcoo;
   mcoo.fill_cdiag(nr, nc, c);
   test_matrix(mcoo, c);
+
+  tbsla::cpp::MatrixSCOO mscoo;
+  mscoo.fill_cdiag(nr, nc, c);
+  test_matrix(mscoo, c);
 
   tbsla::cpp::MatrixCSR mcsr;
   mcsr = mcoo.toCSR();

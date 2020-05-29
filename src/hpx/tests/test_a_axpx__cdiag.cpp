@@ -2,6 +2,7 @@
 #include <hpx/hpx_init.hpp>
 
 #include <tbsla/hpx/MatrixCOO.hpp>
+#include <tbsla/hpx/MatrixSCOO.hpp>
 #include <tbsla/hpx/MatrixCSR.hpp>
 #include <tbsla/hpx/MatrixELL.hpp>
 #include <tbsla/hpx/MatrixDENSE.hpp>
@@ -54,6 +55,9 @@ void test_cdiag(int nr, int nc, int c, int gr, int gc) {
   std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << c << " ---- gr : " << gr << "; gc : " << gc << std::endl;
   tbsla::hpx_::MatrixCOO mcoo;
   test_mat(mcoo, nr, nc, c, gr, gc);
+
+  tbsla::hpx_::MatrixSCOO mscoo;
+  test_mat_split_vector(mscoo, nr, nc, c, gr, gc);
 
   tbsla::hpx_::MatrixCSR mcsr;
   test_mat_split_vector(mcsr, nr, nc, c, gr, gc);

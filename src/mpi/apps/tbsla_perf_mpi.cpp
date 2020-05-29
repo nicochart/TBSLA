@@ -1,4 +1,5 @@
 #include <tbsla/mpi/MatrixCOO.hpp>
+#include <tbsla/mpi/MatrixSCOO.hpp>
 #include <tbsla/mpi/MatrixCSR.hpp>
 #include <tbsla/mpi/MatrixELL.hpp>
 #include <tbsla/mpi/MatrixDENSE.hpp>
@@ -84,6 +85,8 @@ int main(int argc, char** argv) {
 
   if(format == "COO" | format == "coo") {
     m = new tbsla::mpi::MatrixCOO();
+  } else if(format == "SCOO" | format == "scoo") {
+    m = new tbsla::mpi::MatrixSCOO();
   } else if(format == "CSR" | format == "csr") {
     m = new tbsla::mpi::MatrixCSR();
   } else if(format == "ELL" | format == "ell") {
