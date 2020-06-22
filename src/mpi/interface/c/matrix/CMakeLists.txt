@@ -1,0 +1,10 @@
+list(APPEND SRC_LIST MatrixCSR.cpp)
+list(APPEND SRC_LIST MatrixCOO.cpp)
+list(APPEND SRC_LIST MatrixSCOO.cpp)
+list(APPEND SRC_LIST MatrixELL.cpp)
+list(APPEND SRC_LIST MatrixDENSE.cpp)
+list(APPEND SRC_LIST vector_comm.cpp)
+
+target_sources(tbsla_mpi PRIVATE ${SRC_LIST})
+target_include_directories(tbsla_mpi PUBLIC ${PROJECT_SOURCE_DIR}/mpi/interface/c/include)
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/mpi/interface/c/include/tbsla DESTINATION "include")
