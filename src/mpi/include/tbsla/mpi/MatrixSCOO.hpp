@@ -21,6 +21,8 @@ class MatrixSCOO : public tbsla::cpp::MatrixSCOO, public virtual tbsla::mpi::Mat
     using tbsla::cpp::MatrixSCOO::spmv;
     using tbsla::cpp::MatrixSCOO::fill_cdiag;
     using tbsla::cpp::MatrixSCOO::fill_cqmat;
+    using tbsla::cpp::MatrixSCOO::read;
+    using tbsla::cpp::MatrixSCOO::write;
 };
 
 }}

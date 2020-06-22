@@ -18,6 +18,8 @@ class Matrix : public virtual tbsla::cpp::Matrix {
     int const get_gnnz() {return gnnz;};
     using tbsla::cpp::Matrix::fill_cdiag;
     using tbsla::cpp::Matrix::fill_cqmat;
+    using tbsla::cpp::Matrix::read;
+    using tbsla::cpp::Matrix::write;
 
   protected:
     int gnnz;

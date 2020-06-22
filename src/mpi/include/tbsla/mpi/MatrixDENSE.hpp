@@ -20,6 +20,8 @@ class MatrixDENSE : public tbsla::cpp::MatrixDENSE, public tbsla::mpi::Matrix {
     using tbsla::cpp::MatrixDENSE::spmv;
     using tbsla::cpp::MatrixDENSE::fill_cdiag;
     using tbsla::cpp::MatrixDENSE::fill_cqmat;
+    using tbsla::cpp::MatrixDENSE::read;
+    using tbsla::cpp::MatrixDENSE::write;
 };
 
 }}

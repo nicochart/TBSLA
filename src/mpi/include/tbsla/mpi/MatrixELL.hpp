@@ -20,6 +20,8 @@ class MatrixELL : public tbsla::cpp::MatrixELL, public tbsla::mpi::Matrix {
     using tbsla::cpp::MatrixELL::spmv;
     using tbsla::cpp::MatrixELL::fill_cdiag;
     using tbsla::cpp::MatrixELL::fill_cqmat;
+    using tbsla::cpp::MatrixELL::read;
+    using tbsla::cpp::MatrixELL::write;
 };
 
 }}
