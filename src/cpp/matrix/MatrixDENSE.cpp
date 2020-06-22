@@ -12,11 +12,19 @@ std::ostream& tbsla::cpp::MatrixDENSE::print(std::ostream& os) const {
   os << "-----------------" << std::endl;
   os << "----- DENSE -----" << std::endl;
   os << "-----------------" << std::endl;
-  os << "n_row : " << this->n_row << std::endl;
-  os << "n_col : " << this->n_col << std::endl;
-  os << "n_values : " << this->nnz << std::endl;
+  os << "number of rows             -  n_row   : " << this->n_row << std::endl;
+  os << "number of columns          -  n_col   : " << this->n_col << std::endl;
+  os << "local number of rows       -  ln_row  : " << this->ln_row << std::endl;
+  os << "local number of columns    -  ln_col  : " << this->ln_col << std::endl;
+  os << "first row                  -  f_row   : " << this->f_row << std::endl;
+  os << "first column               -  f_col   : " << this->f_col << std::endl;
+  os << "number of non-zero elts    -  nnz     : " << this->nnz << std::endl;
+  os << "block position (row)       -  pr      : " << this->pr << std::endl;
+  os << "block position (column)    -  pc      : " << this->pc << std::endl;
+  os << "number of blocks (row)     -  NR      : " << this->NR << std::endl;
+  os << "number of blocks (column)  -  NC      : " << this->NC << std::endl;
   tbsla::utils::vector::print_dense_matrix(this->ln_row, this->ln_col, values, os);
-  os << "-----------------" << std::endl;
+  os << "-----------------" << std::endl << std::flush;
   return os;
 }
 
