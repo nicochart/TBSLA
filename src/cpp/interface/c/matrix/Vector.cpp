@@ -110,6 +110,16 @@ bool C_CPP_Vector_add(C_CPP_Vector_t *v1, C_CPP_Vector_t *v2) {
   std::transform(v1obj->begin(), v1obj->end(), v2obj->begin(), v1obj->begin(), std::plus<double>());
 }
 
+bool C_CPP_Vector_add_incr(C_CPP_Vector_t *v1, C_CPP_Vector_t *v2, int incr) {
+  std::vector<double> *v1obj;
+  std::vector<double> *v2obj;
+  if (v1 == NULL || v2 == NULL)
+    return false;
+  v1obj = static_cast<std::vector<double> *>(v1->obj);
+  v2obj = static_cast<std::vector<double> *>(v2->obj);
+  std::transform(v1obj->begin(), v1obj->end(), v2obj->begin() + incr, v1obj->begin(), std::plus<double>());
+}
+
 bool C_CPP_Vector_gather(C_CPP_Vector_t *v1, C_CPP_Vector_t *v2) {
   std::vector<double> *v1obj;
   std::vector<double> *v2obj;

@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<component type="impl" name="sum2" abstract="sum2">
+<impl lang="XMP" nodes="CPU:(3)" libs="include_tbsla">
+  <templates>
+    <template name="t" format="block" size="40"/>
+  </templates>
+  <distribute>
+    <param template="t" name="r(40)" align="[i]:(i)"/>
+    <param template="t" name="v1(40)" align="[i]:(i)"/>
+    <param template="t" name="v2(40)" align="[i]:(i)"/>
+  </distribute>
+  <source>
+<![CDATA[
+
+  int incr = 0;
+  for(int i = 0; i < v1->bpc; i++) {
+    incr += lnv(v1->n_row, i, v1->bgc);
+  }
+  C_CPP_Vector_add_incr(v1->v, v2->v, incr);
+  r->v = v1->v;
+
+  r->gr = v1->gr;
+  r->gc = v1->gc;
+  r->lgr = v1->lgr;
+  r->lgc = v1->lgc;
+  r->bgr = v1->bgr;
+  r->bgc = v1->bgc;
+  r->bpr = v1->bpr;
+  r->bpc = v1->bpc;
+  r->n_col = v1->n_col;
+  r->bn_col = v1->bn_col;
+  r->ln_col = v1->ln_col;
+  r->lpr = v1->lpr;
+  r->lpc = v1->lpc;
+  r->pr = v1->pr;
+  r->pc = v1->pc;
+]]>
+  </source>
+<footer />
+</impl>
+</component>

@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<component type="abstract" name="sum2">
+<params>
+<param name="r" type="Vector" mode="out" />
+<param name="v1" type="Vector" mode="in" />
+<param name="v2" type="Vector" mode="in" />
+</params>
+</component>

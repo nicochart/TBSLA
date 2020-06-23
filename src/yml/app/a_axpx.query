@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<application name="a_axpx">
+<description> A(Ax+x) CQMAT.
+</description>
+<params>
+  <param name="n_row" type="integer" mode="in" />
+  <param name="n_col" type="integer" mode="in" />
+  <param name="C" type="integer" mode="in" />
+  <param name="Q" type="real" mode="in" />
+  <param name="S" type="integer" mode="in" />
+  <param name="gr" type="integer" mode="in" />
+  <param name="gc" type="integer" mode="in" />
+  <param name="lgr" type="integer" mode="in" />
+  <param name="lgc" type="integer" mode="in" />
+  <param name="matrixformat" type="integer" mode="in" />
+</params>
+<graph>
+  bgr:=4;
+  bgc:=3;
+
+  par(bpc:=0;bgc-1)
+  do
+    compute gen_Vector(v[bpc], n_col, gr, gc, 0, bpc, bgr, bgc, lgr, lgc);
+  enddo
+
+  par(bpr:=0;bgr-1)(bpc:=0;bgc-1)
+  do
+    compute gen_Sparse_CQMAT(m[bpr][bpc], matrixformat, n_row, n_col, C, Q, S, gr, gc, bpr, bpc, bgr, bgc, lgr, lgc);
+  enddo
+
+  par(bpr:=0;bgr-1)(bpc:=0;bgc-1)
+  do
+    compute spmv(m[bpr][bpc], v[bpc], r[bpr][bpc]);
+  enddo
+
+  if(bgc gt 1) then
+    par(bpr:=0;bgr-1)
+    do
+      seq(bpc:=1;bgc-1)
+      do
+        compute sum(r[bpr][0], r[bpr][bpc]);
+      enddo
+    enddo
+  endif
+
+  if(bgr gt 1) then
+    seq(bpr:=1;bgr-1)
+    do
+      compute gather(r[0][0], r[bpr][0]);
+    enddo
+  endif
+
+  par(bpc:=0;bgc-1)
+  do
+    compute sum2(v2[bpc], v[bpc], r[0][0]);
+  enddo
+
+  par(bpr:=0;bgr-1)(bpc:=0;bgc-1)
+  do
+    compute spmv(m[bpr][bpc], v2[bpc], r2[bpr][bpc]);
+  enddo
+
+  if(bgc gt 1) then
+    par(bpr:=0;bgr-1)
+    do
+      seq(bpc:=1;bgc-1)
+      do
+        compute sum(r2[bpr][0], r2[bpr][bpc]);
+      enddo
+    enddo
+  endif
+
+  if(bgr gt 1) then
+    seq(bpr:=1;bgr-1)
+    do
+      compute gather(r2[0][0], r2[bpr][0]);
+    enddo
+  endif
+
+
+ </graph>
+</application>
+

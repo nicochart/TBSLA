@@ -21,6 +21,7 @@ bool C_CPP_Vector_read(C_CPP_Vector_t *v, char *filename, int seek);
 bool C_CPP_Vector_write(C_CPP_Vector_t *v, char *filename);
 
 bool C_CPP_Vector_add(C_CPP_Vector_t *v1, C_CPP_Vector_t *v2);
+bool C_CPP_Vector_add_incr(C_CPP_Vector_t *v1, C_CPP_Vector_t *v2, int incr);
 bool C_CPP_Vector_gather(C_CPP_Vector_t *v1, C_CPP_Vector_t *v2);
 
 #ifdef __cplusplus
