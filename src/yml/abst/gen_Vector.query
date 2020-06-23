@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<component type="abstract" name="gen_Vector">
+<params>
+<param name="v" type="Vector" mode="out" />
+<param name="n" type="integer" mode="in" />
+<param name="gr" type="integer" mode="in" />
+<param name="gc" type="integer" mode="in" />
+<param name="bpr" type="integer" mode="in" />
+<param name="bpc" type="integer" mode="in" />
+<param name="bgr" type="integer" mode="in" />
+<param name="bgc" type="integer" mode="in" />
+<param name="lgr" type="integer" mode="in" />
+<param name="lgc" type="integer" mode="in" />
+</params>
+</component>

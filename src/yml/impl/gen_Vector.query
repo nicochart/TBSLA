@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<component type="impl" name="gen_Vector" abstract="gen_Vector">
+<impl lang="XMP" nodes="CPU:(3)" libs="include_tbsla">
+  <templates>
+    <template name="t" format="block" size="40"/>
+  </templates>
+  <distribute>
+    <param template="t" name="v(40)" align="[i]:(i)"/>
+  </distribute>
+  <source>
+<![CDATA[
+  int world, rank;
+  MPI_Comm_size(MPI_COMM_WORLD, &world);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  v->gr = gr;
+  v->gc = gc;
+  v->lgr = lgr;
+  v->lgc = lgc;
+  v->bgr = bgr;
+  v->bgc = bgc;
+  v->bpr = bpr;
+  v->bpc = bpc;
+  v->n_col = n;
+  v->n_row = n;
+  v->bn_row = 0;
+  for(int i = pflv(v->gr, bpr, bgr); i < pflv(v->gr, bpr, bgr) + lnv(v->gr, bpr, bgr); i++) {
+    v->bn_row += lnv(v->n_row, i, gr);
+  }
+  v->bn_col = 0;
+  for(int i = pflv(v->gc, bpc, bgc); i < pflv(v->gc, bpc, bgc) + lnv(v->gc, bpc, bgc); i++) {
+    v->bn_col += lnv(v->n_col, i, gc);
+  }
+  v->lpr = rank / lgc;
+  v->lpc = rank % lgc;
+  v->ln_row = lnv(v->bn_row, v->lpr, lgr);
+  v->ln_col = lnv(v->bn_col, v->lpc, lgc);
+  v->pr = pflv(v->gr, bpr, bgr) + v->lpr;
+  v->pc = pflv(v->gc, bpc, bgc) + v->lpc;
+  v->v = C_CPP_Vector_create();
+
+  int incr = 0;
+  for(int i = 0; i < v->bpc; i++) {
+    incr += lnv(v->n_row, i, bgc);
+  }
+
+  C_CPP_Vector_fill(v->v, v->ln_col, incr);
+
+]]>
+  </source>
+<footer />
+</impl>
+</component>

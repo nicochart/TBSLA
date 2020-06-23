@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<component type="impl" name="spmv" abstract="spmv">
+<impl lang="XMP" nodes="CPU:(3)" libs="include_tbsla">
+  <templates>
+    <template name="t" format="block" size="40"/>
+  </templates>
+  <distribute>
+    <param template="t" name="m(40)" align="[i]:(i)"/>
+    <param template="t" name="v(40)" align="[i]:(i)"/>
+    <param template="t" name="r(40)" align="[i]:(i)"/>
+  </distribute>
+  <source>
+<![CDATA[
+  printf("matrix format : %d\n", m->matrixformat);
+  // C_CPP_Vector_print(v->v);
+
+  if(m->matrixformat == MATRIX_FORMAT_COO) {
+    // C_CPP_MatrixCOO_print(m->mcoo);
+    r->v = C_CPP_MatrixCOO_spmv(m->mcoo, v->v);
+  } else if(m->matrixformat == MATRIX_FORMAT_SCOO) {
+    // C_CPP_MatrixSCOO_print(m->mscoo);
+    r->v = C_CPP_MatrixSCOO_spmv(m->mscoo, v->v);
+  } else if(m->matrixformat == MATRIX_FORMAT_CSR) {
+    // C_CPP_MatrixCSR_print(m->mcsr);
+    r->v = C_CPP_MatrixCSR_spmv(m->mcsr, v->v);
+  } else if(m->matrixformat == MATRIX_FORMAT_ELL) {
+    // C_CPP_MatrixELL_print(m->mell);
+    r->v = C_CPP_MatrixELL_spmv(m->mell, v->v);
+  } else if(m->matrixformat == MATRIX_FORMAT_DENSE) {
+    // C_CPP_MatrixDENSE_print(m->mdense);
+    r->v = C_CPP_MatrixDENSE_spmv(m->mdense, v->v);
+  }
+  // C_CPP_Vector_print(r->v);
+
+  if(m->matrixformat == MATRIX_FORMAT_COO) {
+    r->v = C_MPI_reduce_sum(MPI_COMM_WORLD, r->v, m->n_row);
+  } else {
+    r->v = C_MPI_reduce_gather(MPI_COMM_WORLD, r->v, m->bn_row, m->bn_col, m->lpr, m->lpc, m->lgr, m->lgc);
+  }
+
+  r->gr = v->gr;
+  r->gc = v->gc;
+  r->lgr = v->lgr;
+  r->lgc = v->lgc;
+  r->bgr = v->bgr;
+  r->bgc = v->bgc;
+  r->bpr = v->bpr;
+  r->bpc = v->bpc;
+  r->n_col = v->n_col;
+  r->bn_col = v->bn_col;
+  r->ln_col = v->ln_col;
+  r->lpr = v->lpr;
+  r->lpc = v->lpc;
+  r->pr = v->pr;
+  r->pc = v->pc;
+
+  // C_CPP_Vector_print(r->v);
+]]>
+  </source>
+<footer />
+</impl>
+</component>

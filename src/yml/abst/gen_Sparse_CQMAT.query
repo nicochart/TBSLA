@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<component type="abstract" name="gen_Sparse_CQMAT">
+<params>
+<param name="m" type="SparseMatrix" mode="out" />
+<param name="matrixformat" type="integer" mode="in" />
+<param name="n_row" type="integer" mode="in" />
+<param name="n_col" type="integer" mode="in" />
+<param name="C" type="integer" mode="in" />
+<param name="Q" type="real" mode="in" />
+<param name="S" type="integer" mode="in" />
+<param name="gr" type="integer" mode="in" />
+<param name="gc" type="integer" mode="in" />
+<param name="bpr" type="integer" mode="in" />
+<param name="bpc" type="integer" mode="in" />
+<param name="bgr" type="integer" mode="in" />
+<param name="bgc" type="integer" mode="in" />
+<param name="lgr" type="integer" mode="in" />
+<param name="lgc" type="integer" mode="in" />
+</params>
+</component>

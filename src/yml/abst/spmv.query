@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<component type="abstract" name="spmv">
+<params>
+<param name="m" type="SparseMatrix" mode="in" />
+<param name="v" type="Vector" mode="in" />
+<param name="r" type="Vector" mode="out" />
+</params>
+</component>

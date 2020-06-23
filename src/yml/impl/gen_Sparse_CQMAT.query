@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<component type="impl" name="gen_Sparse_CQMAT" abstract="gen_Sparse_CQMAT">
+<impl lang="XMP" nodes="CPU:(3)" libs="include_tbsla">
+  <templates>
+    <template name="t" format="block" size="40"/>
+  </templates>
+  <distribute>
+    <param template="t" name="m(40)" align="[i]:(i)"/>
+  </distribute>
+  <source>
+<![CDATA[
+  int world, rank;
+  MPI_Comm_size(MPI_COMM_WORLD, &world);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  m->gr = gr;
+  m->gc = gc;
+  m->lgr = lgr;
+  m->lgc = lgc;
+  m->bgr = bgr;
+  m->bgc = bgc;
+  m->bpr = bpr;
+  m->bpc = bpc;
+  m->n_row = n_row;
+  m->n_col = n_col;
+  m->lpr = rank / lgc;
+  m->lpc = rank % lgc;
+  m->pr = pflv(m->gr, bpr, bgr) + m->lpr;
+  m->pc = pflv(m->gc, bpc, bgc) + m->lpc;
+  m->matrixformat = matrixformat;
+
+  m->bn_row = 0;
+  for(int i = pflv(m->gr, bpr, bgr); i < pflv(m->gr, bpr, bgr) + lnv(m->gr, bpr, bgr); i++) {
+    m->bn_row += lnv(m->n_row, i, gr);
+  }
+  m->bn_col = 0;
+  for(int i = pflv(m->gc, bpc, bgc); i < pflv(m->gc, bpc, bgc) + lnv(m->gc, bpc, bgc); i++) {
+    m->bn_col += lnv(m->n_col, i, gc);
+  }
+
+  m->ln_row = lnv(m->bn_row, m->lpr, lgr);
+  m->ln_col = lnv(m->bn_col, m->lpc, lgc);
+
+
+  if(matrixformat == MATRIX_FORMAT_COO) {
+    m->mcoo = C_CPP_MatrixCOO_create();
+    C_CPP_MatrixCOO_fill_cqmat(m->mcoo, n_row, n_col, C, Q, S, m->pr, m->pc, gr, gc);
+  } else if(matrixformat == MATRIX_FORMAT_SCOO) {
+    m->mscoo = C_CPP_MatrixSCOO_create();
+    C_CPP_MatrixSCOO_fill_cqmat(m->mscoo, n_row, n_col, C, Q, S, m->pr, m->pc, gr, gc);
+  } else if(matrixformat == MATRIX_FORMAT_CSR) {
+    m->mcsr = C_CPP_MatrixCSR_create();
+    C_CPP_MatrixCSR_fill_cqmat(m->mcsr, n_row, n_col, C, Q, S, m->pr, m->pc, gr, gc);
+  } else if(matrixformat == MATRIX_FORMAT_ELL) {
+    m->mell = C_CPP_MatrixELL_create();
+    C_CPP_MatrixELL_fill_cqmat(m->mell, n_row, n_col, C, Q, S, m->pr, m->pc, gr, gc);
+  } else if(matrixformat == MATRIX_FORMAT_DENSE) {
+    m->mdense = C_CPP_MatrixDENSE_create();
+   C_CPP_MatrixDENSE_fill_cqmat(m->mdense, n_row, n_col, C, Q, S, m->pr, m->pc, gr, gc);
+  }
+]]>
+  </source>
+<footer />
+</impl>
+</component>
