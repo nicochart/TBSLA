@@ -17,7 +17,7 @@ class MatrixSCOO : public virtual Matrix {
     MatrixSCOO(int n_row, int n_col);
     MatrixSCOO() : values(0), row(0), col(0) {};
     std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
-    std::vector<double> a_axpx_(const std::vector<double> &x, int vect_incr = 0) const;
+    using tbsla::cpp::Matrix::a_axpx_;
     void push_back(int r, int c, double v);
     std::ostream & print_stats(std::ostream &os);
     std::ostream & print_infos(std::ostream &os);

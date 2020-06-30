@@ -1,4 +1,4 @@
-list(APPEND SRC_LIST MatrixCSR.cpp MatrixCOO.cpp MatrixELL.cpp MatrixDENSE.cpp MatrixSCOO.cpp)
+list(APPEND SRC_LIST MatrixCSR.cpp MatrixCOO.cpp MatrixELL.cpp MatrixDENSE.cpp MatrixSCOO.cpp Matrix.cpp)
 
 add_library(tbsla SHARED ${SRC_LIST})
 target_include_directories(tbsla

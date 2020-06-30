@@ -81,13 +81,6 @@ std::vector<double> tbsla::cpp::MatrixCOO::spmv(const std::vector<double> &v, in
   return r;
 }
 
-std::vector<double> tbsla::cpp::MatrixCOO::a_axpx_(const std::vector<double> &v, int vect_incr) const {
-  std::vector<double> r = this->spmv(v, vect_incr);
-  std::transform (r.begin(), r.end(), v.begin(), r.begin(), std::plus<double>());
-  r = this->spmv(r, vect_incr);
-  return r;
-}
-
 void tbsla::cpp::MatrixCOO::push_back(int r, int c, double v) {
   if(r >= this->n_row || r < 0)
     return;

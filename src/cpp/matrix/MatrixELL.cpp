@@ -61,13 +61,6 @@ std::vector<double> tbsla::cpp::MatrixELL::spmv(const std::vector<double> &v, in
   return r;
 }
 
-std::vector<double> tbsla::cpp::MatrixELL::a_axpx_(const std::vector<double> &v, int vect_incr) const {
-  std::vector<double> r = this->spmv(v, vect_incr);
-  std::transform (r.begin(), r.end(), v.begin(), r.begin(), std::plus<double>());
-  r = this->spmv(r, vect_incr);
-  return r;
-}
-
 std::ostream & tbsla::cpp::MatrixELL::print_infos(std::ostream &os) {
   os << "-----------------" << std::endl;
   os << "------ ELL ------" << std::endl;

@@ -13,7 +13,7 @@ class MatrixDENSE : public virtual Matrix {
     MatrixDENSE() : values(0) {};
     friend std::ostream & operator<<( std::ostream &os, const MatrixDENSE &m);
     std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
-    std::vector<double> a_axpx_(const std::vector<double> &x, int vect_incr = 0) const;
+    using tbsla::cpp::Matrix::a_axpx_;
     std::ostream & print_stats(std::ostream &os);
     std::ostream & print_infos(std::ostream &os);
     std::ostream & print_as_dense(std::ostream &os);

@@ -48,13 +48,6 @@ std::vector<double> tbsla::cpp::MatrixDENSE::spmv(const std::vector<double> &v, 
   return r;
 }
 
-std::vector<double> tbsla::cpp::MatrixDENSE::a_axpx_(const std::vector<double> &v, int vect_incr) const {
-  std::vector<double> r = this->spmv(v, vect_incr);
-  std::transform (r.begin(), r.end(), v.begin(), r.begin(), std::plus<double>());
-  r = this->spmv(r, vect_incr);
-  return r;
-}
-
 std::ostream & tbsla::cpp::MatrixDENSE::print_infos(std::ostream &os) {
   os << "-----------------" << std::endl;
   os << "----- DENSE -----" << std::endl;
