@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <mpi.h>
 
-int tbsla::mpi::MatrixCSR::read_bin_mpiio(MPI_Comm comm, std::string filename) {
+int tbsla::mpi::MatrixCSR::read_bin_mpiio(MPI_Comm comm, std::string filename, int pr, int pc, int NR, int NC) {
   int world, rank;
   MPI_Comm_size(comm, &world);
   MPI_Comm_rank(comm, &rank);
@@ -16,66 +16,59 @@ int tbsla::mpi::MatrixCSR::read_bin_mpiio(MPI_Comm comm, std::string filename) {
   MPI_File_read_all(fh, &this->n_row, 1, MPI_INT, &status);
   MPI_File_read_all(fh, &this->n_col, 1, MPI_INT, &status);
 
-  size_t vec_size, depla_general, depla_local, vstart;
-  depla_general = 2 * sizeof(int);
+  size_t vec_size, depla_general, values_start;
+  depla_general = 11 * sizeof(int);
 
-  /*
-  *
-  * skip values vector for now
-  * 
-  */
+  this->pr = pr;
+  this->pc = pc;
+  this->NR = NR;
+  this->NC = NC;
+
+  this->ln_row = tbsla::utils::range::lnv(n_row, pr, NR);
+  this->f_row = tbsla::utils::range::pflv(n_row, pr, NR);
+  this->ln_col = tbsla::utils::range::lnv(n_col, pc, NC);
+  this->f_col = tbsla::utils::range::pflv(n_col, pc, NC);
+
+  // skip values vector for now
+  int values_size = vec_size;
   MPI_File_read_at_all(fh, depla_general, &vec_size, 1, MPI_UNSIGNED_LONG, &status);
   depla_general += sizeof(size_t);
   this->gnnz = vec_size;
-  vstart = depla_general;
+  values_start = depla_general;
   depla_general += vec_size * sizeof(double);
 
-  /*
-  *
-  * read rowptr vector
-  * 
-  */
   MPI_File_read_at_all(fh, depla_general, &vec_size, 1, MPI_UNSIGNED_LONG, &status);
   depla_general += sizeof(size_t);
-
-  int n_read = this->n_row / world;
-  int mod = this->n_row % world;
-
-  if (rank < mod)
-    n_read++;
-
-  this->rowptr.resize(n_read + 1);
-  if (rank < mod) {
-    this->f_row = rank * n_read;
-  } else {
-    this->f_row = rank * n_read + mod;
-  }
-  depla_local = depla_general + this->f_row * sizeof(int);
-  MPI_File_read_at_all(fh, depla_local, this->rowptr.data(), n_read + 1, MPI_INT, &status);
+  this->rowptr.resize(this->ln_row + 1);
+  int rowptr_start = depla_general + this->f_row * sizeof(int);
   depla_general += vec_size * sizeof(int);
 
-  /*
-  *
-  * read colidx vector
-  * 
-  */
   MPI_File_read_at_all(fh, depla_general, &vec_size, 1, MPI_UNSIGNED_LONG, &status);
   depla_general += sizeof(size_t);
+  int colidx_start = depla_general;
 
-  n_read = this->rowptr.back() - this->rowptr.front();
-
-  this->colidx.resize(n_read);
-  depla_local = depla_general + this->rowptr.front() * sizeof(int);
-  MPI_File_read_at_all(fh, depla_local, this->colidx.data(), n_read, MPI_INT, &status);
-
-  /*
-  *
-  * read values vector
-  * 
-  */
-  this->values.resize(n_read);
-  depla_local = vstart + this->rowptr.front() * sizeof(double);
-  MPI_File_read_at_all(fh, depla_local, this->values.data(), n_read, MPI_DOUBLE, &status);
+  this->rowptr[0] = 0;
+  this->nnz = 0;
+  int idx, jmin, jmax;
+  double val;
+  this->colidx.reserve(this->ln_row * 10);
+  this->values.reserve(this->ln_row * 10);
+  for(int i = 0; i < this->ln_row; i++) {
+    MPI_File_read_at(fh, rowptr_start + i * sizeof(int), &jmin, 1, MPI_INT, &status);
+    MPI_File_read_at(fh, rowptr_start + (i + 1) * sizeof(int), &jmax, 1, MPI_INT, &status);
+    for(int j = jmin; j < jmax; j++) {
+      MPI_File_read_at(fh, colidx_start + j * sizeof(int), &idx, 1, MPI_INT, &status);
+      if(idx >= this->f_col && idx < this->f_col + this->ln_col) {
+        MPI_File_read_at(fh, values_start + j * sizeof(double), &val, 1, MPI_DOUBLE, &status);
+        this->colidx.push_back(idx);
+        this->values.push_back(val);
+        this->nnz++;
+      }
+    }
+    this->rowptr[i + 1] = this->nnz;
+  }
+  this->colidx.shrink_to_fit();
+  this->rowptr.shrink_to_fit();
 
   MPI_File_close(&fh);
   return 0;

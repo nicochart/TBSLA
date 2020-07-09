@@ -1,5 +1,8 @@
 #include <tbsla/mpi/MatrixCOO.hpp>
 #include <tbsla/mpi/MatrixCSR.hpp>
+#include <tbsla/mpi/MatrixELL.hpp>
+#include <tbsla/mpi/MatrixDENSE.hpp>
+#include <tbsla/mpi/MatrixSCOO.hpp>
 #include <tbsla/cpp/utils/mm.hpp>
 #include <tbsla/cpp/utils/InputParser.hpp>
 
@@ -29,25 +32,42 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
-  tbsla::mpi::Matrix *m;
-
-  if(format == "COO" | format == "coo") {
-    m = new tbsla::mpi::MatrixCOO();
-  } else if(format == "CSR" | format == "csr") {
-    m = new tbsla::mpi::MatrixCSR();
-  } else {
-    std::cerr << format << " unrecognized!" << std::endl;
-    exit(1);
-  }
-  std::cout << format << " selected." << std::endl;
-
   MPI_Init(&argc, &argv);
   int world, rank;
   MPI_Comm_size(MPI_COMM_WORLD, &world);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
+  std::string gr_string = input.get_opt("--GR", "1");
+  std::string gc_string = input.get_opt("--GC", "1");
+  int GR = std::stoi(gr_string);
+  int GC = std::stoi(gc_string);
+
+  if(world != GR * GC) {
+    printf("The number of processes (%d) does not match the grid dimensions (%d x %d = %d).\n", world, GR, GC, GR * GC);
+    exit(99);
+  }
+
+  tbsla::mpi::Matrix *m;
+
+  if(format == "COO" | format == "coo") {
+    m = new tbsla::mpi::MatrixCOO();
+  } else if(format == "SCOO" | format == "scoo") {
+    m = new tbsla::mpi::MatrixSCOO();
+  } else if(format == "CSR" | format == "csr") {
+    m = new tbsla::mpi::MatrixCSR();
+  } else if(format == "ELL" | format == "ell") {
+    m = new tbsla::mpi::MatrixELL();
+  } else if(format == "DENSE" | format == "dense") {
+    m = new tbsla::mpi::MatrixDENSE();
+  } else {
+    if(rank == 0) {
+      std::cerr << format << " unrecognized!" << std::endl;
+    }
+    exit(1);
+  }
+
   auto t_read_start = now();
-  m->read_bin_mpiio(MPI_COMM_WORLD, matrix_input);
+  m->read_bin_mpiio(MPI_COMM_WORLD, matrix_input, rank / GC, rank % GC, GR, GC);
 
   auto t_read_end = now();
   m->print_stats(std::cout);
