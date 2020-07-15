@@ -21,3 +21,7 @@ install(TARGETS tbsla_print_binCOO_as_Dense DESTINATION bin)
 add_executable(tbsla_check_yml_results tbsla_check_yml_results.cpp)
 target_link_libraries(tbsla_check_yml_results PRIVATE tbsla)
 install(TARGETS tbsla_check_yml_results DESTINATION bin)
+
+add_executable(tbsla_page_rank tbsla_page_rank.cpp)
+target_link_libraries(tbsla_page_rank PRIVATE tbsla)
+install(TARGETS tbsla_page_rank DESTINATION bin)

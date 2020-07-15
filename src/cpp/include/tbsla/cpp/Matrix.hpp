@@ -12,7 +12,7 @@ class Matrix {
     virtual std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const = 0;
     std::vector<double> a_axpx_(const std::vector<double> &v, int vect_incr = 0) const;
     std::vector<double> & saxpy(const std::vector<double> &x, std::vector<double> &y);
-
+    std::vector<double> page_rank(double epsilon, double beta, int max_iteration); 
     int const get_n_row() {return n_row;}
     int const get_n_col() {return n_col;}
     int const get_f_row() {return f_row;}

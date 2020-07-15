@@ -25,3 +25,7 @@ add_test(test_spmv_cqmat_test test_spmv_cqmat)
 add_executable(test_a_axpx__cdiag test_a_axpx__cdiag.cpp)
 target_link_libraries(test_a_axpx__cdiag PRIVATE tbsla)
 add_test(test_a_axpx__cdiag_test test_a_axpx__cdiag)
+
+add_executable(test_page_rank test_page_rank.cpp)
+target_link_libraries(test_page_rank PRIVATE tbsla)
+add_test(test_page_rank_test test_page_rank)
