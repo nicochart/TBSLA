@@ -92,3 +92,15 @@ void tbsla::utils::vector::print_dense_matrix(int nr, int nc, const std::vector<
     os << std::endl;
   }
 }
+
+int tbsla::utils::vector::compare_vectors(std::vector<double> v1, std::vector<double> v2) {
+  if(v1.size() != v2.size()) {
+    return -1;
+  }
+  int r = 0;
+  for(int i = 0; i < v1.size(); i++) {
+    int s = (v1[i] - v2[i]) * (v1[i] - v2[i]);
+    if(r < s) r = s;
+  }
+  return r;
+}

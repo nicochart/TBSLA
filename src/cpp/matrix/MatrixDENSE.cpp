@@ -245,3 +245,32 @@ void tbsla::cpp::MatrixDENSE::fill_cqmat(int n_row, int n_col, int c, double q, 
     }
   }
 }
+
+void tbsla::cpp::MatrixDENSE::fill_cqmat_stochastic(int n_row, int n_col, int c, double q, unsigned int seed_mult, int pr, int pc, int NR, int NC) {
+  this->fill_cqmat(n_row, n_col, c, q, seed_mult, pr, pc, NR, NC);
+  if(this->values.size() == 0)
+    return;
+  std::vector<double> sum = tbsla::utils::values_generation::cqmat_sum_columns(n_row, n_col, c, q, seed_mult);
+  for (int i = 0; i < sum.size(); i++) {
+    if(sum[i] == 0) sum[i] = 1;
+  }
+  for (int i = 0; i < this->ln_row; i++) {
+    for (int j = 0; j < this->ln_col; j++) {
+      this->values[i * this->ln_col + j] /= sum[this->f_col + j];
+    }
+  }
+}
+
+void tbsla::cpp::MatrixDENSE::normalize_columns() {
+  std::vector<double> sum(this->ln_col, 0);
+  for (int i = 0; i < this->ln_row; i++) {
+    for (int j = 0; j < this->ln_col; j++) {
+      sum[j] += this->values[i * this->ln_col + j];
+    }
+  }
+  for (int i = 0; i < this->ln_row; i++) {
+    for (int j = 0; j < this->ln_col; j++) {
+      this->values[i * this->ln_col + j] /= sum[j];
+    }
+  }
+}

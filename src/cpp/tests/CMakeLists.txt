@@ -22,6 +22,10 @@ add_executable(test_spmv_cqmat test_spmv_cqmat.cpp)
 target_link_libraries(test_spmv_cqmat PRIVATE tbsla)
 add_test(test_spmv_cqmat_test test_spmv_cqmat)
 
+add_executable(test_spmv_cqmat_stochastic test_spmv_cqmat_stochastic.cpp)
+target_link_libraries(test_spmv_cqmat_stochastic PRIVATE tbsla)
+add_test(test_spmv_cqmat_stochastic_test test_spmv_cqmat_stochastic)
+
 add_executable(test_a_axpx__cdiag test_a_axpx__cdiag.cpp)
 target_link_libraries(test_a_axpx__cdiag PRIVATE tbsla)
 add_test(test_a_axpx__cdiag_test test_a_axpx__cdiag)

@@ -25,6 +25,7 @@ endfunction()
 
 add_tbsla_mpi_executable(test_spmv_cdiag)
 add_tbsla_mpi_executable(test_spmv_cqmat)
+add_tbsla_mpi_executable(test_spmv_cqmat_stochastic)
 add_tbsla_mpi_executable(test_a_axpx__cdiag)
 add_tbsla_mpi_executable(test_bin_mpiio)
 

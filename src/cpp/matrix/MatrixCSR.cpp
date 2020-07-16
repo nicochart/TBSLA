@@ -345,3 +345,29 @@ void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, un
   this->colidx.shrink_to_fit();
   this->rowptr.shrink_to_fit();
 }
+
+void tbsla::cpp::MatrixCSR::fill_cqmat_stochastic(int n_row, int n_col, int c, double q, unsigned int seed_mult, int pr, int pc, int NR, int NC) {
+  this->fill_cqmat(n_row, n_col, c, q, seed_mult, pr, pc, NR, NC);
+  if(this->values.size() == 0)
+    return;
+  std::vector<double> sum = tbsla::utils::values_generation::cqmat_sum_columns(n_row, n_col, c, q, seed_mult);
+  for (int i = 0; i < this->rowptr.size() - 1; i++) {
+    for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
+       this->values[j] /= sum[this->colidx[j]];
+    }
+  }
+}
+
+void tbsla::cpp::MatrixCSR::normalize_columns() {
+  std::vector<double> sum(this->ln_col, 0);
+  for (int i = 0; i < this->rowptr.size() - 1; i++) {
+    for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
+       sum[this->colidx[j] - this->f_col] += this->values[j];
+    }
+  }
+  for (int i = 0; i < this->rowptr.size() - 1; i++) {
+    for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
+       this->values[j] /= sum[this->colidx[j] - this->f_col];
+    }
+  }
+}

@@ -43,3 +43,20 @@ std::tuple<int, int, double, int> tbsla::utils::values_generation::cqmat_value(i
     return std::make_tuple(curr_row, (double)(rand_r(&seedp) / RAND_MAX) < q ? rand_r(&seedp) % nc : curr_row + it, 1, 31);
   }
 }
+
+std::vector<double> tbsla::utils::values_generation::cqmat_sum_columns(int nr, int nc, int c, double q, unsigned int seed_mult) {
+  int gnv = 0;
+  for(int i = 0; i < std::min(nc - std::min(c, nc) + 1, nr); i++) {
+    gnv += std::min(c, nc);
+  }
+  for(int i = 0; i < std::min(nr, nc) - std::min(nc - std::min(c, nc) + 1, nr); i++) {
+    gnv += std::min(c, nc) - i - 1;
+  }
+
+  std::vector<double> sum(nc, 0);
+  for(int i = 0; i < gnv; i++) {
+    auto tuple = tbsla::utils::values_generation::cqmat_value(i, nr, nc, c, q, seed_mult);
+    sum[std::get<1>(tuple)] += std::get<2>(tuple);
+  }
+  return sum;
+}

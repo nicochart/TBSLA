@@ -338,3 +338,33 @@ void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, un
     }
   }
 }
+
+void tbsla::cpp::MatrixELL::fill_cqmat_stochastic(int n_row, int n_col, int c, double q, unsigned int seed_mult, int pr, int pc, int NR, int NC) {
+  this->fill_cqmat(n_row, n_col, c, q, seed_mult, pr, pc, NR, NC);
+  if(this->values.size() == 0)
+    return;
+  std::vector<double> sum = tbsla::utils::values_generation::cqmat_sum_columns(n_row, n_col, c, q, seed_mult);
+  for (int i = 0; i < std::min((size_t)this->ln_row, this->values.size() / this->max_col); i++) {
+    for (int j = 0; j < this->max_col; j++) {
+      if(this->values[i * this->max_col + j] != 0) this->values[i * this->max_col + j] /= sum[this->columns[i * this->max_col + j]];
+    }
+  }
+}
+
+void tbsla::cpp::MatrixELL::normalize_columns() {
+  std::vector<double> sum(this->ln_col, 0);
+  for (int i = 0; i < std::min((size_t)this->ln_row, this->values.size() / this->max_col); i++) {
+    for (int j = 0; j < this->max_col; j++) {
+      int idx = this->columns[i * this->max_col + j] - this->f_col;
+      if(idx < 0) idx = 0;
+      sum[idx] += this->values[i * this->max_col + j];
+    }
+  }
+  for (int i = 0; i < std::min((size_t)this->ln_row, this->values.size() / this->max_col); i++) {
+    for (int j = 0; j < this->max_col; j++) {
+      int idx = this->columns[i * this->max_col + j] - this->f_col;
+      if(idx < 0) idx = 0;
+      this->values[i * this->max_col + j] /= sum[idx];
+    }
+  }
+}
