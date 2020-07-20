@@ -5,12 +5,18 @@
 #include <iostream>
 #include <tbsla/cpp/utils/InputParser.hpp>
 
+#include <algorithm>
+#include <chrono>
+#include <random>
+#include <map>
+
 int main(int argc, char** argv) {
   InputParser input(argc, argv);
   int n = 4;
 	double epsilon = 0.00001;
 	double beta = 1;
  	int max_iterations = 100;
+  int size_personalized_nodes = 3;
 
  	if(input.has_opt("--beta")) {
    	std::string beta_string = input.get_opt("--beta", "1");
@@ -32,13 +38,22 @@ int main(int argc, char** argv) {
    	exit(1);
   }
   tbsla::cpp::MatrixCOO m = tbsla::utils::io::readMM(matrix_input);
+
+  std::random_device rnd_device;
+  std::mt19937 mersenne_engine {rnd_device()};  // Generates random integers
+  std::uniform_real_distribution<double> dist {-1, 1};
+  auto gen = [&dist, &mersenne_engine](){ return dist(mersenne_engine); };
+
+	std::vector<int> personalized_nodes(size_personalized_nodes);
+  std::generate(personalized_nodes.begin(), personalized_nodes.end(), gen);
+
+  std::vector<double> b(n);
+  b = m.personalized_page_rank(epsilon, beta, max_iterations, personalized_nodes);
 	
-	std::vector<double> b(n);
-	b = m.page_rank(epsilon, beta, max_iterations);
-	
-	std::cout << 	"SOLUTION [";
-	for(int  i = 0; i < n; i++){
-		std::cout << b[i] << ", " ;
-	} 
-	std::cout << "]"<< std::endl;
+  std::cout << 	"SOLUTION [";
+  for(int  i = 0; i < n; i++){
+    std::cout << b[i] << ", " ;
+  } 
+  std::cout << "]"<< std::endl;
+
 }

@@ -25,3 +25,7 @@ install(TARGETS tbsla_check_yml_results DESTINATION bin)
 add_executable(tbsla_page_rank tbsla_page_rank.cpp)
 target_link_libraries(tbsla_page_rank PRIVATE tbsla)
 install(TARGETS tbsla_page_rank DESTINATION bin)
+
+add_executable(tbsla_personalized_page_rank tbsla_personalized_page_rank.cpp)
+target_link_libraries(tbsla_personalized_page_rank PRIVATE tbsla)
+install(TARGETS tbsla_personalized_page_rank DESTINATION bin)
