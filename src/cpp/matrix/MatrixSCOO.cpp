@@ -385,3 +385,21 @@ void tbsla::cpp::MatrixSCOO::fill_cqmat(int n_row, int n_col, int c, double q, u
   this->col.shrink_to_fit();
   this->row.shrink_to_fit();
 }
+
+void tbsla::cpp::MatrixSCOO::fill_cqmat_stochastic(int n_row, int n_col, int c, double q, unsigned int seed_mult, int pr, int pc, int NR, int NC) {
+  this->fill_cqmat(n_row, n_col, c, q, seed_mult, pr, pc, NR, NC);
+  std::vector<double> sum = tbsla::utils::values_generation::cqmat_sum_columns(n_row, n_col, c, q, seed_mult);
+  for(int i = 0; i < this->values.size(); i++) {
+    this->values[i] /= sum[this->col[i]];
+  }
+}
+
+void tbsla::cpp::MatrixSCOO::normalize_columns() {
+  std::vector<double> sum(this->ln_col, 0);
+  for(int i = 0; i < this->values.size(); i++) {
+    sum[this->col[i] - this->f_col] += this->values[i];
+  }
+  for(int i = 0; i < this->values.size(); i++) {
+    this->values[i] /= sum[this->col[i] - this->f_col];
+  }
+}

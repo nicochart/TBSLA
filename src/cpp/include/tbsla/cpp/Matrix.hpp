@@ -31,6 +31,9 @@ class Matrix {
 
     virtual void fill_cdiag(int n_row, int n_col, int cdiag, int pr = 0, int pc = 0, int NR = 1, int NC = 1) = 0;
     virtual void fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult = 1, int pr = 0, int pc = 0, int NR = 1, int NC = 1) = 0;
+    virtual void fill_cqmat_stochastic(int n_row, int n_col, int c, double q, unsigned int seed_mult = 1, int pr = 0, int pc = 0, int NR = 1, int NC = 1) = 0;
+
+    virtual void normalize_columns() = 0;
 
   protected:
     int n_row, n_col, f_row, f_col, ln_row, ln_col, nnz, pr, pc, NR, NC;
