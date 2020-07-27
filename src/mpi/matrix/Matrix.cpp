@@ -12,7 +12,7 @@ std::vector<double> tbsla::mpi::Matrix::page_rank(MPI_Comm comm, double beta, do
 	bool converge = false;
 	int nb_iterations = 0;
 	std::vector<double> b_t(n_col);
-	double smax, error, teleportation_sum;
+	double max, error, teleportation_sum;
 
 	while(!converge && nb_iterations <= max_iterations){
 		b_t = b;
@@ -75,7 +75,6 @@ std::vector<double> tbsla::mpi::Matrix::personalized_page_rank(MPI_Comm comm, do
 
 		max = b[0] ;
 		teleportation_sum = b_t[0];
-		std::cout << "je suis slà " << std::endl;
 		for(int i = 1; i < n_col; i++){
 			if(max < b[i])
 				max = b[i];
@@ -98,7 +97,6 @@ std::vector<double> tbsla::mpi::Matrix::personalized_page_rank(MPI_Comm comm, do
 			converge = true;
 		nb_iterations++;
 	}
-	std::cout << "hzjdzkj";
 	double sum = b[0];
 	for(int i = 1; i < n_col; i++) {
 		sum += b[i];

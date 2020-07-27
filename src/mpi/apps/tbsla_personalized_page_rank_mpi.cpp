@@ -14,6 +14,11 @@
 #include <iostream>
 #include <tbsla/cpp/utils/InputParser.hpp>
 
+static std::uint64_t now() {
+  std::chrono::nanoseconds ns = std::chrono::steady_clock::now().time_since_epoch();
+  return static_cast<std::uint64_t>(ns.count());
+}
+
 int main(int argc, char **argv){
 	MPI_Init(NULL, NULL);
 
@@ -79,8 +84,11 @@ int main(int argc, char **argv){
    		std::cerr << format << " unrecognized!" << std::endl;
     }
    	exit(1);
-  }  
+  }
+
+  auto t_read_start = now();
   m->read_bin_mpiio(MPI_COMM_WORLD, matrix_input, rank / GC, rank % GC, GR, GC);
+  auto t_read_end = now();
 
   std::random_device rnd_device;
   std::mt19937 mersenne_engine {rnd_device()};// Generates random integers
@@ -92,15 +100,43 @@ int main(int argc, char **argv){
 
 	std::vector<double> b(m->get_n_col());
 
+  auto t_personalized_page_rank_start = now();
 	b = m->personalized_page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations, personalized_nodes);
+  auto t_personalized_page_rank_end = now();
  	
   if(rank == 0){
+    auto t_app_end = now();
+    
     std::cout <<  "SOLUTION ["; 
     for(int  i = 0;i < m->get_n_col();i++){
       std::cout << b[i] << ", " ;
     } 
     std::cout << "]"<< std::endl ;    
+
+
+    std::map<std::string, std::string> outmap;
+    outmap["Machine"] = "my_machine";
+    outmap["test"] = "personalized_page_rank";
+    outmap["matrix_format"] = format;
+    // outmap[""] = "";
+    outmap["n"] = std::to_string(m->get_n_col());
+    outmap["nnz"] = std::to_string(m->get_gnnz());
+    outmap["time_read_m"] = std::to_string((t_read_end - t_read_start) / 1e9);
+    outmap["time_personalized_page_rank"] = std::to_string((t_personalized_page_rank_end - t_personalized_page_rank_start) / 1e9);
+    outmap["time_app"] = std::to_string((t_app_end - t_read_start) / 1e9);
+    outmap["lang"] = "C++";
+    outmap["lang"] += "_MPI";
+    outmap["matrix_input"] = std::string(argv[1]);
+
+    std::map<std::string, std::string>::iterator it=outmap.begin();
+    std::cout << "{\"" << it->first << "\":\"" << it->second << "\"";
+    it++;
+    for (; it != outmap.end(); ++it) {
+      std::cout << ",\"" << it->first << "\":\"" << it->second << "\"";
+    }
+    std::cout << "}\n";
   }
+
   MPI_Finalize();
 
 }

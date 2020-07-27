@@ -28,4 +28,5 @@ add_tbsla_mpi_executable(test_spmv_cqmat)
 add_tbsla_mpi_executable(test_spmv_cqmat_stochastic)
 add_tbsla_mpi_executable(test_a_axpx__cdiag)
 add_tbsla_mpi_executable(test_bin_mpiio)
-
+add_tbsla_mpi_executable(test_page_rank)
+add_tbsla_mpi_executable(test_personalized_page_rank)
