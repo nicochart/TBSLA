@@ -19,15 +19,16 @@ void print(tbsla::cpp::Matrix & m) {
 void test_personalized_page_rank(int nr, int nc, int c, double q, double s, double beta, double epsilon, int max_iterations, std::vector<int> personalized_nodes) {
   std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << c << "; q : " << q << "; s : " << s << " ----  " << std::endl;
   std::vector<double> v(nc);
+  int nb_iterations_done;  
   std::iota (std::begin(v), std::end(v), 0);
 
   tbsla::cpp::MatrixCOO mcoo;
   mcoo.fill_cqmat_stochastic(nr, nc, c, q, s);
-  std::vector<double> rcoo = mcoo.personalized_page_rank(beta, epsilon, max_iterations, personalized_nodes);
+  std::vector<double> rcoo = mcoo.personalized_page_rank(beta, epsilon, max_iterations, personalized_nodes, nb_iterations_done);
 
   tbsla::cpp::MatrixSCOO mscoo;
   mscoo.fill_cqmat_stochastic(nr, nc, c, q, s);
-  std::vector<double> rscoo = mscoo.personalized_page_rank(beta, epsilon, max_iterations, personalized_nodes);
+  std::vector<double> rscoo = mscoo.personalized_page_rank(beta, epsilon, max_iterations, personalized_nodes, nb_iterations_done);
   if(tbsla::utils::vector::compare_vectors(rcoo, rscoo)) {
     print(mcoo);
     mcoo.print_as_dense(std::cout);
@@ -43,7 +44,7 @@ void test_personalized_page_rank(int nr, int nc, int c, double q, double s, doub
 
   tbsla::cpp::MatrixCSR mcsr;
   mcsr = mcoo.toCSR();
-  std::vector<double> rcsr = mcsr.personalized_page_rank(beta, epsilon, max_iterations, personalized_nodes);
+  std::vector<double> rcsr = mcsr.personalized_page_rank(beta, epsilon, max_iterations, personalized_nodes, nb_iterations_done);
   if(tbsla::utils::vector::compare_vectors(rcoo, rcsr)) {
     print(mcoo);
     mcoo.print_as_dense(std::cout);
@@ -59,7 +60,7 @@ void test_personalized_page_rank(int nr, int nc, int c, double q, double s, doub
 
   tbsla::cpp::MatrixCSR mcsr2;
   mcsr2.fill_cqmat_stochastic(nr, nc, c, q, s);
-  std::vector<double> rcsr2 = mcsr2.personalized_page_rank(beta, epsilon, max_iterations, personalized_nodes);
+  std::vector<double> rcsr2 = mcsr2.personalized_page_rank(beta, epsilon, max_iterations, personalized_nodes, nb_iterations_done);
   if(tbsla::utils::vector::compare_vectors(rcoo, rcsr2)) {
     print(mcoo);
     mcoo.print_as_dense(std::cout);
@@ -75,7 +76,7 @@ void test_personalized_page_rank(int nr, int nc, int c, double q, double s, doub
 
   tbsla::cpp::MatrixELL mell;
   mell.fill_cqmat_stochastic(nr, nc, c, q, s);
-  std::vector<double> rell = mell.personalized_page_rank(beta, epsilon, max_iterations, personalized_nodes);
+  std::vector<double> rell = mell.personalized_page_rank(beta, epsilon, max_iterations, personalized_nodes, nb_iterations_done);
   if(tbsla::utils::vector::compare_vectors(rcoo, rell)) {
     print(mcoo);
     mcoo.print_as_dense(std::cout);
@@ -91,7 +92,7 @@ void test_personalized_page_rank(int nr, int nc, int c, double q, double s, doub
 
   tbsla::cpp::MatrixDENSE mdense;
   mdense.fill_cqmat_stochastic(nr, nc, c, q, s);
-  std::vector<double> rdense = mdense.personalized_page_rank(beta, epsilon, max_iterations, personalized_nodes);
+  std::vector<double> rdense = mdense.personalized_page_rank(beta, epsilon, max_iterations, personalized_nodes, nb_iterations_done);
   if(tbsla::utils::vector::compare_vectors(rcoo, rdense)) {
     print(mcoo);
     mcoo.print_as_dense(std::cout);

@@ -1,36 +1,34 @@
-#include <tbsla/mpi/Matrix.hpp>
 #include <tbsla/mpi/MatrixCOO.hpp>
 #include <tbsla/mpi/MatrixSCOO.hpp>
 #include <tbsla/mpi/MatrixCSR.hpp>
 #include <tbsla/mpi/MatrixELL.hpp>
 #include <tbsla/mpi/MatrixDENSE.hpp>
-#include <tbsla/cpp/utils/vector.hpp>
-#include <mpi.h>
+#include <tbsla/cpp/utils/InputParser.hpp>
+
 #include <algorithm>
 #include <chrono>
 #include <random>
 #include <map>
-#include <numeric>
-#include <iostream>
-#include <tbsla/cpp/utils/InputParser.hpp>
+#include <string>
+
+#include <mpi.h>
 
 static std::uint64_t now() {
   std::chrono::nanoseconds ns = std::chrono::steady_clock::now().time_since_epoch();
   return static_cast<std::uint64_t>(ns.count());
 }
 
-int main(int argc, char **argv){
-  MPI_Init(NULL, NULL);
-
+int main(int argc, char** argv) {
+  InputParser input(argc, argv);
+  MPI_Init(&argc, &argv);
   int world, rank;
   MPI_Comm_size(MPI_COMM_WORLD, &world);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    
-  InputParser input(argc, argv);
+
   double epsilon = 0.00001;
   double beta = 1;
   int max_iterations = 100;
-  int size_personalized_nodes = 5;
+  int nb_iterations_done;
 
   if(input.has_opt("--beta")) {
     std::string beta_string = input.get_opt("--beta", "1");
@@ -46,26 +44,38 @@ int main(int argc, char **argv){
     max_iterations = std::stoi(max_iterations_string);
   }
   
-  std::string matrix_input = input.get_opt("--matrix_input");
-  if(matrix_input == "") {
-    std::cerr << "A matrix file has to be given with the parameter --matrix_input file" << std::endl;
-    exit(1);
-  }
-
   std::string format = input.get_opt("--format");
   if(format == "") {
     std::cerr << "A file format has to be given with the parameter --format format" << std::endl;
     exit(1);
   }
-    
+
+  std::string nr_string = input.get_opt("--NR", "1024");
+  std::string nc_string = input.get_opt("--NC", "1024");
+
   std::string gr_string = input.get_opt("--GR", "1");
   std::string gc_string = input.get_opt("--GC", "1");
+
+  int NR = std::stoi(nr_string);
+  int NC = std::stoi(nc_string);
   int GR = std::stoi(gr_string);
   int GC = std::stoi(gc_string);
+  int C = -1;
+  double Q = -1;
+  int S = -1;
+
   if(world != GR * GC) {
     printf("The number of processes (%d) does not match the grid dimensions (%d x %d = %d).\n", world, GR, GC, GR * GC);
     exit(99);
   }
+
+
+  std::string c_string = input.get_opt("--C", "8");
+  C = std::stoi(c_string);
+  std::string q_string = input.get_opt("--Q", "0.1");
+  Q = std::stod(q_string);
+  std::string s_string = input.get_opt("--S", "0");
+  S = std::stoi(s_string);
 
   tbsla::mpi::Matrix *m;
 
@@ -85,41 +95,41 @@ int main(int argc, char **argv){
     }
     exit(1);
   }
+  auto t_app_start = now();
 
-  auto t_read_start = now();
-  m->read_bin_mpiio(MPI_COMM_WORLD, matrix_input, rank / GC, rank % GC, GR, GC);
-  auto t_read_end = now();
+  m->fill_cqmat(NR, NC, C, Q, S, rank / GC, rank % GC, GR, GC);
 
-  std::vector<int> personalized_nodes{1,3};
-  std::vector<double> b(m->get_n_col());
-  int nb_iterations_done; 
+  if(input.has_opt("--print-infos")) {
+    m->print_stats(std::cout);
+    m->print_infos(std::cout);
+  }
 
-  auto t_personalized_page_rank_start = now();
-  b = m->personalized_page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations, personalized_nodes, nb_iterations_done);
-  auto t_personalized_page_rank_end = now();
-  
-  if(rank == 0){
+  MPI_Barrier(MPI_COMM_WORLD);
+  auto t_op_start = now();
+  std::vector<double> res = m->page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations, nb_iterations_done);
+  MPI_Barrier(MPI_COMM_WORLD);
+  auto t_op_end = now();
+
+
+  if(rank == 0) {
     auto t_app_end = now();
-    
-    std::cout <<  "SOLUTION ["; 
-    for(int  i = 0;i < m->get_n_col();i++){
-      std::cout << b[i] << ", " ;
-    } 
-    std::cout << "]"<< std::endl ;    
-
 
     std::map<std::string, std::string> outmap;
-    outmap["test"] = "personalized_page_rank";
+    outmap["test"] = "page_rank";
     outmap["matrix_format"] = format;
     outmap["n"] = std::to_string(m->get_n_col());
+    outmap["g_row"] = gr_string;
+    outmap["g_col"] = gc_string;
     outmap["nnz"] = std::to_string(m->get_gnnz());
-    outmap["nb_iterations"] = std::to_string(nb_iterations_done);
-    outmap["time_read_m"] = std::to_string((t_read_end - t_read_start) / 1e9);
-    outmap["time_personalized_page_rank"] = std::to_string((t_personalized_page_rank_end - t_personalized_page_rank_start) / 1e9);
-    outmap["time_app"] = std::to_string((t_app_end - t_read_start) / 1e9);
-    outmap["lang"] = "C++";
-    outmap["lang"] += "_MPI";
-    outmap["matrix_input"] = std::string(argv[1]);
+    outmap["nb_iterations"] = std::to_string(nb_iterations_done);    
+    outmap["time_app_in"] = std::to_string((t_app_end - t_app_start) / 1e9);
+    outmap["time_op"] = std::to_string((t_op_end - t_op_start) / 1e9);
+    outmap["lang"] = "MPI";
+    outmap["matrix_type"] = "cqmat";
+    outmap["cqmat_c"] = std::to_string(C);
+    outmap["cqmat_q"] = std::to_string(Q);
+    outmap["cqmat_s"] = std::to_string(S);
+  
 
     std::map<std::string, std::string>::iterator it=outmap.begin();
     std::cout << "{\"" << it->first << "\":\"" << it->second << "\"";
@@ -131,5 +141,4 @@ int main(int argc, char **argv){
   }
 
   MPI_Finalize();
-
 }

@@ -18,17 +18,18 @@ void test_personalized_page_rank(int nr, int nc, int c, double q, unsigned int s
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   std::vector<double> v(nc);
+  int nb_iterations_done;
   std::iota (std::begin(v), std::end(v), 0);
 
   tbsla::mpi::MatrixCOO mcoo;
   mcoo.fill_cqmat_stochastic(nr, nc, c, q, seed, pr, pc, NR, NC);
-  std::vector<double> rcoo = mcoo.personalized_page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations,personalized_nodes);
+  std::vector<double> rcoo = mcoo.personalized_page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations,personalized_nodes, nb_iterations_done);
 
   tbsla::mpi::MatrixSCOO mscoo;
   mscoo.fill_cqmat_stochastic(nr, nc, c, q, seed, pr, pc, NR, NC);
   std::vector<double> vl(mscoo.get_ln_col());
   std::iota (std::begin(vl), std::end(vl), mscoo.get_f_col());
-  std::vector<double> rscoo = mscoo.personalized_page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations,personalized_nodes);
+  std::vector<double> rscoo = mscoo.personalized_page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations,personalized_nodes, nb_iterations_done);
   if(tbsla::utils::vector::compare_vectors(rscoo, rcoo)) {
     for(int i = 0; i < world; i++) {
       MPI_Barrier(MPI_COMM_WORLD);
@@ -53,7 +54,7 @@ void test_personalized_page_rank(int nr, int nc, int c, double q, unsigned int s
 
   tbsla::mpi::MatrixCSR mcsr;
   mcsr.fill_cqmat_stochastic(nr, nc, c, q, seed, pr, pc, NR, NC);
-  std::vector<double> rcsr = mcsr.personalized_page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations, personalized_nodes);
+  std::vector<double> rcsr = mcsr.personalized_page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations, personalized_nodes, nb_iterations_done);
   if(tbsla::utils::vector::compare_vectors(rcsr, rcoo)) {
     for(int i = 0; i < world; i++) {
       MPI_Barrier(MPI_COMM_WORLD);
@@ -78,7 +79,7 @@ void test_personalized_page_rank(int nr, int nc, int c, double q, unsigned int s
 
   tbsla::mpi::MatrixELL mell;
   mell.fill_cqmat_stochastic(nr, nc, c, q, seed, pr, pc, NR, NC);
-  std::vector<double> rell = mell.personalized_page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations, personalized_nodes);
+  std::vector<double> rell = mell.personalized_page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations, personalized_nodes, nb_iterations_done);
   if(tbsla::utils::vector::compare_vectors(rell, rcoo)) {
     for(int i = 0; i < world; i++) {
       MPI_Barrier(MPI_COMM_WORLD);
@@ -103,7 +104,7 @@ void test_personalized_page_rank(int nr, int nc, int c, double q, unsigned int s
 
   tbsla::mpi::MatrixDENSE mdense;
   mdense.fill_cqmat_stochastic(nr, nc, c, q, seed, pr, pc, NR, NC);
-  std::vector<double> rdense = mdense.personalized_page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations, personalized_nodes);
+  std::vector<double> rdense = mdense.personalized_page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations, personalized_nodes, nb_iterations_done);
   if(tbsla::utils::vector::compare_vectors(rdense, rcoo)) {
     for(int i = 0; i < world; i++) {
       MPI_Barrier(MPI_COMM_WORLD);
