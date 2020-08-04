@@ -12,6 +12,15 @@ def init_parser():
   parser.add_argument("--matrix-type", dest="matrixtype", help="Matrix generation type(cqmat, cdiag)", type=str, required=True, choices=['cdiag', 'cqmat'])
   return parser
 
+def init_pagerank():
+  parser = argparse.ArgumentParser(add_help=False)
+  parser.add_argument("--matrix_dim", dest="matrix_dim", help="Number of rows and columns in the matrix", type=int, required=True)
+  parser.add_argument("--GC", dest="GC", help="Number of columns in the process grid", type=int, required=True)
+  parser.add_argument("--GR", dest="GR", help="Number of rows in the process grid", type=int, required=True)
+  parser.add_argument("--C", dest="C", help="Number of diagonals", type=int, default=10)
+  parser.add_argument("--format", dest="format", help="Matrix format", type=str, required=True)
+  return parser
+
 def add_submit():
   parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument("--nodes", dest="nodes", help="Nodes used", type=int, required=True)
