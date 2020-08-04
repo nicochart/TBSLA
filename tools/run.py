@@ -24,12 +24,15 @@ print(args.dic)
 start = time.time_ns()
 p = subprocess.Popen(args.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 success = "true"
+reason = "Success = true"
 try:
   if p.wait(timeout = args.timeout) != 0:
     success = "false"
+    reason = "wait != 0"
 except subprocess.TimeoutExpired:
   p.kill()
   success = "false"
+  reason = "Timeout"
 end = time.time_ns()
 outs, errs = p.communicate()
 outs = outs.decode('utf-8')
@@ -46,6 +49,7 @@ if len(r) > 0:
 if args.rod:
   if not dic:
     success = "false"
+    reason = "no dic"
 
 print(args.dic)
 print(str(args.dic).replace("'", '"'))
@@ -56,6 +60,7 @@ for k, v in json.loads(str(args.dic).replace("'", '"')).items():
     dic[k] = v
 
 dic["success"] = success
+dic["false_reason"] = reason
 dic["date"] = datetime.now().strftime("%Y%m%d_%H%M%S")
 dic["time_app_out"] = (end - start) / 1e9
 
