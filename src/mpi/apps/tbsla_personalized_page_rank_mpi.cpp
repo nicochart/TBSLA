@@ -5,6 +5,7 @@
 #include <tbsla/mpi/MatrixELL.hpp>
 #include <tbsla/mpi/MatrixDENSE.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
+#include <tbsla/cpp/utils/split.hpp>
 #include <mpi.h>
 #include <algorithm>
 #include <chrono>
@@ -29,8 +30,8 @@ int main(int argc, char **argv){
   InputParser input(argc, argv);
   double epsilon = 0.00001;
   double beta = 1;
-  int max_iterations = 100;
-  int size_personalized_nodes = 5;
+  int max_iterations = 10000;
+  int nb_iterations_done; 
 
   if(input.has_opt("--beta")) {
     std::string beta_string = input.get_opt("--beta", "1");
@@ -41,8 +42,8 @@ int main(int argc, char **argv){
       epsilon = std::stod(epsilon_string);
   }
 
-  if(input.has_opt("--max-iterations")) { 
-    std::string max_iterations_string = input.get_opt("--max-iterations", "1");
+  if(input.has_opt("--max_iterations")) { 
+    std::string max_iterations_string = input.get_opt("--max_iterations", "1");
     max_iterations = std::stoi(max_iterations_string);
   }
   
@@ -66,7 +67,23 @@ int main(int argc, char **argv){
     printf("The number of processes (%d) does not match the grid dimensions (%d x %d = %d).\n", world, GR, GC, GR * GC);
     exit(99);
   }
-
+  std::vector<int> personalized_nodes;
+  std::string str_personalized_nodes = input.get_opt("--personalized_nodes"); 
+  if(str_personalized_nodes == ""){
+    std::cerr << "A list of personalized nodes is needed" << std::endl; 
+    exit(1);
+  }
+  else{
+    std::string delim(" ");
+    std::vector<std::string> list_nodes = tbsla::utils::io::split(str_personalized_nodes, delim); 
+    for(int i = 0; i < list_nodes.size(); i++){
+      double to_insert = std::stod(list_nodes[i]);
+      if (std::find(personalized_nodes.begin(), personalized_nodes.end(), to_insert) == personalized_nodes.end()){
+        personalized_nodes.push_back(to_insert);
+      }
+    }
+  }
+  
   tbsla::mpi::Matrix *m;
 
   if(format == "COO" | format == "coo") {
@@ -90,9 +107,7 @@ int main(int argc, char **argv){
   m->read_bin_mpiio(MPI_COMM_WORLD, matrix_input, rank / GC, rank % GC, GR, GC);
   auto t_read_end = now();
 
-  std::vector<int> personalized_nodes{1,3};
   std::vector<double> b(m->get_n_col());
-  int nb_iterations_done; 
 
   auto t_personalized_page_rank_start = now();
   b = m->personalized_page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations, personalized_nodes, nb_iterations_done);

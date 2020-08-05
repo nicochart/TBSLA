@@ -3,15 +3,17 @@
 #include <tbsla/mpi/MatrixCSR.hpp>
 #include <tbsla/mpi/MatrixELL.hpp>
 #include <tbsla/mpi/MatrixDENSE.hpp>
+#include <vector> 
+#include <tbsla/cpp/utils/split.hpp>
+#include <tbsla/cpp/utils/vector.hpp>
 #include <tbsla/cpp/utils/InputParser.hpp>
-
 #include <algorithm>
 #include <chrono>
 #include <random>
 #include <map>
 #include <string>
-
 #include <mpi.h>
+#include <iostream>
 
 static std::uint64_t now() {
   std::chrono::nanoseconds ns = std::chrono::steady_clock::now().time_since_epoch();
@@ -25,40 +27,26 @@ int main(int argc, char** argv) {
   MPI_Comm_size(MPI_COMM_WORLD, &world);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-  double epsilon = 0.00001;
-  double beta = 1;
-  int max_iterations = 100;
-  int nb_iterations_done;
-  std::vector<int> personalized_nodes{1,3};
-
-  if(input.has_opt("--beta")) {
-    std::string beta_string = input.get_opt("--beta", "1");
-    beta = std::stod(beta_string);
-  }
-  if(input.has_opt("--epsilon")) {
-      std::string epsilon_string = input.get_opt("--epsilon", "1");
-      epsilon = std::stod(epsilon_string);
-  }
-
-  if(input.has_opt("--max-iterations")) { 
-    std::string max_iterations_string = input.get_opt("--max-iterations", "1");
-    max_iterations = std::stoi(max_iterations_string);
-  }
-  
   std::string format = input.get_opt("--format");
   if(format == "") {
     std::cerr << "A file format has to be given with the parameter --format format" << std::endl;
     exit(1);
   }
 
-  std::string nr_string = input.get_opt("--NR", "1024");
-  std::string nc_string = input.get_opt("--NC", "1024");
+  std::string matrix_dim_string = input.get_opt("--matrix_dim", "1024");
 
   std::string gr_string = input.get_opt("--GR", "1");
   std::string gc_string = input.get_opt("--GC", "1");
 
-  int NR = std::stoi(nr_string);
-  int NC = std::stoi(nc_string);
+  std::string beta_string = input.get_opt("--beta", "0.85");
+  std::string epsilon_string = input.get_opt("--epsilon", "0.00001");
+  std::string max_iterations_string = input.get_opt("--max-iterations", "10000");
+
+  double epsilon = std::stod(epsilon_string);
+  double beta = std::stod(beta_string);
+  int max_iterations = std::stoi(max_iterations_string);;
+  int nb_iterations_done;
+  int matrix_dim = std::stoi(matrix_dim_string);
   int GR = std::stoi(gr_string);
   int GC = std::stoi(gc_string);
   int C = -1;
@@ -70,6 +58,22 @@ int main(int argc, char** argv) {
     exit(99);
   }
 
+  std::vector<int> personalized_nodes;
+  std::string str_personalized_nodes = input.get_opt("--personalized_nodes"); 
+  if(str_personalized_nodes == ""){
+    std::cerr << "A list of personalized nodes is needed" << std::endl; 
+    exit(1);
+  }
+  else{
+    std::string delim(" ");
+    std::vector<std::string> list_nodes = tbsla::utils::io::split(str_personalized_nodes, delim); 
+    for(int i = 0; i < list_nodes.size(); i++){
+      double to_insert = std::stod(list_nodes[i]);
+      if (std::find(personalized_nodes.begin(), personalized_nodes.end(), to_insert) == personalized_nodes.end()){
+        personalized_nodes.push_back(to_insert);
+      }
+    }
+  }
 
   std::string c_string = input.get_opt("--C", "8");
   C = std::stoi(c_string);
@@ -98,7 +102,7 @@ int main(int argc, char** argv) {
   }
   auto t_app_start = now();
 
-  m->fill_cqmat(NR, NC, C, Q, S, rank / GC, rank % GC, GR, GC);
+  m->fill_cqmat_stochastic(matrix_dim, matrix_dim, C, Q, S, rank / GC, rank % GC, GR, GC);
 
   if(input.has_opt("--print-infos")) {
     m->print_stats(std::cout);
@@ -125,7 +129,7 @@ int main(int argc, char** argv) {
     outmap["time_app_in"] = std::to_string((t_app_end - t_app_start) / 1e9);
     outmap["time_op"] = std::to_string((t_op_end - t_op_start) / 1e9);
     outmap["lang"] = "MPI";
-    outmap["matrix_type"] = "cqmat";
+    outmap["matrix_type"] = "cqmat stochastic";
     outmap["cqmat_c"] = std::to_string(C);
     outmap["cqmat_q"] = std::to_string(Q);
     outmap["cqmat_s"] = std::to_string(S);
