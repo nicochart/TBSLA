@@ -19,6 +19,7 @@ def init_pagerank():
   parser.add_argument("--GR", dest="GR", help="Number of rows in the process grid", type=int, required=True)
   parser.add_argument("--C", dest="C", help="Number of diagonals", type=int, default=10)
   parser.add_argument("--format", dest="format", help="Matrix format", type=str, required=True)
+  parser.add_argument("--personalized_nodes", dest="personalized_nodes", help="List of personalized nodes in double quotes and separated by spaces", type=str, required=False, default=None)
   return parser
 
 def add_submit():
