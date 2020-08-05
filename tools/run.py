@@ -24,7 +24,7 @@ print(args.dic)
 start = time.time_ns()
 p = subprocess.Popen(args.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 success = "true"
-reason = None
+reason = ""
 try:
   if p.wait(timeout = args.timeout) != 0:
     success = "false"
@@ -49,7 +49,7 @@ if len(r) > 0:
 if args.rod:
   if not dic:
     success = "false"
-    if reason == None:
+    if reason == "":
       reason = "no dic"
     else:
       reason += " + no dic"
