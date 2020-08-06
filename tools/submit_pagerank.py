@@ -23,19 +23,27 @@ for k in ['resfile',  'machine', 'timeout']:
 command += ' " '
 
 if args.lang == "MPI":
-  command += machine.get_mpirun(args) + f" -n {ncores} tbsla_perf_page_rank_mpi"
+  if args.personalized_nodes != "":
+    command += machine.get_mpirun(args) + f" -n {ncores} tbsla_perf_personalized_page_rank_mpi"
+  else:
+    command += machine.get_mpirun(args) + f" -n {ncores} tbsla_perf_page_rank_mpi"
 
 if args.lang == "HPX":
+  hpx_app = "tbsla_perf_page_rank_hpx"
+  if args.personalized_nodes != "":
+    hpx_app = "tbsla_perf_personalized_page_rank_hpx"
   if args.nodes == 1:
-    command += f"tbsla_perf_hpx"
+    command += hpx_app
   else:
-    command += machine.get_mpirun(args) + f" -n {args.nodes} tbsla_perf_page_rank_hpx -l {args.nodes}"
+    command += machine.get_mpirun(args) + f" -n {args.nodes} {hpx_app} -l {args.nodes}"
 
 command += f" --matrix_dim {args.matrix_dim}"
 command += f" --GR {args.GR}"
 command += f" --GC {args.GC}"
 command += f" --C {args.C}"
 command += f" --format {args.format}"
+if args.personalized_nodes != "":
+  command += f" --personalized_nodes \\\"{args.personalized_nodes}\\\""
 
 nbq = 5
 for s in range(1, 2):
@@ -44,7 +52,7 @@ for s in range(1, 2):
     dict_to_pass["S"] = s
     header += command + f' --Q {q / nbq} --S {s}" --dic "{dict_to_pass}"\n\n'
 
-fname = f"submit_pagerank_{args.lang}_n{args.nodes}_D{args.matrix_dim}_c{args.C}_gr{args.GR}_gc{args.GC}.sh"
+fname = f"submit_pagerank_{args.lang}_D{args.matrix_dim}_n{args.nodes}_f{args.format}_c{args.C}_gr{args.GR}_gc{args.GC}.sh"
 
 if os.path.isfile(fname):
   os.remove(fname)
