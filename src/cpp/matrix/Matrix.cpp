@@ -27,15 +27,14 @@ std::vector<double> tbsla::cpp::Matrix::page_rank(double epsilon, double beta, i
     }
     teleportation_sum *= (1-beta)/n_col ;
       
-    for(int  i = 0 ; i < n_col;i++){
+    b[0] = beta*b[0] + teleportation_sum;
+    max = b[0];
+    for(int  i = 1 ; i < n_col;i++){
       b[i] = beta*b[i] + teleportation_sum;
-    }
-
-    max  = b[0];
-    for(int i =  0; i < n_col;i++){
       if(max < b[i])
         max = b[i];
     }
+
     error = 0.0;
     for (int i = 0;i< n_col;i++){
       b[i] = b[i]/max;
