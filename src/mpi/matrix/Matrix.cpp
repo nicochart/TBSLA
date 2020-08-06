@@ -78,8 +78,8 @@ std::vector<double> tbsla::mpi::Matrix::personalized_page_rank(MPI_Comm comm, do
     }
     teleportation_sum *= (1-beta)/personalized_nodes.size(); 
 
-    max = 0.0
-    for(int  i = 0 ; i < n_col; i++){
+    max = 0.0;
+    for(int  i = 0; i < n_col; i++){
       b[i] = beta*b[i];
       if(std::find(personalized_nodes.begin(), personalized_nodes.end(), i) != personalized_nodes.end()){
         b[i] += teleportation_sum;
