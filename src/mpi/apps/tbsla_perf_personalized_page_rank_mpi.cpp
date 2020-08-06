@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
     auto t_app_end = now();
 
     std::map<std::string, std::string> outmap;
-    outmap["test"] = "page_rank";
+    outmap["test"] = "personalized_page_rank";
     outmap["matrix_format"] = format;
     outmap["n"] = std::to_string(m->get_n_col());
     outmap["g_row"] = gr_string;
