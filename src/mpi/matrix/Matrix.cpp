@@ -14,7 +14,7 @@ std::vector<double> tbsla::mpi::Matrix::page_rank(MPI_Comm comm, double beta, do
   std::vector<double> b_t(n_col);
   double max, error, teleportation_sum;
 
-  while(!converge && nb_iterations <= max_iterations){
+  while(!converge && nb_iterations < max_iterations){
     b_t = b;
     
     auto begin = b_t.begin() + f_col; 
@@ -65,7 +65,7 @@ std::vector<double> tbsla::mpi::Matrix::personalized_page_rank(MPI_Comm comm, do
   int nb_iterations = 0;
   std::vector<double> b_t(n_col);
   double max, error, teleportation_sum;
-  while(!converge && nb_iterations <= max_iterations){
+  while(!converge && nb_iterations < max_iterations){
     b_t = b;
     auto begin = b_t.begin() + f_col; 
     auto end = begin + ln_col; 

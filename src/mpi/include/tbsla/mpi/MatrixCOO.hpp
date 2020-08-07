@@ -18,6 +18,8 @@ class MatrixCOO : public tbsla::cpp::MatrixCOO, public virtual tbsla::mpi::Matri
     void fill_cqmat(MPI_Comm comm, int n_row, int n_col, int c, double q, unsigned int seed_mult, int pr, int pc, int NR, int NC);
     std::vector<double> spmv(MPI_Comm comm, const std::vector<double> &v, int vect_incr = 0);
     std::vector<double> a_axpx_(MPI_Comm comm, const std::vector<double> &v, int vect_incr = 0);
+    std::vector<double> page_rank(MPI_Comm comm, double beta, double epsilon, int max_iterations, int &nb_iterations_done);
+    std::vector<double> personalized_page_rank(MPI_Comm comm, double beta, double epsilon, int max_iterations, std::vector<int> personalized_nodes, int &nb_iterations_done);
     using tbsla::cpp::MatrixCOO::spmv;
     using tbsla::cpp::MatrixCOO::fill_cdiag;
     using tbsla::cpp::MatrixCOO::fill_cqmat;
