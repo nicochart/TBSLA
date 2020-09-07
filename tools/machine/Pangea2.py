@@ -50,3 +50,7 @@ def get_additional_info(args):
   dic['log_file'] = os.environ['LSB_OUTPUTFILE']
   return dic
 
+def post_processing(args):
+  s = "rm core.*"
+  return s
+

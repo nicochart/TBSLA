@@ -46,3 +46,6 @@ def get_additional_info(args):
   dic['log_file'] = os.environ['TBSLA_LOG_FILE']
   return dic
 
+def post_processing(args):
+  s = ""
+  return s

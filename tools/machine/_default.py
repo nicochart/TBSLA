@@ -16,3 +16,7 @@ def get_mpirun(args):
 def get_additional_info(args):
   dic = dict()
   return dic
+
+def post_processing(args):
+  s = ""
+  return s

@@ -54,3 +54,6 @@ def get_additional_info(args):
   dic['log_file'] = os.environ['LOADL_STEP_OUT']
   return dic
 
+def post_processing(args):
+  s = ""
+  return s

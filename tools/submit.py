@@ -60,6 +60,8 @@ if args.matrixtype == "cqmat":
 else:
   header += command +  f'" --dic "{dict_to_pass}"\n\n'
 
+header += machine.post_processing(args) + "\n"
+
 fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_nr{args.NR}_nc{args.NC}_{args.matrixtype}_c{args.C}_gr{args.GR}_gc{args.GC}.sh"
 
 if os.path.isfile(fname):
