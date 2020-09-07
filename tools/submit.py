@@ -68,7 +68,10 @@ if os.path.isfile(fname):
 with open(fname, 'w', encoding = 'utf-8') as f:
   f.write(header)
 
-command = machine.get_env(args) + "\n" + machine.get_submit_cmd(args) + " " + fname
+command = ""
+if machine.LOAD_ENV_BEFORE_SUBMIT:
+  command += machine.get_env(args) + "\n"
+command += machine.get_submit_cmd(args) + " " + fname
 
 if os.path.isfile(fname):
   print(command)
