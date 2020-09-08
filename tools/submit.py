@@ -39,7 +39,7 @@ if args.lang == "HPX":
   if args.nodes == 1:
     command += f"tbsla_perf_hpx"
   else:
-    command += machine.get_mpirun(args) + f" -n {args.nodes} tbsla_perf_hpx -l {args.nodes}"
+    command += machine.get_mpirun(args) + f" --map-by ppr:1:socket tbsla_perf_hpx -l {args.nodes * machine.get_sockets_per_node(args)}"
 
 command += f" --op {args.op}"
 command += f" --NR {args.NR}"

@@ -10,6 +10,9 @@ def get_header(args):
 def get_cores_per_node(args):
   return 1
 
+def get_sockets_per_node(args):
+  return 1
+
 def get_mpirun(args):
   return "mpirun"
 
