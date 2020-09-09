@@ -22,6 +22,7 @@ machine = 'Pangea2'
 formats = {'COO', 'CSR', 'ELL', 'DENSE', 'SCOO'}
 machine_informations = importlib.import_module("machine." + machine)
 ncores = machine_informations.get_cores_per_node(None)
+walltime = 60
 
 def decomp(n):
   i = 2
@@ -45,18 +46,18 @@ while i <= Ne:
     g2 = 1
     for f in factors:
       g1 = int(i * ncores / g2)
-      print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang MPI --wall-time 1:00:00 --GR {g1} --GC {g2}')
-      print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time 1:00:00 --GR {g1} --GC {g2}')
+      print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang MPI --wall-time {walltime} --GR {g1} --GC {g2}')
+      print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time {walltime} --GR {g1} --GC {g2}')
       if g1 != g2:
-        print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang MPI --wall-time 1:00:00 --GR {g2} --GC {g1}')
-        print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time 1:00:00 --GR {g2} --GC {g1}')
+        print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang MPI --wall-time {walltime} --GR {g2} --GC {g1}')
+        print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time {walltime} --GR {g2} --GC {g1}')
       g2 *= f
 
     g2 = 1
     for f in factors:
       g1 = int(i * ncores / g2 / 2)
-      print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time 1:00:00 --GR {g1} --GC {g2}')
+      print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time {walltime} --GR {g1} --GC {g2}')
       if g1 != g2:
-        print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time 1:00:00 --GR {g2} --GC {g1}')
+        print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time {walltime} --GR {g2} --GC {g1}')
       g2 *= f
   i *= 2

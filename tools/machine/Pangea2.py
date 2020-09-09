@@ -40,6 +40,7 @@ def get_header(args):
 #BSUB -e logs/tbsla_%J.err
 #BSUB -J TBSLA_{args.lang}
 #BSUB -x
+#BSUB -W {args.walltime}
 
 """
 

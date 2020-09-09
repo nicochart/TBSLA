@@ -26,7 +26,7 @@ def add_submit():
   parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument("--nodes", dest="nodes", help="Nodes used", type=int, required=True)
   parser.add_argument("--lang", dest="lang", help="Language", type=str, required=True)
-  parser.add_argument("--wall-time", dest="walltime", help="Wall time", type=str, default="00:20:00")
+  parser.add_argument("--wall-time", dest="walltime", help="Wall time in minutes", type=int, default=60)
   return parser
 
 def add_common(required=False):
