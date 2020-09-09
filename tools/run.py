@@ -54,8 +54,6 @@ if args.rod:
     else:
       reason += " + no dic"
 
-print(args.dic)
-print(str(args.dic).replace("'", '"'))
 for k, v in json.loads(str(args.dic).replace("'", '"')).items():
   if k in dic:
     dic[k + "_out"] = v
