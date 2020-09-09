@@ -12,6 +12,9 @@ def get_sockets_per_node(args):
 def get_mpirun(args):
   return "mpirun -x PATH -x LD_LIBRARY_PATH"
 
+def get_mpirun_options_hpx(args):
+  return f"-n {args.nodes}"
+
 def get_submit_cmd(args):
   return "llsubmit"
 

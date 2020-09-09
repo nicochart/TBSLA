@@ -4,13 +4,16 @@ import os
 LOAD_ENV_BEFORE_SUBMIT=False
 
 def get_cores_per_node(args):
-  return 48
+  return 24
 
 def get_sockets_per_node(args):
-  return 2
+  return 1
 
 def get_mpirun(args):
   return "mpirun"
+
+def get_mpirun_options_hpx(args):
+  return "--map-by ppr:1:node"
 
 def get_submit_cmd(args):
   return "bsub <"
@@ -28,13 +31,14 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${INSTALL_DIR}/tbsla/lib:${INSTALL_DIR}/
 
 
 def get_header(args):
-  ncores_per_nodes = get_cores_per_node(args) if args.lang != "HPX" else 1
+  ncores_per_nodes = get_cores_per_node(args)
+  #ncores_per_nodes = get_cores_per_node(args) if args.lang != "HPX" else get_sockets_per_node(args)
   ncores = ncores_per_nodes * args.nodes
 
   header = f"""\
 #!/bin/bash
 #BSUB -q P2_RD
-#BSUB -R "span[ptile={ncores_per_nodes}]"
+#BSUB -R "span[ptile={get_cores_per_node(args)}]"
 #BSUB -n {ncores}
 #BSUB -o logs/tbsla_%J.out
 #BSUB -e logs/tbsla_%J.err

@@ -16,6 +16,9 @@ def get_sockets_per_node(args):
 def get_mpirun(args):
   return "mpirun"
 
+def get_mpirun_options_hpx(args):
+  return f"-n {args.nodes}"
+
 def get_additional_info(args):
   dic = dict()
   return dic
