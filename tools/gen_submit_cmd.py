@@ -2,6 +2,7 @@ import os
 import sys
 import argparse
 import math
+import importlib
 
 Ns = 1
 Ne = 16
@@ -17,7 +18,10 @@ NR = 800000
 C = 300
 OP = 'a_axpx'
 MTYPE = 'cqmat'
-machine = 'Poincare'
+machine = 'Pangea2'
+formats = {'COO', 'CSR', 'ELL', 'DENSE', 'SCOO'}
+machine_informations = importlib.import_module("machine." + machine)
+ncores = machine_informations.get_cores_per_node(None)
 
 def decomp(n):
   i = 2
@@ -31,16 +35,16 @@ def decomp(n):
   if n > 1:
     factors.append(n)
   return factors 
-  
+
 
 i = Ns
 while i <= Ne:
   print('# nb nodes : ', i)
-  factors = decomp(i * 16)
-  for mf in {'COO', 'CSR', 'ELL', 'DENSE'}:
+  factors = decomp(i * ncores)
+  for mf in formats:
     g2 = 1
     for f in factors:
-      g1 = int(i * 16 / g2)
+      g1 = int(i * ncores / g2)
       print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang MPI --wall-time 1:00:00 --GR {g1} --GC {g2}')
       print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time 1:00:00 --GR {g1} --GC {g2}')
       if g1 != g2:
@@ -50,15 +54,7 @@ while i <= Ne:
 
     g2 = 1
     for f in factors:
-      g1 = int(i * 8 / g2)
-      print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time 1:00:00 --GR {g1} --GC {g2}')
-      if g1 != g2:
-        print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time 1:00:00 --GR {g2} --GC {g1}')
-      g2 *= f
-
-    g2 = 1
-    for f in factors:
-      g1 = int(i * 4 / g2)
+      g1 = int(i * ncores / g2 / 2)
       print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time 1:00:00 --GR {g1} --GC {g2}')
       if g1 != g2:
         print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time 1:00:00 --GR {g2} --GC {g1}')
