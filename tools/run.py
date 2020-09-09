@@ -26,9 +26,10 @@ p = subprocess.Popen(args.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, s
 success = "true"
 reason = ""
 try:
-  if p.wait(timeout = args.timeout) != 0:
+  rv = p.wait(timeout = args.timeout)
+  if rv != 0:
     success = "false"
-    reason = "wait != 0"
+    reason = "Return value != 0 (" + str(rv) + ")"
 except subprocess.TimeoutExpired:
   p.kill()
   success = "false"
@@ -47,7 +48,10 @@ if len(r) > 0:
   dic = json.loads(r[0])
 
 if args.rod:
-  if not dic:
+  if dic:
+    if success == "false" and reason.startswith("Return value != 0"):
+      success = "true"
+  else:
     success = "false"
     if reason == "":
       reason = "no dic"
