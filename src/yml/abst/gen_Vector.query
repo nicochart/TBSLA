@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<component type="abstract" name="gen_Vector">
+<component type="abstract" name="gen_Vector_NCORE">
 <params>
 <param name="v" type="Vector" mode="out" />
 <param name="n" type="integer" mode="in" />

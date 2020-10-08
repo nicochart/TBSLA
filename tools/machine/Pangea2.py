@@ -24,8 +24,8 @@ module purge
 module load gcc/8.3.0
 module load openmpi/3.1.5
 module load anaconda3/5.1.0
-export PATH=$PATH:${INSTALL_DIR}/tbsla/bin:${INSTALL_DIR}/omnirpc/2.2.2/release/bin:${INSTALL_DIR}/omnicompiler/1.1.1/release/bin
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${INSTALL_DIR}/tbsla/lib:${INSTALL_DIR}/tbsla/lib64:${INSTALL_DIR}/hpx/28ceb04/release/lib64:${INSTALL_DIR}/boost/1.69.0/release/lib:${INSTALL_DIR}/jemalloc/5.2.0/lib:${INSTALL_DIR}/hwloc/2.0.4/lib:${INSTALL_DIR}/libutil/0.1.5/release/lib:${INSTALL_DIR}/expat/2.1.0/release/lib:${INSTALL_DIR}/omnirpc/2.2.2/release/lib:${INSTALL_DIR}/omnicompiler/1.1.1/release/lib
+export PATH=$PATH:${INSTALL_DIR}/tbsla/bin:${INSTALL_DIR}/yml/230/release/bin
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${INSTALL_DIR}/tbsla/lib:${INSTALL_DIR}/tbsla/lib64:${INSTALL_DIR}/hpx/28ceb04/release/lib64:${INSTALL_DIR}/boost/1.69.0/release/lib:${INSTALL_DIR}/jemalloc/5.2.0/lib:${INSTALL_DIR}/hwloc/2.0.4/lib:${INSTALL_DIR}/yml/230/release/lib
 """
   return env
 
@@ -55,7 +55,7 @@ def get_header(args):
 
 def get_additional_info(args):
   dic = dict()
-  dic['log_file'] = os.environ['LSB_OUTPUTFILE']
+  dic['log_file'] = os.environ.get('LSB_OUTPUTFILE', '')
   return dic
 
 def post_processing(args):

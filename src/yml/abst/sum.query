@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<component type="abstract" name="sum">
+<component type="abstract" name="sum_NCORE">
 <params>
 <param name="v1" type="Vector" mode="inout" />
 <param name="v2" type="Vector" mode="in" />

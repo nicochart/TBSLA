@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<component type="impl" name="sum2" abstract="sum2">
-<impl lang="XMP" nodes="CPU:(3)" libs="include_tbsla">
+<component type="impl" name="sum2_NCORE" abstract="sum2_NCORE">
+<impl lang="XMP" nodes="CPU:(NCORE)" libs="include_tbsla">
   <templates>
     <template name="t" format="block" size="40"/>
   </templates>

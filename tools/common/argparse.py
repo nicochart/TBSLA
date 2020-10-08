@@ -22,6 +22,15 @@ def init_pagerank():
   parser.add_argument("--personalized_nodes", dest="personalized_nodes", help="List of personalized nodes in double quotes and separated by spaces", type=str, required=False, default="")
   return parser
 
+def init_yml():
+  parser = argparse.ArgumentParser(add_help=False)
+  parser.add_argument("--CPT", dest="CPT", help="Cores per task", type=int, required=True)
+  parser.add_argument("--BGR", dest="BGR", help="Number of submatrices in the row dimension", type=int, required=True)
+  parser.add_argument("--BGC", dest="BGC", help="Number of submatrices in the column dimension", type=int, required=True)
+  parser.add_argument("--LGR", dest="LGR", help="Number of processes for the row dimension in the tasks", type=int, required=True)
+  parser.add_argument("--LGC", dest="LGC", help="Number of processes for the column dimension in the tasks", type=int, required=True)
+  return parser
+
 def add_submit():
   parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument("--nodes", dest="nodes", help="Nodes used", type=int, required=True)

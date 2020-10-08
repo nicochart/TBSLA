@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<component type="abstract" name="gen_Sparse_CQMAT">
+<component type="abstract" name="gen_Sparse_CQMAT_NCORE">
 <params>
 <param name="m" type="SparseMatrix" mode="out" />
 <param name="matrixformat" type="integer" mode="in" />

@@ -15,22 +15,22 @@
   <param name="matrixformat" type="integer" mode="in" />
 </params>
 <graph>
-  bgr:=4;
-  bgc:=3;
+  bgr:=BGR;
+  bgc:=BGC;
 
   par(bpc:=0;bgc-1)
   do
-    compute gen_Vector(v[bpc], n_col, gr, gc, 0, bpc, bgr, bgc, lgr, lgc);
+    compute gen_Vector_NCORE(v[bpc], n_col, gr, gc, 0, bpc, bgr, bgc, lgr, lgc);
   enddo
 
   par(bpr:=0;bgr-1)(bpc:=0;bgc-1)
   do
-    compute gen_Sparse_CQMAT(m[bpr][bpc], matrixformat, n_row, n_col, C, Q, S, gr, gc, bpr, bpc, bgr, bgc, lgr, lgc);
+    compute gen_Sparse_CQMAT_NCORE(m[bpr][bpc], matrixformat, n_row, n_col, C, Q, S, gr, gc, bpr, bpc, bgr, bgc, lgr, lgc);
   enddo
 
   par(bpr:=0;bgr-1)(bpc:=0;bgc-1)
   do
-    compute spmv(m[bpr][bpc], v[bpc], r[bpr][bpc]);
+    compute spmv_NCORE(m[bpr][bpc], v[bpc], r[bpr][bpc]);
   enddo
 
   if(bgc gt 1) then
@@ -38,7 +38,7 @@
     do
       seq(bpc:=1;bgc-1)
       do
-        compute sum(r[bpr][0], r[bpr][bpc]);
+        compute sum_NCORE(r[bpr][0], r[bpr][bpc]);
       enddo
     enddo
   endif
@@ -46,18 +46,18 @@
   if(bgr gt 1) then
     seq(bpr:=1;bgr-1)
     do
-      compute gather(r[0][0], r[bpr][0]);
+      compute gather_NCORE(r[0][0], r[bpr][0]);
     enddo
   endif
 
   par(bpc:=0;bgc-1)
   do
-    compute sum2(v2[bpc], v[bpc], r[0][0]);
+    compute sum2_NCORE(v2[bpc], v[bpc], r[0][0]);
   enddo
 
   par(bpr:=0;bgr-1)(bpc:=0;bgc-1)
   do
-    compute spmv(m[bpr][bpc], v2[bpc], r2[bpr][bpc]);
+    compute spmv_NCORE(m[bpr][bpc], v2[bpc], r2[bpr][bpc]);
   enddo
 
   if(bgc gt 1) then
@@ -65,7 +65,7 @@
     do
       seq(bpc:=1;bgc-1)
       do
-        compute sum(r2[bpr][0], r2[bpr][bpc]);
+        compute sum_NCORE(r2[bpr][0], r2[bpr][bpc]);
       enddo
     enddo
   endif
@@ -73,7 +73,7 @@
   if(bgr gt 1) then
     seq(bpr:=1;bgr-1)
     do
-      compute gather(r2[0][0], r2[bpr][0]);
+      compute gather_NCORE(r2[0][0], r2[bpr][0]);
     enddo
   endif
 
