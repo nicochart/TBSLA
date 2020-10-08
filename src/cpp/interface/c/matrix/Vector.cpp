@@ -11,8 +11,8 @@
 
 
 C_CPP_Vector_t *C_CPP_Vector_create() {
-  C_CPP_Vector_t *v;
-  std::vector<double> *obj;
+  C_CPP_Vector_t *v = NULL;
+  std::vector<double> *obj = NULL;
 
   v = (typeof(v))malloc(sizeof(*v));
   obj = new std::vector<double>();
@@ -29,9 +29,11 @@ void C_CPP_Vector_destroy(C_CPP_Vector_t *v) {
 }
 
 void C_CPP_Vector_print(C_CPP_Vector_t *v) {
-  std::vector<double> *obj;
-  if (v == NULL)
+  std::vector<double> *obj = NULL;
+  if (v == NULL) {
+    printf("C_CPP_Vector_print : input vector is NULL\n");
     return;
+  }
   obj = static_cast<std::vector<double> *>(v->obj);
   tbsla::utils::vector::streamvector<double>(std::cout, "v", *obj);
   std::cout << std::endl << std::flush;
@@ -48,8 +50,8 @@ void C_CPP_Vector_set(C_CPP_Vector_t *v, void *obj) {
 }
 
 void C_CPP_Vector_copy(C_CPP_Vector_t *v, void *obj) {
-  std::vector<double> *v_obj;
-  std::vector<double> *i_obj;
+  std::vector<double> *v_obj = NULL;
+  std::vector<double> *i_obj = NULL;
   if (v == NULL)
     return;
   v_obj = static_cast<std::vector<double> *>(v->obj);
@@ -59,7 +61,7 @@ void C_CPP_Vector_copy(C_CPP_Vector_t *v, void *obj) {
 }
 
 void C_CPP_Vector_fill(C_CPP_Vector_t *v, int n, int s) {
-  std::vector<double> *obj;
+  std::vector<double> *obj = NULL;
   if (v == NULL)
     return;
   obj = static_cast<std::vector<double> *>(v->obj);
@@ -69,7 +71,7 @@ void C_CPP_Vector_fill(C_CPP_Vector_t *v, int n, int s) {
 }
 
 bool C_CPP_Vector_read(C_CPP_Vector_t *v, char *filename, int seek) {
-  std::vector<double> *obj;
+  std::vector<double> *obj = NULL;
   if (v == NULL)
     return false;
   obj = static_cast<std::vector<double> *>(v->obj);
@@ -86,7 +88,7 @@ bool C_CPP_Vector_read(C_CPP_Vector_t *v, char *filename, int seek) {
 }
 
 bool C_CPP_Vector_write(C_CPP_Vector_t *v, char *filename) {
-  std::vector<double> *obj;
+  std::vector<double> *obj = NULL;
   if (v == NULL)
     return false;
   obj = static_cast<std::vector<double> *>(v->obj);
@@ -101,31 +103,34 @@ bool C_CPP_Vector_write(C_CPP_Vector_t *v, char *filename) {
 }
 
 bool C_CPP_Vector_add(C_CPP_Vector_t *v1, C_CPP_Vector_t *v2) {
-  std::vector<double> *v1obj;
-  std::vector<double> *v2obj;
+  std::vector<double> *v1obj = NULL;
+  std::vector<double> *v2obj = NULL;
   if (v1 == NULL || v2 == NULL)
     return false;
   v1obj = static_cast<std::vector<double> *>(v1->obj);
   v2obj = static_cast<std::vector<double> *>(v2->obj);
   std::transform(v1obj->begin(), v1obj->end(), v2obj->begin(), v1obj->begin(), std::plus<double>());
+  return true;
 }
 
 bool C_CPP_Vector_add_incr(C_CPP_Vector_t *v1, C_CPP_Vector_t *v2, int incr) {
-  std::vector<double> *v1obj;
-  std::vector<double> *v2obj;
+  std::vector<double> *v1obj = NULL;
+  std::vector<double> *v2obj = NULL;
   if (v1 == NULL || v2 == NULL)
     return false;
   v1obj = static_cast<std::vector<double> *>(v1->obj);
   v2obj = static_cast<std::vector<double> *>(v2->obj);
   std::transform(v1obj->begin(), v1obj->end(), v2obj->begin() + incr, v1obj->begin(), std::plus<double>());
+  return true;
 }
 
 bool C_CPP_Vector_gather(C_CPP_Vector_t *v1, C_CPP_Vector_t *v2) {
-  std::vector<double> *v1obj;
-  std::vector<double> *v2obj;
+  std::vector<double> *v1obj = NULL;
+  std::vector<double> *v2obj = NULL;
   if (v1 == NULL || v2 == NULL)
     return false;
   v1obj = static_cast<std::vector<double> *>(v1->obj);
   v2obj = static_cast<std::vector<double> *>(v2->obj);
   v1obj->insert(v1obj->end(), v2obj->begin(), v2obj->end());
+  return true;
 }
