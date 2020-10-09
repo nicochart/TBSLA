@@ -27,6 +27,8 @@ module load anaconda3/5.1.0
 export PATH=$PATH:${INSTALL_DIR}/tbsla/bin:${INSTALL_DIR}/yml/230/release/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${INSTALL_DIR}/tbsla/lib:${INSTALL_DIR}/tbsla/lib64:${INSTALL_DIR}/hpx/28ceb04/release/lib64:${INSTALL_DIR}/boost/1.69.0/release/lib:${INSTALL_DIR}/jemalloc/5.2.0/lib:${INSTALL_DIR}/hwloc/2.0.4/lib:${INSTALL_DIR}/yml/230/release/lib
 """
+  if args.lang == "YML":
+    env += "export HOME=/workrd/SCR/NUM/jerome\n"
   return env
 
 

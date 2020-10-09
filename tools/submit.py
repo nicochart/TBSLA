@@ -55,7 +55,7 @@ if args.lang == "YML":
     sys.exit(1)
   header += "echo localhost > hosts\n"
   header += "for i in {1.." + str(ncores) + "}\ndo\necho localhost >> hosts\ndone\n"
-  header += "cp hosts ~/.omrpc_registry/nodes\n\n\n"
+  header += "cp hosts ${HOME}/.omrpc_registry/nodes\n\n\n"
 
   if args.format == "COO":
     int_matrixformat = 1
