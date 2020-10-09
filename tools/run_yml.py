@@ -37,7 +37,6 @@ start = time.time_ns()
 p = subprocess.Popen(args.cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, universal_newlines=True)
 success = "true"
 reason = ""
-end = time.time_ns()
 match_output_pack = []
 match_working_dir = []
 for stdout_line in iter(p.stdout.readline, ""):
@@ -50,6 +49,7 @@ for stdout_line in iter(p.stdout.readline, ""):
     match_working_dir.append(match_found)
 p.stdout.close()
 p.wait()
+end = time.time_ns()
 
 if len(match_output_pack) < 1:
   success = "false"
