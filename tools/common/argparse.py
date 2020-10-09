@@ -29,6 +29,7 @@ def init_yml():
   parser.add_argument("--BGC", dest="BGC", help="Number of submatrices in the column dimension", type=int, required=True)
   parser.add_argument("--LGR", dest="LGR", help="Number of processes for the row dimension in the tasks", type=int, required=True)
   parser.add_argument("--LGC", dest="LGC", help="Number of processes for the column dimension in the tasks", type=int, required=True)
+  parser.add_argument("--compile", dest="compilation", help="Compile app and components before submitting script", action='store_const', default='False', const='True')
   return parser
 
 def add_submit():
