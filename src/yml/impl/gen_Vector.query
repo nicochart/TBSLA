@@ -2,10 +2,10 @@
 <component type="impl" name="gen_Vector_NCORE" abstract="gen_Vector_NCORE">
 <impl lang="XMP" nodes="CPU:(NCORE)" libs="include_tbsla">
   <templates>
-    <template name="t" format="block" size="40"/>
+    <template name="t" format="block" size="NDATA"/>
   </templates>
   <distribute>
-    <param template="t" name="v(40)" align="[i]:(i)"/>
+    <param template="t" name="v(NDATA)" align="[i]:(i)"/>
   </distribute>
   <source>
 <![CDATA[

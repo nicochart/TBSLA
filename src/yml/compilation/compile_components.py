@@ -50,7 +50,7 @@ for r, d, f in os.walk("src/yml/impl"):
     if file.endswith(".query"):
       filename = os.path.join(r, file)
       basename = os.path.basename(filename)
-      cmd = "sed s/NCORE/" + str(args.C) + "/g " + filename + " > " + path + "/impl/" + basename
+      cmd = 'sed "s/NCORE/' + str(args.C) + '/g;s/NDATA/' + str(args.C * 4) + '/g" ' + filename + " > " + path + "/impl/" + basename
       execute_command(cmd)
       cmd = "yml_component --force " + path + "/impl/" + basename
       execute_command(cmd)

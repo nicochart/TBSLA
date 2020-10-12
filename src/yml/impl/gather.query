@@ -2,11 +2,11 @@
 <component type="impl" name="gather_NCORE" abstract="gather_NCORE">
 <impl lang="XMP" nodes="CPU:(NCORE)" libs="include_tbsla">
   <templates>
-    <template name="t" format="block" size="40"/>
+    <template name="t" format="block" size="NDATA"/>
   </templates>
   <distribute>
-    <param template="t" name="v1(40)" align="[i]:(i)"/>
-    <param template="t" name="v2(40)" align="[i]:(i)"/>
+    <param template="t" name="v1(NDATA)" align="[i]:(i)"/>
+    <param template="t" name="v2(NDATA)" align="[i]:(i)"/>
   </distribute>
   <source>
 <![CDATA[
