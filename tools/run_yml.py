@@ -82,6 +82,11 @@ log_file = dic["working_dir"] + "/exec_log"
 if os.path.isfile(log_file):
   dic["worker_number"] = pyl.get_worker_number(log_file)
   dic["task_number"] = pyl.get_task_number(log_file)
+  if dic["task_number"] < 1:
+    success = "false"
+    if reason != "":
+      reason += " + "
+    reason += "No tasks executed"
   n = pyl.get_task_(log_file, ['gen_'])
   dic["time_op"] = n.get("end_time", 0) - n.get("start_time", 0)
   dic["elapsed_time_op"] = n.get("elapsed_time", 0)
