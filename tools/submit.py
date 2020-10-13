@@ -67,7 +67,7 @@ if args.lang == "YML":
       exe.execute_command(cmd_compile_comp)
 
   app_name = f'_yml_tmpdir/app/{args.op}_{app_args.CPT}_{app_args.BGR}_{app_args.BGC}.query'
-  if not os.path.isfile(app_name + ".yapp") and app_args.compilation == "True":
+  if (not os.path.isfile(app_name + ".yapp") or not os.path.isfile(app_name)) and app_args.compilation == "True":
     cmd_compile_app = machine.get_env(args)
     cmd_compile_app += f"python src/yml/compilation/compile_apps.py --C {app_args.CPT} --BGR {app_args.BGR} --BGC {app_args.BGC} --app {args.op}\n"
     print(cmd_compile_app)
