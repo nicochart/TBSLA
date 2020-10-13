@@ -55,7 +55,7 @@ if args.lang == "YML":
     print("LGR x BGR should be equal to GR")
     sys.exit(1)
   header += "echo localhost > hosts\n"
-  header += "for i in {1.." + str(ncores - 1) + "}\ndo\necho localhost >> hosts\ndone\n"
+  header += "for i in {1.." + str(ncores) + "}\ndo\necho localhost >> hosts\ndone\n"
   header += "cp hosts ${HOME}/.omrpc_registry/nodes\n\n\n"
 
   comp_dir_name = f'_yml_tmpdir/components/c{app_args.CPT}'

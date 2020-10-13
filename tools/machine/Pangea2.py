@@ -36,6 +36,8 @@ def get_header(args):
   ncores_per_nodes = get_cores_per_node(args)
   #ncores_per_nodes = get_cores_per_node(args) if args.lang != "HPX" else get_sockets_per_node(args)
   ncores = ncores_per_nodes * args.nodes
+  if args.lang == "YML":
+    ncores += 1
 
   header = f"""\
 #!/bin/bash
