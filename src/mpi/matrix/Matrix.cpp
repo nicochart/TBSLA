@@ -14,7 +14,7 @@ std::vector<double> tbsla::mpi::Matrix::page_rank(MPI_Comm comm, double beta, do
   std::vector<double> b_t(n_col);
   double max, error, teleportation_sum;
 
-  while(!converge && nb_iterations <= max_iterations){
+  while(!converge && nb_iterations < max_iterations){
     b_t = b;
     
     auto begin = b_t.begin() + f_col; 
@@ -31,14 +31,11 @@ std::vector<double> tbsla::mpi::Matrix::page_rank(MPI_Comm comm, double beta, do
     }
      
     teleportation_sum *= (1-beta)/n_col;
-
-    for(int  i = 0 ; i < n_col; i++){
-      b[i] = beta*b[i] + teleportation_sum;
-    }
+    max = beta*max + teleportation_sum;
     error = 0.0;
 
-    for(int i = 0; i < n_col; i++){
-      b[i] = b[i]/max; 
+    for(int  i = 0 ; i < n_col; i++){
+      b[i] = (beta*b[i] + teleportation_sum)/max;
       error += std::abs(b[i] - b_t[i]);
     }
 
@@ -68,28 +65,29 @@ std::vector<double> tbsla::mpi::Matrix::personalized_page_rank(MPI_Comm comm, do
   int nb_iterations = 0;
   std::vector<double> b_t(n_col);
   double max, error, teleportation_sum;
-  while(!converge && nb_iterations <= max_iterations){
+  while(!converge && nb_iterations < max_iterations){
     b_t = b;
     auto begin = b_t.begin() + f_col; 
     auto end = begin + ln_col; 
     std::vector<double> tmp(begin, end); 
     b = this->spmv(comm, tmp);
 
-    max = b[0] ;
     teleportation_sum = b_t[0];
     for(int i = 1; i < n_col; i++){
-      if(max < b[i])
-        max = b[i];
       teleportation_sum += b_t[i];
     }
     teleportation_sum *= (1-beta)/personalized_nodes.size(); 
 
-    for(int  i = 0 ; i < n_col; i++){
+    max = 0.0;
+    for(int  i = 0; i < n_col; i++){
       b[i] = beta*b[i];
       if(std::find(personalized_nodes.begin(), personalized_nodes.end(), i) != personalized_nodes.end()){
         b[i] += teleportation_sum;
-      } 
+      }
+      if(max < b[i])
+      max = b[i]; 
     }
+
     error = 0.0;
     for(int i = 0; i < n_col; i++){
       b[i] = b[i]/max;
