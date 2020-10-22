@@ -33,7 +33,7 @@ print()
 print(datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), " ::: ", args.cmd)
 print(args.dic)
 
-start = time.time_ns()
+start = time.time()
 p = subprocess.Popen(args.cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, universal_newlines=True)
 success = "true"
 reason = ""
@@ -49,7 +49,7 @@ for stdout_line in iter(p.stdout.readline, ""):
     match_working_dir.append(match_found)
 p.stdout.close()
 p.wait()
-end = time.time_ns()
+end = time.time()
 
 if len(match_output_pack) < 1:
   success = "false"
@@ -102,7 +102,7 @@ else:
 dic["success"] = success
 dic["false_reason"] = reason
 dic["date"] = datetime.now().strftime("%Y%m%d_%H%M%S")
-dic["time_app_out"] = (end - start) / 1e9
+dic["time_app_out"] = (end - start)
 
 if os.path.isdir(dic["working_dir"]):
   shutil.rmtree(dic["working_dir"])

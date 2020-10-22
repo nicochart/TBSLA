@@ -21,7 +21,7 @@ print()
 print(datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), " ::: ", args.cmd)
 print(args.dic)
 
-start = time.time_ns()
+start = time.time()
 p = subprocess.Popen(args.cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 success = "true"
 reason = ""
@@ -34,7 +34,7 @@ except subprocess.TimeoutExpired:
   p.kill()
   success = "false"
   reason = "Timeout"
-end = time.time_ns()
+end = time.time()
 outs, errs = p.communicate()
 outs = outs.decode('utf-8')
 errs = errs.decode('utf-8')
@@ -67,7 +67,7 @@ for k, v in json.loads(str(args.dic).replace("'", '"')).items():
 dic["success"] = success
 dic["false_reason"] = reason
 dic["date"] = datetime.now().strftime("%Y%m%d_%H%M%S")
-dic["time_app_out"] = (end - start) / 1e9
+dic["time_app_out"] = (end - start)
 
 dic.update(machine.get_additional_info(args))
 dic.update(vars(args))
