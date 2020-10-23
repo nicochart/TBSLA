@@ -37,29 +37,51 @@ print(args.dic)
 start = time.time()
 success = "true"
 reason = ""
-exec_r = ec.execute_command_timeout(args.cmd, args.timeout)
+
+p = subprocess.Popen(args.cmd, bufsize = 0, shell = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+
+t_begin = time.time()
+seconds_passed = 0
+match_output_pack = ''
+match_working_dir = ''
+while p.poll() is None and seconds_passed < args.timeout:
+  time.sleep(0.1)
+  seconds_passed = time.time() - t_begin
+  stdout = ec.nonBlockRead(p.stdout)
+  stderr = ec.nonBlockRead(p.stderr)
+  print(stdout, end = '')
+  print(stderr, end = '')
+  if match_output_pack == '':
+    match_found = find_match("Output pack: ", stdout)
+    if match_found != None:
+      match_output_pack = match_found
+  if match_working_dir == '':
+    match_found = find_match("Working Dir         : ", stdout)
+    if match_found != None:
+      match_working_dir = match_found
+
+  if match_output_pack != '' and os.path.isfile(match_output_pack):
+    break
+
+if seconds_passed >= args.timeout:
+  try:
+    p.stdout.close()
+    p.stderr.close()
+    p.kill()
+  except:
+    pass
 end = time.time()
 
-print(exec_r[1])
-print(exec_r[2])
-match_found = find_match("Output pack: ", exec_r[1])
-if match_found == None:
-  match_output_pack = ''
+if match_output_pack == '':
   success = "false"
   if reason != "":
     reason += " + "
   reason += "Output pack path not found during parsing"
-else:
-  match_output_pack = match_found
-match_found = find_match("Working Dir         : ", exec_r[1])
-if match_found == None:
-  match_working_dir = ''
+if match_working_dir == '':
   success = "false"
   if reason != "":
     reason += " + "
   reason += "Working Dir path not found during parsing"
-else:
-  match_working_dir = match_found
 
 dic = dict()
 for k, v in json.loads(str(args.dic).replace("'", '"')).items():
