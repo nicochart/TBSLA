@@ -66,13 +66,10 @@ def get_additional_info(args):
 def post_processing(args):
   s = "rm core.*\n"
   if args.lang == "YML":
-    s += "kill -9 $(ps | grep a_axpx | cut -d ' ' -f1)\n"
-    s += "kill -9 $(ps | grep hydra | cut -d ' ' -f1)\n"
+    s += "bkill ${LSB_BATCH_JID}\n"
   s += "exit\n"
   return s
 
 def post_run_cmd(args):
   s = ""
-  if args.lang == "YML":
-    s += "kill -9 $(ps | grep a_axpx | cut -d ' ' -f1)\n"
   return s
