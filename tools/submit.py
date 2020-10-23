@@ -3,8 +3,8 @@ import sys
 import argparse
 import common.argparse as cap
 import common.exec_cmd as exe
+import common.submission as sub
 import importlib
-import subprocess
 
 parser = argparse.ArgumentParser(description="Submit TBSLA perf run to the job scheduler", parents=[cap.init_parser(), cap.add_common(), cap.add_submit()])
 args, rest = parser.parse_known_args()
@@ -54,25 +54,22 @@ if args.lang == "YML":
   if app_args.LGR * app_args.BGR != app_args.GR:
     print("LGR x BGR should be equal to GR")
     sys.exit(1)
-  header += "echo localhost > hosts\n"
-  header += "for i in {1.." + str(ncores) + "}\ndo\necho localhost >> hosts\ndone\n"
-  header += "cp hosts ${HOME}/.omrpc_registry/nodes\n\n\n"
+  header += "python tools/gen_yml_hostfile.py --hostfile ${HOME}/.omrpc_registry/nodes -n " + str(ncores + 1) + "\n"
+  header += "python tools/reorder_machinefile.py --machinefile ${LSB_DJOB_HOSTFILE} -o _yml_tmpdir/machinefile_${LSB_BATCH_JID}\n\n"
 
   comp_dir_name = f'_yml_tmpdir/components/c{app_args.CPT}'
   if not os.path.isdir(comp_dir_name) and app_args.compilation == "True":
     cmd_compile_comp = machine.get_env(args)
     cmd_compile_comp += f"python src/yml/compilation/compile_components.py --C {app_args.CPT}\n"
     print(cmd_compile_comp)
-    if args.dry == "False":
-      exe.execute_command(cmd_compile_comp)
+    exe.execute_command(cmd_compile_comp)
 
   app_name = f'_yml_tmpdir/app/{args.op}_{app_args.CPT}_{app_args.BGR}_{app_args.BGC}.query'
   if (not os.path.isfile(app_name + ".yapp") or not os.path.isfile(app_name)) and app_args.compilation == "True":
     cmd_compile_app = machine.get_env(args)
     cmd_compile_app += f"python src/yml/compilation/compile_apps.py --C {app_args.CPT} --BGR {app_args.BGR} --BGC {app_args.BGC} --app {args.op}\n"
     print(cmd_compile_app)
-    if args.dry == "False":
-      exe.execute_command(cmd_compile_app)
+    exe.execute_command(cmd_compile_app)
 
   if args.format == "COO":
     int_matrixformat = 1
@@ -106,8 +103,14 @@ if args.lang == "YML":
         for k in ['resfile',  'machine', 'timeout']:
           command += f" --{k} {dict_to_pass[k]}"
         command += ' " '
-        command += machine.get_mpirun(args) + f" -n 1 yml_scheduler --input={pack_name}  {app_name}.yapp"
+        command += machine.get_mpirun(args) + " -machine _yml_tmpdir/machinefile_${LSB_BATCH_JID} " + f"-n 1 yml_scheduler --input={pack_name}  {app_name}.yapp"
         header += command + f'" --dic "{dict_to_pass}"\n\n'
+        header += machine.post_run_cmd(args) + "\n"
+        header += machine.post_processing(args) + "\n"
+        fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_nr{args.NR}_nc{args.NC}_{args.matrixtype}_{args.format}_c{args.C}_gr{args.GR}_gc{args.GC}"
+        fname += f"_cpt{app_args.CPT}_bgr{app_args.BGR}_bgr{app_args.BGC}_lgr{app_args.LGR}_lgc{app_args.LGC}_Q{q/nbq}_S{s}"
+        fname += ".sh"
+        sub.gen_submit_cmd(machine, args, fname, header)
   else:
     command = f'python tools/run_yml.py'
     for k in ['resfile',  'machine', 'timeout']:
@@ -115,6 +118,13 @@ if args.lang == "YML":
     command += ' " '
     command += machine.get_mpirun(args) + f" -n 1 yml_scheduler"
     header += command +  f'" --dic "{dict_to_pass}"\n\n'
+    header += machine.post_run_cmd(args) + "\n"
+    header += machine.post_processing(args) + "\n"
+
+    fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_nr{args.NR}_nc{args.NC}_{args.matrixtype}_{args.format}_c{args.C}_gr{args.GR}_gc{args.GC}"
+    fname += f"_cpt{app_args.CPT}_bgr{app_args.BGR}_bgr{app_args.BGC}_lgr{app_args.LGR}_lgc{app_args.LGC}"
+    fname += ".sh"
+    sub.gen_submit_cmd(machine, args, fname, header)
 
 if args.lang != "YML":
   command += f" --op {args.op}"
@@ -136,27 +146,6 @@ if args.lang != "YML":
   else:
     header += command +  f'" --dic "{dict_to_pass}"\n\n'
 
-header += machine.post_processing(args) + "\n"
-
-fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_nr{args.NR}_nc{args.NC}_{args.matrixtype}_{args.format}_c{args.C}_gr{args.GR}_gc{args.GC}"
-if args.lang == "YML":
-  fname += f"_cpt{app_args.CPT}_bgr{app_args.BGR}_bgr{app_args.BGC}_lgr{app_args.LGR}_lgc{app_args.LGC}"
-fname += ".sh"
-
-if os.path.isfile(fname):
-  os.remove(fname)
-
-with open(fname, 'w', encoding = 'utf-8') as f:
-  f.write(header)
-
-command = ""
-if machine.LOAD_ENV_BEFORE_SUBMIT:
-  command += machine.get_env(args) + "\n"
-command += machine.get_submit_cmd(args) + " " + fname
-
-if os.path.isfile(fname):
-  print(command)
-  if args.dry == "False":
-    p = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
-    print(p.communicate()[0].decode('utf-8'))
-
+  header += machine.post_processing(args) + "\n"
+  fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_nr{args.NR}_nc{args.NC}_{args.matrixtype}_{args.format}_c{args.C}_gr{args.GR}_gc{args.GC}.sh"
+  sub.gen_submit_cmd(machine, args, fname, header)

@@ -26,3 +26,7 @@ def get_additional_info(args):
 def post_processing(args):
   s = ""
   return s
+
+def post_run_cmd(args):
+  s = ""
+  return s

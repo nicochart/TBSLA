@@ -1,6 +1,7 @@
 import argparse
 import common.argparse as cap
 import common.parse_yml_log as pyl
+import common.exec_cmd as ec
 import subprocess
 import importlib
 import re
@@ -12,7 +13,7 @@ import shutil
 import os
 
 def find_match(match, string):
-  r = re.search(match + ".*$", string)
+  r = re.search(match + ".*$", string, re.M)
   if r == None:
     return None
   f = r.group()
@@ -34,31 +35,31 @@ print(datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), " ::: ", args.cmd)
 print(args.dic)
 
 start = time.time()
-p = subprocess.Popen(args.cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, universal_newlines=True)
 success = "true"
 reason = ""
-match_output_pack = []
-match_working_dir = []
-for stdout_line in iter(p.stdout.readline, ""):
-  print(stdout_line, end='')
-  match_found = find_match("Output pack: ", stdout_line)
-  if match_found != None:
-    match_output_pack.append(match_found)
-  match_found = find_match("Working Dir         : ", stdout_line)
-  if match_found != None:
-    match_working_dir.append(match_found)
-p.stdout.close()
-p.wait()
+exec_r = ec.execute_command_timeout(args.cmd, args.timeout)
 end = time.time()
 
-if len(match_output_pack) < 1:
+print(exec_r[1])
+print(exec_r[2])
+match_found = find_match("Output pack: ", exec_r[1])
+if match_found == None:
+  match_output_pack = ''
   success = "false"
+  if reason != "":
+    reason += " + "
   reason += "Output pack path not found during parsing"
-if len(match_working_dir) < 1:
+else:
+  match_output_pack = match_found
+match_found = find_match("Working Dir         : ", exec_r[1])
+if match_found == None:
+  match_working_dir = ''
   success = "false"
   if reason != "":
     reason += " + "
   reason += "Working Dir path not found during parsing"
+else:
+  match_working_dir = match_found
 
 dic = dict()
 for k, v in json.loads(str(args.dic).replace("'", '"')).items():
@@ -67,8 +68,8 @@ for k, v in json.loads(str(args.dic).replace("'", '"')).items():
   else:
     dic[k] = v
 
-dic["output_pack"] = match_output_pack[0]
-dic["working_dir"] = match_working_dir[0]
+dic["output_pack"] = match_output_pack
+dic["working_dir"] = match_working_dir
 
 if not os.path.isfile(dic["output_pack"]):
   success = "false"
