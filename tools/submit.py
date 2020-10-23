@@ -104,13 +104,13 @@ if args.lang == "YML":
           command += f" --{k} {dict_to_pass[k]}"
         command += ' " '
         command += machine.get_mpirun(args) + " -machine _yml_tmpdir/machinefile_${LSB_BATCH_JID} " + f"-n 1 yml_scheduler --input={pack_name}  {app_name}.yapp"
-        header += command + f'" --dic "{dict_to_pass}"\n\n'
-        header += machine.post_run_cmd(args) + "\n"
-        header += machine.post_processing(args) + "\n"
+        sub_script = header + command + f'" --dic "{dict_to_pass}"\n\n'
+        sub_script += machine.post_run_cmd(args) + "\n"
+        sub_script += machine.post_processing(args) + "\n"
         fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_nr{args.NR}_nc{args.NC}_{args.matrixtype}_{args.format}_c{args.C}_gr{args.GR}_gc{args.GC}"
         fname += f"_cpt{app_args.CPT}_bgr{app_args.BGR}_bgr{app_args.BGC}_lgr{app_args.LGR}_lgc{app_args.LGC}_Q{q/nbq}_S{s}"
         fname += ".sh"
-        sub.gen_submit_cmd(machine, args, fname, header)
+        sub.gen_submit_cmd(machine, args, fname, sub_script)
   else:
     command = f'python tools/run_yml.py'
     for k in ['resfile',  'machine', 'timeout']:

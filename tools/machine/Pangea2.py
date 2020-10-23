@@ -52,7 +52,8 @@ def get_header(args):
 #BSUB -W {args.walltime}
 
 """
-
+  if args.lang == "YML":
+    header += "#BSUB -w ended(TBSLA_YML)\n"
   header += get_env(args)
   header += "\n"
 
