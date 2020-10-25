@@ -3,26 +3,36 @@ import sys
 import argparse
 import math
 import importlib
+import itertools
+import math
 
-Ns = 1
-Ne = 16
+parser = argparse.ArgumentParser()
+parser.add_argument("--Ns", dest="Ns", help="Min Number of nodes", type=int, required=True)
+parser.add_argument("--Ne", dest="Ne", help="Max Number of nodes", type=int, required=True)
+parser.add_argument("--NR", dest="NR", help="Matrix size (rows)", type=int, required=True)
+parser.add_argument("--NC", dest="NC", help="Matrix size (columns)", type=int, required=True)
+parser.add_argument("--machine", dest="machine", help="Machine name", type=str, required=True)
+parser.add_argument("--YML", dest="YML", help="Generate submission commands for YML", action='store_const', default=False, const=True)
+parser.add_argument("--MPI", dest="MPI", help="Generate submission commands for MPI", action='store_const', default=False, const=True)
+parser.add_argument("--HPX", dest="HPX", help="Generate submission commands for HPX", action='store_const', default=False, const=True)
+args = parser.parse_args()
 
-
-NC = 800000
-NR = 800000
-#NC = 1500000
-#NR = 1500000
-#NC = 3000000
-#NR = 3000000
 
 C = 300
 OP = 'a_axpx'
 MTYPE = 'cqmat'
-machine = 'Pangea2'
-formats = {'COO', 'CSR', 'ELL', 'DENSE', 'SCOO'}
-machine_informations = importlib.import_module("machine." + machine)
+#formats = {'COO', 'CSR', 'ELL', 'DENSE', 'SCOO'}
+formats = {'COO', 'CSR', 'ELL' , 'SCOO'}
+machine_informations = importlib.import_module("machine." + args.machine)
+NODES = [int(math.pow(2, i)) for i in range(int(math.log2(args.Ns)), int(math.log2(args.Ne)) + 1)]
 ncores = machine_informations.get_cores_per_node(None)
-walltime = 60
+
+CPT = [ncores, 2 * ncores, 3 * ncores, 4 * ncores]
+BLOCKS = [1, 2, 4, 6, 8, 12, 16]
+CPT_BLOCKS = list(itertools.product(CPT, BLOCKS, BLOCKS))
+
+walltime = 5
+timeout = 60
 
 def decomp(n):
   i = 2
@@ -37,27 +47,47 @@ def decomp(n):
     factors.append(n)
   return factors 
 
+def decomp_pairs(n):
+  pairs = []
+  d = 1
+  factors = decomp(n)
+  for i in factors:
+    d = d * i
+    pairs.append((n // d, d))
+    pairs.append((d, n // d))
+  return sorted(set(pairs))
 
-i = Ns
-while i <= Ne:
-  print('# nb nodes : ', i)
-  factors = decomp(i * ncores)
+for n in NODES:
+  print('# nb nodes : ', n)
+  factors = decomp_pairs(n * ncores)
   for mf in formats:
-    g2 = 1
     for f in factors:
-      g1 = int(i * ncores / g2)
-      print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang MPI --wall-time {walltime} --GR {g1} --GC {g2}')
-      print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time {walltime} --GR {g1} --GC {g2}')
-      if g1 != g2:
-        print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang MPI --wall-time {walltime} --GR {g2} --GC {g1}')
-        print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time {walltime} --GR {g2} --GC {g1}')
-      g2 *= f
-
-    g2 = 1
+      if args.MPI:
+        print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPI --timeout {timeout} --wall-time {walltime} --GR {f[0]} --GC {f[1]}')
+      if args.HPX:
+        print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang HPX --timeout {timeout} --wall-time {walltime} --GR {f[0]} --GC {f[1]}')
+      if args.YML:
+        for cbb in CPT_BLOCKS:
+          cpt = cbb[0]
+          bgr = cbb[1]
+          bgc = cbb[2]
+          gr = f[0]
+          gc = f[1]
+          lgr = int(gr / bgr)
+          lgc = int(gc / bgc)
+          if lgc == 0 or lgr == 0 or lgc * lgr != cpt or gr != bgr * lgr or gc != bgc * lgc or cpt > n * ncores: continue
+          print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang YML --timeout {timeout} --wall-time {walltime} --GR {f[0]} --GC {f[1]} --CPT {cbb[0]} --BGR {cbb[1]} --BGC {cbb[2]} --LGC {lgc} --LGR {lgr} --compile')
+  factors = decomp_pairs(n * ncores * 2)
+  for mf in formats:
     for f in factors:
-      g1 = int(i * ncores / g2 / 2)
-      print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time {walltime} --GR {g1} --GC {g2}')
-      if g1 != g2:
-        print(f'python tools/submit.py --NR {NR} --NC {NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {i} --C {C} --machine {machine} --lang HPX --wall-time {walltime} --GR {g2} --GC {g1}')
-      g2 *= f
-  i *= 2
+      if args.YML:
+        for cbb in CPT_BLOCKS:
+          cpt = cbb[0]
+          bgr = cbb[1]
+          bgc = cbb[2]
+          gr = f[0]
+          gc = f[1]
+          lgr = int(gr / bgr)
+          lgc = int(gc / bgc)
+          if lgc == 0 or lgr == 0 or lgc * lgr != cpt or gr != bgr * lgr or gc != bgc * lgc or cpt > n * ncores: continue
+          print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrix-type {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang YML --timeout {timeout} --wall-time {walltime} --GR {f[0]} --GC {f[1]} --CPT {cbb[0]} --BGR {cbb[1]} --BGC {cbb[2]} --LGC {lgc} --LGR {lgr} --compile')
