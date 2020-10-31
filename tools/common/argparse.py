@@ -9,7 +9,7 @@ def init_parser():
   parser.add_argument("--C", dest="C", help="Number of diagonals", type=int, default=10)
   parser.add_argument("--op", dest="op", help="Operation", type=str, required=True, choices=['spmv', 'a_axpx'])
   parser.add_argument("--format", dest="format", help="Matrix format", type=str, required=True)
-  parser.add_argument("--matrix-type", dest="matrixtype", help="Matrix generation type(cqmat, cdiag)", type=str, required=True, choices=['cdiag', 'cqmat'])
+  parser.add_argument("--matrixtype", dest="matrixtype", help="Matrix generation type(cqmat, cdiag)", type=str, required=True, choices=['cdiag', 'cqmat'])
   return parser
 
 def init_pagerank():
