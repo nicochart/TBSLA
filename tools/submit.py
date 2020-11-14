@@ -6,6 +6,9 @@ import common.exec_cmd as exe
 import common.submission as sub
 import importlib
 
+NBQ = 6
+QLIST = [q /(NBQ - 1) for q in range(0, NBQ)]
+
 parser = argparse.ArgumentParser(description="Submit TBSLA perf run to the job scheduler", parents=[cap.init_parser(), cap.add_common(), cap.add_submit()])
 args, rest = parser.parse_known_args()
 
@@ -82,17 +85,16 @@ if args.lang == "YML":
   if args.format == "DENSE":
     int_matrixformat = 5
   if args.matrixtype == "cqmat":
-    nbq = 5
     for s in range(1, 2):
-      for q in range(0, nbq + 1):
-        dict_to_pass["Q"] = q / nbq
+      for q in QLIST:
+        dict_to_pass["Q"] = q
         dict_to_pass["S"] = s
         pack_name = f'_yml_tmpdir/param_nr{args.NR}_nc{args.NC}_{args.matrixtype}_c{args.C}_gr{args.GR}_gc{args.GC}_lgr{app_args.LGR}_lgc{app_args.LGC}.pack'
         command = 'rm -f ' + pack_name + '\n'
         command += f'yml_parameter --app={app_name}.yapp  --pack={pack_name} --add=n_row --integer={args.NR}\n'
         command += f'yml_parameter --app={app_name}.yapp  --pack={pack_name} --add=n_col --integer={args.NC}\n'
         command += f'yml_parameter --app={app_name}.yapp  --pack={pack_name} --add=C --integer={args.C}\n'
-        command += f'yml_parameter --app={app_name}.yapp  --pack={pack_name} --add=Q --integer={q / nbq}\n'
+        command += f'yml_parameter --app={app_name}.yapp  --pack={pack_name} --add=Q --integer={q}\n'
         command += f'yml_parameter --app={app_name}.yapp  --pack={pack_name} --add=S --integer={s}\n'
         command += f'yml_parameter --app={app_name}.yapp  --pack={pack_name} --add=gr --integer={args.GR}\n'
         command += f'yml_parameter --app={app_name}.yapp  --pack={pack_name} --add=gc --integer={args.GC}\n'
@@ -108,7 +110,7 @@ if args.lang == "YML":
         sub_script += machine.post_run_cmd(args) + "\n"
         sub_script += machine.post_processing(args) + "\n"
         fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_nr{args.NR}_nc{args.NC}_{args.matrixtype}_{args.format}_c{args.C}_gr{args.GR}_gc{args.GC}"
-        fname += f"_cpt{app_args.CPT}_bgr{app_args.BGR}_bgr{app_args.BGC}_lgr{app_args.LGR}_lgc{app_args.LGC}_Q{q/nbq}_S{s}"
+        fname += f"_cpt{app_args.CPT}_bgr{app_args.BGR}_bgr{app_args.BGC}_lgr{app_args.LGR}_lgc{app_args.LGC}_Q{q}_S{s}"
         fname += ".sh"
         sub.gen_submit_cmd(machine, args, fname, sub_script)
   else:
@@ -137,12 +139,11 @@ if args.lang != "YML":
   command += f" --format {args.format}"
 
   if args.matrixtype == "cqmat":
-    nbq = 5
     for s in range(1, 2):
-      for q in range(0, nbq + 1):
-        dict_to_pass["Q"] = q / nbq
+      for q in QLIST:
+        dict_to_pass["Q"] = q
         dict_to_pass["S"] = s
-        header += command + f' --Q {q / nbq} --S {s}" --dic "{dict_to_pass}"\n\n'
+        header += command + f' --Q {q} --S {s}" --dic "{dict_to_pass}"\n\n'
   else:
     header += command +  f'" --dic "{dict_to_pass}"\n\n'
 
