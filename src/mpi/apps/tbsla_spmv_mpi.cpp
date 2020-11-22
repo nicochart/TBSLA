@@ -84,6 +84,9 @@ int main(int argc, char** argv) {
   std::vector<double> res = m->spmv(MPI_COMM_WORLD, vec);
   auto t_spmv_end = now();
 
+  int sum_nnz = m->compute_sum_nnz(MPI_COMM_WORLD);
+  int min_nnz = m->compute_min_nnz(MPI_COMM_WORLD);
+  int max_nnz = m->compute_max_nnz(MPI_COMM_WORLD);
 
   if(rank == 0) {
     auto t_app_end = now();
@@ -95,7 +98,9 @@ int main(int argc, char** argv) {
     // outmap[""] = "";
     outmap["n_row"] = std::to_string(m->get_n_row());
     outmap["n_col"] = std::to_string(m->get_n_col());
-    outmap["nnz"] = std::to_string(m->get_gnnz());
+    outmap["nnz"] = std::to_string(sum_nnz);
+    outmap["nnz_min"] = std::to_string(min_nnz);
+    outmap["nnz_max"] = std::to_string(max_nnz);
     outmap["time_read_m"] = std::to_string((t_read_end - t_read_start) / 1e9);
     outmap["time_spmv"] = std::to_string((t_spmv_end - t_spmv_start) / 1e9);
     outmap["time_app"] = std::to_string((t_app_end - t_read_start) / 1e9);

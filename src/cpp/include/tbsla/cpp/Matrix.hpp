@@ -20,7 +20,7 @@ class Matrix {
     int const get_f_col() {return f_col;}
     int const get_ln_row() {return ln_row;}
     int const get_ln_col() {return ln_col;}
-    int const get_nnz();
+    int const get_nnz() {return nnz;};
 
     virtual std::ostream & print_stats(std::ostream &os) = 0;
     virtual std::ostream & print_infos(std::ostream &os) = 0;

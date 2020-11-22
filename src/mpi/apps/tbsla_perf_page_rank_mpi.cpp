@@ -97,6 +97,9 @@ int main(int argc, char** argv) {
   MPI_Barrier(MPI_COMM_WORLD);
   auto t_op_end = now();
 
+  int sum_nnz = m->compute_sum_nnz(MPI_COMM_WORLD);
+  int min_nnz = m->compute_min_nnz(MPI_COMM_WORLD);
+  int max_nnz = m->compute_max_nnz(MPI_COMM_WORLD);
 
   if(rank == 0) {
     auto t_app_end = now();
@@ -107,7 +110,9 @@ int main(int argc, char** argv) {
     outmap["matrix_dim"] = std::to_string(m->get_n_col());
     outmap["g_row"] = gr_string;
     outmap["g_col"] = gc_string;
-    outmap["nnz"] = std::to_string(m->get_gnnz());
+    outmap["nnz"] = std::to_string(sum_nnz);
+    outmap["nnz_min"] = std::to_string(min_nnz);
+    outmap["nnz_max"] = std::to_string(max_nnz);
     outmap["nb_iterations"] = std::to_string(nb_iterations_done);    
     outmap["time_app_in"] = std::to_string((t_app_end - t_app_start) / 1e9);
     outmap["time_op"] = std::to_string((t_op_end - t_op_start) / 1e9);

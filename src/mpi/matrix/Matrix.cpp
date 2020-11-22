@@ -5,6 +5,27 @@
 #include <mpi.h>
 #include <iostream>
 
+int const tbsla::mpi::Matrix::compute_sum_nnz(MPI_Comm comm) {
+  int lnnz = this->get_nnz();
+  int nnz;
+  MPI_Reduce(&lnnz, &nnz, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+  return nnz;
+}
+
+int const tbsla::mpi::Matrix::compute_min_nnz(MPI_Comm comm) {
+  int lnnz = this->get_nnz();
+  int nnz;
+  MPI_Reduce(&lnnz, &nnz, 1, MPI_INT, MPI_MIN, 0, MPI_COMM_WORLD);
+  return nnz;
+}
+
+int const tbsla::mpi::Matrix::compute_max_nnz(MPI_Comm comm) {
+  int lnnz = this->get_nnz();
+  int nnz;
+  MPI_Reduce(&lnnz, &nnz, 1, MPI_INT, MPI_MAX, 0, MPI_COMM_WORLD);
+  return nnz;
+}
+
 std::vector<double> tbsla::mpi::Matrix::page_rank(MPI_Comm comm, double beta, double epsilon, int max_iterations, int &nb_iterations_done){
   int proc_rank;
   MPI_Comm_rank(comm, &proc_rank);

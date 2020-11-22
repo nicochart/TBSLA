@@ -24,7 +24,6 @@ class MatrixCOO : public virtual Matrix {
     std::ostream & print_as_dense(std::ostream &os);
     std::ostream & write(std::ostream &os);
     std::istream & read(std::istream &is, std::size_t pos = 0, std::size_t n = 1);
-    int const get_nnz() {return values.size();};
     std::ostream& print(std::ostream& os) const;
 
     MatrixCSR toCSR();

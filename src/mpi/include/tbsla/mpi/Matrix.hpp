@@ -18,6 +18,9 @@ class Matrix : public virtual tbsla::cpp::Matrix {
     virtual std::vector<double> page_rank(MPI_Comm comm, double beta, double epsilon, int max_iterations, int &nb_iterations_done);
     virtual std::vector<double> personalized_page_rank(MPI_Comm comm, double beta, double epsilon, int max_iterations, std::vector<int> personalized_nodes, int &nb_iterations_done);
     int const get_gnnz() {return gnnz;};
+    int const compute_sum_nnz(MPI_Comm comm);
+    int const compute_min_nnz(MPI_Comm comm);
+    int const compute_max_nnz(MPI_Comm comm);
     using tbsla::cpp::Matrix::fill_cdiag;
     using tbsla::cpp::Matrix::fill_cqmat;
     using tbsla::cpp::Matrix::read;

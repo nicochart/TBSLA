@@ -112,6 +112,10 @@ int main(int argc, char **argv){
   auto t_personalized_page_rank_start = now();
   b = m->personalized_page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations, personalized_nodes, nb_iterations_done);
   auto t_personalized_page_rank_end = now();
+
+  int sum_nnz = m->compute_sum_nnz(MPI_COMM_WORLD);
+  int min_nnz = m->compute_min_nnz(MPI_COMM_WORLD);
+  int max_nnz = m->compute_max_nnz(MPI_COMM_WORLD);
   
   if(rank == 0){
     auto t_app_end = now();
@@ -127,7 +131,9 @@ int main(int argc, char **argv){
     outmap["test"] = "personalized_page_rank";
     outmap["matrix_format"] = format;
     outmap["n"] = std::to_string(m->get_n_col());
-    outmap["nnz"] = std::to_string(m->get_gnnz());
+    outmap["nnz"] = std::to_string(sum_nnz);
+    outmap["nnz_min"] = std::to_string(min_nnz);
+    outmap["nnz_max"] = std::to_string(max_nnz);
     outmap["nb_iterations"] = std::to_string(nb_iterations_done);
     outmap["time_read_m"] = std::to_string((t_read_end - t_read_start) / 1e9);
     outmap["time_personalized_page_rank"] = std::to_string((t_personalized_page_rank_end - t_personalized_page_rank_start) / 1e9);
