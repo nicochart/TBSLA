@@ -158,9 +158,9 @@ void tbsla::cpp::MatrixELL::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
   else
     this->max_col = 2;
 
-  int nv = 0;
-  for(int i = f_row; i < f_row + ln_row; i++) {
-    int ii, jj;
+  long int nv = 0;
+  for(long int i = f_row; i < f_row + ln_row; i++) {
+    long int ii, jj;
     jj = i - cdiag;
     ii = i;
     if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -182,8 +182,8 @@ void tbsla::cpp::MatrixELL::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
   this->values.reserve(this->max_col * this->ln_row);
   this->columns.reserve(this->max_col * this->ln_row);
 
-  for(int i = f_row; i < f_row + ln_row; i++) {
-    int ii, jj;
+  for(long int i = f_row; i < f_row + ln_row; i++) {
+    long int ii, jj;
     jj = i - cdiag;
     ii = i;
     if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -225,8 +225,8 @@ void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, un
 
   int min_ = std::min(n_col - std::min(c, n_col) + 1, n_row);
 
-  int incr = 0, nv = 0;
-  for(int i = 0; i < min_; i++) {
+  long int incr = 0, nv = 0;
+  for(long int i = 0; i < min_; i++) {
     if(i < f_row) {
       incr += std::min(c, n_col);
     }
@@ -237,7 +237,7 @@ void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, un
       break;
     }
   }
-  for(int i = 0; i < std::min(n_row, n_col) - min_; i++) {
+  for(long int i = 0; i < std::min(n_row, n_col) - min_; i++) {
     if(i + min_ < f_row) {
       incr += std::min(c, n_col) - i - 1;
     }
@@ -251,14 +251,14 @@ void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, un
 
   this->nnz = 0;
   this->max_col = 0;
-  int incr_save = incr;
+  long int incr_save = incr;
 
-  int i;
+  long int i;
   for(i = f_row; i < std::min(min_, f_row + ln_row); i++) {
     int nbc = 0;
-    for(int j = 0; j < std::min(c, n_col); j++) {
+    for(long int j = 0; j < std::min(c, n_col); j++) {
       auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
-      int ii, jj;
+      long int ii, jj;
       ii = std::get<0>(tuple);
       jj = std::get<1>(tuple);
       if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -271,10 +271,10 @@ void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, un
   }
   for(; i < std::min({n_row, n_col, f_row + ln_row}); i++) {
     int nbc = 0;
-    int j = 0;
+    long int j = 0;
     for(; j < std::min(c, n_col) - i + min_ - 1; j++) {
       auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
-      int ii, jj;
+      long int ii, jj;
       ii = std::get<0>(tuple);
       jj = std::get<1>(tuple);
       if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -298,12 +298,12 @@ void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, un
   this->columns.reserve(this->max_col * ln_row);
 
   incr = incr_save;
-  int lincr;
+  long int lincr;
   for(i = f_row; i < std::min(min_, f_row + ln_row); i++) {
     lincr = 0;
-    for(int j = 0; j < std::min(c, n_col); j++) {
+    for(long int j = 0; j < std::min(c, n_col); j++) {
       auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
-      int ii, jj;
+      long int ii, jj;
       ii = std::get<0>(tuple);
       jj = std::get<1>(tuple);
       if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -313,16 +313,16 @@ void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, un
       }
       incr++;
     }
-    for(int j = lincr; j < max_col; j++) {
+    for(long int j = lincr; j < max_col; j++) {
       this->columns.push_back(0);
       this->values.push_back(0);
     }
   }
   for(; i < std::min({n_row, f_row + ln_row}); i++) {
     lincr = 0;
-    for(int j = 0; j < std::min(c, n_col) - i + min_ - 1; j++) {
+    for(long int j = 0; j < std::min(c, n_col) - i + min_ - 1; j++) {
       auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
-      int ii, jj;
+      long int ii, jj;
       ii = std::get<0>(tuple);
       jj = std::get<1>(tuple);
       if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -332,7 +332,7 @@ void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, un
       }
       incr++;
     }
-    for(int j = lincr; j < max_col; j++) {
+    for(long int j = lincr; j < max_col; j++) {
       this->columns.push_back(0);
       this->values.push_back(0);
     }
@@ -344,8 +344,8 @@ void tbsla::cpp::MatrixELL::fill_cqmat_stochastic(int n_row, int n_col, int c, d
   if(this->values.size() == 0)
     return;
   std::vector<double> sum = tbsla::utils::values_generation::cqmat_sum_columns(n_row, n_col, c, q, seed_mult);
-  for (int i = 0; i < std::min((size_t)this->ln_row, this->values.size() / this->max_col); i++) {
-    for (int j = 0; j < this->max_col; j++) {
+  for (long int i = 0; i < std::min((size_t)this->ln_row, this->values.size() / this->max_col); i++) {
+    for (long int j = 0; j < this->max_col; j++) {
       if(this->values[i * this->max_col + j] != 0) this->values[i * this->max_col + j] /= sum[this->columns[i * this->max_col + j]];
     }
   }
@@ -353,16 +353,16 @@ void tbsla::cpp::MatrixELL::fill_cqmat_stochastic(int n_row, int n_col, int c, d
 
 void tbsla::cpp::MatrixELL::normalize_columns() {
   std::vector<double> sum(this->ln_col, 0);
-  for (int i = 0; i < std::min((size_t)this->ln_row, this->values.size() / this->max_col); i++) {
-    for (int j = 0; j < this->max_col; j++) {
-      int idx = this->columns[i * this->max_col + j] - this->f_col;
+  for (long int i = 0; i < std::min((size_t)this->ln_row, this->values.size() / this->max_col); i++) {
+    for (long int j = 0; j < this->max_col; j++) {
+      long int idx = this->columns[i * this->max_col + j] - this->f_col;
       if(idx < 0) idx = 0;
       sum[idx] += this->values[i * this->max_col + j];
     }
   }
-  for (int i = 0; i < std::min((size_t)this->ln_row, this->values.size() / this->max_col); i++) {
-    for (int j = 0; j < this->max_col; j++) {
-      int idx = this->columns[i * this->max_col + j] - this->f_col;
+  for (long int i = 0; i < std::min((size_t)this->ln_row, this->values.size() / this->max_col); i++) {
+    for (long int j = 0; j < this->max_col; j++) {
+      long int idx = this->columns[i * this->max_col + j] - this->f_col;
       if(idx < 0) idx = 0;
       this->values[i * this->max_col + j] /= sum[idx];
     }

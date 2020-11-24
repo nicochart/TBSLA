@@ -26,7 +26,7 @@ int tbsla::mpi::MatrixCOO::read_bin_mpiio(MPI_Comm comm, std::string filename, i
   this->f_col = 0;
 
   size_t vec_size, depla_general, depla_local;
-  depla_general = 11 * sizeof(int);
+  depla_general = 10 * sizeof(int) + sizeof(long int);
 
   /*
   *

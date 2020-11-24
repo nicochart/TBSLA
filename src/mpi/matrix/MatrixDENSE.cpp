@@ -17,7 +17,7 @@ int tbsla::mpi::MatrixDENSE::read_bin_mpiio(MPI_Comm comm, std::string filename,
   MPI_File_read_all(fh, &this->n_col, 1, MPI_INT, &status);
 
   size_t vec_size, depla_general;
-  depla_general = 11 * sizeof(int);
+  depla_general = 10 * sizeof(int) + sizeof(long int);
 
   this->pr = pr;
   this->pc = pc;

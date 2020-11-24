@@ -186,9 +186,9 @@ void tbsla::cpp::MatrixCSR::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
   ln_col = tbsla::utils::range::lnv(n_col, pc, NC);
   f_col = tbsla::utils::range::pflv(n_col, pc, NC);
 
-  int nv = 0;
-  for(int i = f_row; i < f_row + ln_row; i++) {
-    int ii, jj;
+  long int nv = 0;
+  for(long int i = f_row; i < f_row + ln_row; i++) {
+    long int ii, jj;
     jj = i - cdiag;
     ii = i;
     if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -212,8 +212,8 @@ void tbsla::cpp::MatrixCSR::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
 
   size_t incr = 0;
   this->rowptr.push_back(incr);
-  for(int i = f_row; i < f_row + ln_row; i++) {
-    int ii, jj;
+  for(long int i = f_row; i < f_row + ln_row; i++) {
+    long int ii, jj;
     jj = i - cdiag;
     ii = i;
     if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -254,8 +254,8 @@ void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, un
 
   int min_ = std::min(n_col - std::min(c, n_col) + 1, n_row);
 
-  int incr = 0, nv = 0;
-  for(int i = 0; i < min_; i++) {
+  long int incr = 0, nv = 0;
+  for(long int i = 0; i < min_; i++) {
     if(i < f_row) {
       incr += std::min(c, n_col);
     }
@@ -266,7 +266,7 @@ void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, un
       break;
     }
   }
-  for(int i = 0; i < std::min(n_row, n_col) - min_; i++) {
+  for(long int i = 0; i < std::min(n_row, n_col) - min_; i++) {
     if(i + min_ < f_row) {
       incr += std::min(c, n_col) - i - 1;
     }
@@ -279,13 +279,13 @@ void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, un
   }
 
   this->nnz = 0;
-  int incr_save = incr;
+  long int incr_save = incr;
 
-  int i;
+  long int i;
   for(i = f_row; i < std::min({n_row, n_col, f_row + ln_row}); i++) {
-    for(int j = 0; j < std::min(c, n_col); j++) {
+    for(long int j = 0; j < std::min(c, n_col); j++) {
       auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
-      int ii, jj;
+      long int ii, jj;
       ii = std::get<0>(tuple);
       jj = std::get<1>(tuple);
       if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -304,12 +304,12 @@ void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, un
   this->colidx.reserve(this->nnz);
   this->rowptr.reserve(ln_row + 1);
 
-  int lincr = 0;
+  long int lincr = 0;
   this->rowptr.push_back(lincr);
   for(i = f_row; i < std::min(min_, f_row + ln_row); i++) {
-    for(int j = 0; j < std::min(c, n_col); j++) {
+    for(long int j = 0; j < std::min(c, n_col); j++) {
       auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
-      int ii, jj;
+      long int ii, jj;
       double v;
       ii = std::get<0>(tuple);
       jj = std::get<1>(tuple);
@@ -324,9 +324,9 @@ void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, un
     this->rowptr.push_back(lincr);
   }
   for(; i < std::min({n_row, n_col, f_row + ln_row}); i++) {
-    for(int j = 0; j < std::min(c, n_col) - i + min_ - 1; j++) {
+    for(long int j = 0; j < std::min(c, n_col) - i + min_ - 1; j++) {
       auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
-      int ii, jj;
+      long int ii, jj;
       double v;
       ii = std::get<0>(tuple);
       jj = std::get<1>(tuple);
@@ -351,8 +351,8 @@ void tbsla::cpp::MatrixCSR::fill_cqmat_stochastic(int n_row, int n_col, int c, d
   if(this->values.size() == 0)
     return;
   std::vector<double> sum = tbsla::utils::values_generation::cqmat_sum_columns(n_row, n_col, c, q, seed_mult);
-  for (int i = 0; i < this->rowptr.size() - 1; i++) {
-    for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
+  for (long int i = 0; i < this->rowptr.size() - 1; i++) {
+    for (long int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
        this->values[j] /= sum[this->colidx[j]];
     }
   }
@@ -360,13 +360,13 @@ void tbsla::cpp::MatrixCSR::fill_cqmat_stochastic(int n_row, int n_col, int c, d
 
 void tbsla::cpp::MatrixCSR::normalize_columns() {
   std::vector<double> sum(this->ln_col, 0);
-  for (int i = 0; i < this->rowptr.size() - 1; i++) {
-    for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
+  for (long int i = 0; i < this->rowptr.size() - 1; i++) {
+    for (long int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
        sum[this->colidx[j] - this->f_col] += this->values[j];
     }
   }
-  for (int i = 0; i < this->rowptr.size() - 1; i++) {
-    for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
+  for (long int i = 0; i < this->rowptr.size() - 1; i++) {
+    for (long int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
        this->values[j] /= sum[this->colidx[j] - this->f_col];
     }
   }

@@ -125,9 +125,9 @@ void tbsla::cpp::MatrixDENSE::fill_cdiag(int n_row, int n_col, int cdiag, int pr
   this->ln_col = tbsla::utils::range::lnv(n_col, pc, NC);
   this->f_col = tbsla::utils::range::pflv(n_col, pc, NC);
 
-  int nv = 0;
-  for(int i = f_row; i < f_row + ln_row; i++) {
-    int ii, jj;
+  long int nv = 0;
+  for(long int i = f_row; i < f_row + ln_row; i++) {
+    long int ii, jj;
     jj = i - cdiag;
     ii = i;
     if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -148,8 +148,8 @@ void tbsla::cpp::MatrixDENSE::fill_cdiag(int n_row, int n_col, int cdiag, int pr
   this->nnz = nv;
   this->values.resize(this->ln_col * this->ln_row, 0);
 
-  for(int i = f_row; i < f_row + ln_row; i++) {
-    int ii, jj;
+  for(long int i = f_row; i < f_row + ln_row; i++) {
+    long int ii, jj;
     jj = i - cdiag;
     ii = i;
     if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -182,8 +182,8 @@ void tbsla::cpp::MatrixDENSE::fill_cqmat(int n_row, int n_col, int c, double q, 
 
   int min_ = std::min(n_col - std::min(c, n_col) + 1, n_row);
 
-  int incr = 0, nv = 0;
-  for(int i = 0; i < min_; i++) {
+  long int incr = 0, nv = 0;
+  for(long int i = 0; i < min_; i++) {
     if(i < f_row) {
       incr += std::min(c, n_col);
     }
@@ -194,7 +194,7 @@ void tbsla::cpp::MatrixDENSE::fill_cqmat(int n_row, int n_col, int c, double q, 
       break;
     }
   }
-  for(int i = 0; i < std::min(n_row, n_col) - min_; i++) {
+  for(long int i = 0; i < std::min(n_row, n_col) - min_; i++) {
     if(i + min_ < f_row) {
       incr += std::min(c, n_col) - i - 1;
     }
@@ -212,13 +212,13 @@ void tbsla::cpp::MatrixDENSE::fill_cqmat(int n_row, int n_col, int c, double q, 
 
   this->nnz = 0;
   this->values.resize(this->ln_col * this->ln_row, 0);
-  int lincr;
-  int i;
+  long int lincr;
+  long int i;
   for(i = f_row; i < std::min(min_, f_row + ln_row); i++) {
     lincr = 0;
-    for(int j = 0; j < std::min(c, n_col); j++) {
+    for(long int j = 0; j < std::min(c, n_col); j++) {
       auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
-      int ii, jj;
+      long int ii, jj;
       ii = std::get<0>(tuple);
       jj = std::get<1>(tuple);
       if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -231,9 +231,9 @@ void tbsla::cpp::MatrixDENSE::fill_cqmat(int n_row, int n_col, int c, double q, 
   }
   for(; i < std::min({n_row, f_row + ln_row}); i++) {
     lincr = 0;
-    for(int j = 0; j < std::min(c, n_col) - i + min_ - 1; j++) {
+    for(long int j = 0; j < std::min(c, n_col) - i + min_ - 1; j++) {
       auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
-      int ii, jj;
+      long int ii, jj;
       ii = std::get<0>(tuple);
       jj = std::get<1>(tuple);
       if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -251,11 +251,11 @@ void tbsla::cpp::MatrixDENSE::fill_cqmat_stochastic(int n_row, int n_col, int c,
   if(this->values.size() == 0)
     return;
   std::vector<double> sum = tbsla::utils::values_generation::cqmat_sum_columns(n_row, n_col, c, q, seed_mult);
-  for (int i = 0; i < sum.size(); i++) {
+  for (long int i = 0; i < sum.size(); i++) {
     if(sum[i] == 0) sum[i] = 1;
   }
-  for (int i = 0; i < this->ln_row; i++) {
-    for (int j = 0; j < this->ln_col; j++) {
+  for (long int i = 0; i < this->ln_row; i++) {
+    for (long int j = 0; j < this->ln_col; j++) {
       this->values[i * this->ln_col + j] /= sum[this->f_col + j];
     }
   }
@@ -263,13 +263,13 @@ void tbsla::cpp::MatrixDENSE::fill_cqmat_stochastic(int n_row, int n_col, int c,
 
 void tbsla::cpp::MatrixDENSE::normalize_columns() {
   std::vector<double> sum(this->ln_col, 0);
-  for (int i = 0; i < this->ln_row; i++) {
-    for (int j = 0; j < this->ln_col; j++) {
+  for (long int i = 0; i < this->ln_row; i++) {
+    for (long int j = 0; j < this->ln_col; j++) {
       sum[j] += this->values[i * this->ln_col + j];
     }
   }
-  for (int i = 0; i < this->ln_row; i++) {
-    for (int j = 0; j < this->ln_col; j++) {
+  for (long int i = 0; i < this->ln_row; i++) {
+    for (long int j = 0; j < this->ln_col; j++) {
       this->values[i * this->ln_col + j] /= sum[j];
     }
   }

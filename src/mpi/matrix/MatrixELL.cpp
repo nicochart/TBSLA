@@ -15,10 +15,10 @@ int tbsla::mpi::MatrixELL::read_bin_mpiio(MPI_Comm comm, std::string filename, i
 
   MPI_File_read_all(fh, &this->n_row, 1, MPI_INT, &status);
   MPI_File_read_all(fh, &this->n_col, 1, MPI_INT, &status);
-  MPI_File_read_at_all(fh, 11 * sizeof(int), &this->max_col, 1, MPI_INT, &status);
+  MPI_File_read_at_all(fh, 10 * sizeof(int) + sizeof(long int), &this->max_col, 1, MPI_INT, &status);
 
   size_t vec_size, depla_general, values_start, columns_start;
-  depla_general = 12 * sizeof(int);
+  depla_general = 11 * sizeof(int) + sizeof(long int);
 
   this->pr = pr;
   this->pc = pc;

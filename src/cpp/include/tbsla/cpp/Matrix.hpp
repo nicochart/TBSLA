@@ -20,7 +20,7 @@ class Matrix {
     int const get_f_col() {return f_col;}
     int const get_ln_row() {return ln_row;}
     int const get_ln_col() {return ln_col;}
-    int const get_nnz() {return nnz;};
+    long int const get_nnz() {return nnz;};
 
     virtual std::ostream & print_stats(std::ostream &os) = 0;
     virtual std::ostream & print_infos(std::ostream &os) = 0;
@@ -36,7 +36,8 @@ class Matrix {
     virtual void normalize_columns() = 0;
 
   protected:
-    int n_row, n_col, f_row, f_col, ln_row, ln_col, nnz, pr, pc, NR, NC;
+    int n_row, n_col, f_row, f_col, ln_row, ln_col, pr, pc, NR, NC;
+    long int nnz;
 
 };
 

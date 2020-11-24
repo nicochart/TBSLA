@@ -22,7 +22,7 @@ tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col, std::vector<double> & val
   this->f_col = 0;
 }
 
-tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col, int n_values) {
+tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col, long int n_values) {
   this->n_row = n_row;
   this->n_col = n_col;
   this->values.reserve(n_values);
@@ -75,7 +75,7 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 
 std::vector<double> tbsla::cpp::MatrixCOO::spmv(const std::vector<double> &v, int vect_incr) const {
   std::vector<double> r (this->n_row, 0);
-  for (int i = 0; i < this->values.size(); i++) {
+  for (std::size_t i = 0; i < this->values.size(); i++) {
      r[this->row[i] + vect_incr] += this->values[i] * v[this->col[i]];
   }
   return r;
@@ -240,15 +240,15 @@ void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
   this->f_row = 0;
   this->f_col = 0;
 
-  int gnv = std::max(std::min(n_row, n_col - cdiag), 0) + std::max(std::min(n_row - cdiag, n_col), 0);
+  long int gnv = std::max(std::min(n_row, n_col - cdiag), 0) + std::max(std::min(n_row - cdiag, n_col), 0);
   if(cdiag == 0)
     gnv /= 2;
   this->nnz = 0;
   if(gnv == 0)
     return;
 
-  int s = tbsla::utils::range::pflv(gnv, pr * NC + pc, NR * NC);
-  int n = tbsla::utils::range::lnv(gnv, pr * NC + pc, NR * NC);
+  long int s = tbsla::utils::range::pflv(gnv, pr * NC + pc, NR * NC);
+  long int n = tbsla::utils::range::lnv(gnv, pr * NC + pc, NR * NC);
   this->nnz = n;
 
   this->values.reserve(n);
@@ -278,25 +278,25 @@ void tbsla::cpp::MatrixCOO::fill_cqmat(int n_row, int n_col, int c, double q, un
   this->f_row = 0;
   this->f_col = 0;
 
-  int gnv = 0;
-  for(int i = 0; i < std::min(n_col - std::min(c, n_col) + 1, n_row); i++) {
+  long int gnv = 0;
+  for(long int i = 0; i < std::min(n_col - std::min(c, n_col) + 1, n_row); i++) {
     gnv += std::min(c, n_col);
   }
-  for(int i = 0; i < std::min(n_row, n_col) - std::min(n_col - std::min(c, n_col) + 1, n_row); i++) {
+  for(long int i = 0; i < std::min(n_row, n_col) - std::min(n_col - std::min(c, n_col) + 1, n_row); i++) {
     gnv += std::min(c, n_col) - i - 1;
   }
   if(gnv == 0)
     return;
 
-  int s = tbsla::utils::range::pflv(gnv, pr * NC + pc, NR * NC);
-  int n = tbsla::utils::range::lnv(gnv, pr * NC + pc, NR * NC);
+  long int s = tbsla::utils::range::pflv(gnv, pr * NC + pc, NR * NC);
+  long int n = tbsla::utils::range::lnv(gnv, pr * NC + pc, NR * NC);
   this->nnz = n;
 
   this->values.reserve(n);
   this->col.reserve(n);
   this->row.reserve(n);
 
-  for(int i = s; i < s + n; i++) {
+  for(long int i = s; i < s + n; i++) {
     auto tuple = tbsla::utils::values_generation::cqmat_value(i, n_row, n_col, c, q, seed_mult);
     this->push_back(std::get<0>(tuple), std::get<1>(tuple), std::get<2>(tuple));
   }
@@ -309,17 +309,17 @@ void tbsla::cpp::MatrixCOO::fill_cqmat(int n_row, int n_col, int c, double q, un
 void tbsla::cpp::MatrixCOO::fill_cqmat_stochastic(int n_row, int n_col, int c, double q, unsigned int seed_mult, int pr, int pc, int NR, int NC) {
   this->fill_cqmat(n_row, n_col, c, q, seed_mult, pr, pc, NR, NC);
   std::vector<double> sum = tbsla::utils::values_generation::cqmat_sum_columns(n_row, n_col, c, q, seed_mult);
-  for(int i = 0; i < this->values.size(); i++) {
+  for(long int i = 0; i < this->values.size(); i++) {
     this->values[i] /= sum[this->col[i]];
   }
 }
 
 void tbsla::cpp::MatrixCOO::normalize_columns() {
   std::vector<double> sum(this->n_col, 0);
-  for(int i = 0; i < this->values.size(); i++) {
+  for(long int i = 0; i < this->values.size(); i++) {
     sum[this->col[i]] += this->values[i];
   }
-  for(int i = 0; i < this->values.size(); i++) {
+  for(long int i = 0; i < this->values.size(); i++) {
     this->values[i] /= sum[this->col[i]];
   }
 }

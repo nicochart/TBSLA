@@ -5,9 +5,9 @@
 #include <vector>
 
 namespace tbsla { namespace utils { namespace values_generation {
-  std::tuple<int, int, double, int> cdiag_value(int i, int nv, int nr, int nc, int cdiag);
-  std::tuple<int, int, double, int> cqmat_value(int i, int nr, int nc, int c, double q, unsigned int seed_mult);
-  std::vector<double> cqmat_sum_columns(int nr, int nc, int c_, double q, unsigned int seed_mult);
+  std::tuple<std::size_t, std::size_t, double, std::size_t> cdiag_value(std::size_t i, std::size_t nv, std::size_t nr, std::size_t nc, std::size_t cdiag);
+  std::tuple<std::size_t, std::size_t, double, std::size_t> cqmat_value(std::size_t i, std::size_t nr, std::size_t nc, std::size_t c, double q, unsigned int seed_mult);
+  std::vector<double> cqmat_sum_columns(std::size_t nr, std::size_t nc, std::size_t c_, double q, unsigned int seed_mult);
 }}}
 
 #endif

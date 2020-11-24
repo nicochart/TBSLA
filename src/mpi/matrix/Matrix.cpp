@@ -5,24 +5,24 @@
 #include <mpi.h>
 #include <iostream>
 
-int const tbsla::mpi::Matrix::compute_sum_nnz(MPI_Comm comm) {
-  int lnnz = this->get_nnz();
-  int nnz;
-  MPI_Reduce(&lnnz, &nnz, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+long int const tbsla::mpi::Matrix::compute_sum_nnz(MPI_Comm comm) {
+  long int lnnz = this->get_nnz();
+  long int nnz;
+  MPI_Reduce(&lnnz, &nnz, 1, MPI_LONG, MPI_SUM, 0, MPI_COMM_WORLD);
   return nnz;
 }
 
-int const tbsla::mpi::Matrix::compute_min_nnz(MPI_Comm comm) {
-  int lnnz = this->get_nnz();
-  int nnz;
-  MPI_Reduce(&lnnz, &nnz, 1, MPI_INT, MPI_MIN, 0, MPI_COMM_WORLD);
+long int const tbsla::mpi::Matrix::compute_min_nnz(MPI_Comm comm) {
+  long int lnnz = this->get_nnz();
+  long int nnz;
+  MPI_Reduce(&lnnz, &nnz, 1, MPI_LONG, MPI_MIN, 0, MPI_COMM_WORLD);
   return nnz;
 }
 
-int const tbsla::mpi::Matrix::compute_max_nnz(MPI_Comm comm) {
-  int lnnz = this->get_nnz();
-  int nnz;
-  MPI_Reduce(&lnnz, &nnz, 1, MPI_INT, MPI_MAX, 0, MPI_COMM_WORLD);
+long int const tbsla::mpi::Matrix::compute_max_nnz(MPI_Comm comm) {
+  long int lnnz = this->get_nnz();
+  long int nnz;
+  MPI_Reduce(&lnnz, &nnz, 1, MPI_LONG, MPI_MAX, 0, MPI_COMM_WORLD);
   return nnz;
 }
 

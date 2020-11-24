@@ -20,7 +20,7 @@ static tbsla::hpx_::client::Vector tbsla::hpx_::detail::reduce_part(tbsla::hpx_:
       std::vector<double> vv2 = v2.get_vect();
       std::vector<double> rv(vv1.size());
       if(vv1.size() == vv2.size()) {
-         for(int i = 0; i < vv1.size(); i++)
+         for(std::size_t i = 0; i < vv1.size(); i++)
            rv[i] = vv1[i] + vv2[i];
       }
       tbsla::hpx_::detail::Vector r(rv);
@@ -43,9 +43,9 @@ static tbsla::hpx_::client::Vector tbsla::hpx_::detail::gather_part(tbsla::hpx_:
       std::vector<double> vv1 = v1.get_vect();
       std::vector<double> vv2 = v2.get_vect();
       std::vector<double> rv(vv1.size() + vv2.size());
-      for(int i = 0; i < vv1.size(); i++)
+      for(std::size_t i = 0; i < vv1.size(); i++)
         rv[i] = vv1[i];
-      for(int i = 0; i < vv2.size(); i++)
+      for(std::size_t i = 0; i < vv2.size(); i++)
         rv[i + vv1.size()] = vv2[i];
       tbsla::hpx_::detail::Vector r(rv);
       return tbsla::hpx_::client::Vector(vc1.get_id(), r);
@@ -63,11 +63,11 @@ static tbsla::hpx_::client::Vector tbsla::hpx_::detail::split_part(tbsla::hpx_::
   return dataflow(hpx::launch::async,
     unwrapping([vc, p, m](tbsla::hpx_::detail::Vector const& v) -> tbsla::hpx_::client::Vector {
       std::vector<double> vv = v.get_vect();
-      int n = tbsla::utils::range::lnv(vv.size(), p, m);
-      int s = tbsla::utils::range::pflv(vv.size(), p, m);
+      std::size_t n = tbsla::utils::range::lnv(vv.size(), p, m);
+      std::size_t s = tbsla::utils::range::pflv(vv.size(), p, m);
 
       std::vector<double> rv(n);
-      for(int i = 0; i < n; i++)
+      for(std::size_t i = 0; i < n; i++)
         rv[i] = vv[i + s];
       tbsla::hpx_::detail::Vector r(rv);
       return tbsla::hpx_::client::Vector(vc.get_id(), r);
@@ -91,7 +91,7 @@ tbsla::hpx_::Vector add_vectors(tbsla::hpx_::Vector v1, tbsla::hpx_::Vector v2) 
   std::vector<tbsla::hpx_::client::Vector> v2v = v2.get_vectors();
   std::vector<tbsla::hpx_::client::Vector> rv(v1v.size());
 
-  for(int i = 0; i < v1v.size(); i++) {
+  for(std::size_t i = 0; i < v1v.size(); i++) {
     auto Op = hpx::util::bind(reduce_act, localities[i * nl / v1v.size()], _1, _2);
     rv[i] = dataflow(hpx::launch::async, Op, v1v[i] ,v2v[i]);
   }
@@ -116,7 +116,7 @@ std::vector<tbsla::hpx_::client::Vector> reduce_recursion(std::vector<tbsla::hpx
     std::size_t nl = localities.size();
 
     using hpx::dataflow;
-    for(int i = 0; i < div2; i++) {
+    for(std::size_t i = 0; i < div2; i++) {
       using hpx::util::placeholders::_1;
       using hpx::util::placeholders::_2;
       auto Op = hpx::util::bind(reduce_act, localities[i * nl / div2], _1, _2);
@@ -149,7 +149,7 @@ std::vector<tbsla::hpx_::client::Vector> gather_recursion(std::vector<tbsla::hpx
     std::size_t nl = localities.size();
 
     using hpx::dataflow;
-    for(int i = 0; i < div2; i++) {
+    for(std::size_t i = 0; i < div2; i++) {
       using hpx::util::placeholders::_1;
       using hpx::util::placeholders::_2;
       auto Op = hpx::util::bind(gather_act, localities[i * nl / div2], _1, _2);
@@ -190,9 +190,9 @@ void tbsla::hpx_::Vector::init_split(std::size_t nv) {
   this->vectors.resize(this->gc);
   std::vector<hpx::id_type> localities = hpx::find_all_localities();
   std::size_t nl = this->localities.size();
-  for(int i = 0; i < this->gc; i++) {
-    int n = tbsla::utils::range::lnv(nv, i, this->gc);
-    int s = tbsla::utils::range::pflv(nv, i, this->gc);
+  for(std::size_t i = 0; i < this->gc; i++) {
+    std::size_t n = tbsla::utils::range::lnv(nv, i, this->gc);
+    std::size_t s = tbsla::utils::range::pflv(nv, i, this->gc);
     this->vectors[i] = tbsla::hpx_::client::Vector(localities[i * nl / this->gc], n, s);
   }
 }
@@ -223,7 +223,7 @@ void tbsla::hpx_::Vector::split(std::size_t s) {
   using hpx::dataflow;
   split_part_action split_act;
 
-  for(int i = 0; i < s; i++) {
+  for(std::size_t i = 0; i < s; i++) {
     auto Op = hpx::util::bind(split_act, localities[i * nl / s], _1, _2, _3);
     this->vectors[i] = dataflow(hpx::launch::async, Op, tosplit, i, s);
   }

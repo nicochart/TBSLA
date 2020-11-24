@@ -98,9 +98,9 @@ int main(int argc, char **argv){
   b = m->page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations, nb_iterations_done);
   auto t_page_rank_end = now();
   
-  int sum_nnz = m->compute_sum_nnz(MPI_COMM_WORLD);
-  int min_nnz = m->compute_min_nnz(MPI_COMM_WORLD);
-  int max_nnz = m->compute_max_nnz(MPI_COMM_WORLD);
+  long int sum_nnz = m->compute_sum_nnz(MPI_COMM_WORLD);
+  long int min_nnz = m->compute_min_nnz(MPI_COMM_WORLD);
+  long int max_nnz = m->compute_max_nnz(MPI_COMM_WORLD);
 
   if(rank == 0){
     auto t_app_end = now();

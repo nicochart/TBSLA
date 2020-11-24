@@ -240,9 +240,9 @@ void tbsla::cpp::MatrixSCOO::fill_cdiag(int n_row, int n_col, int cdiag, int pr,
   this->ln_col = tbsla::utils::range::lnv(n_col, pc, NC);
   this->f_col = tbsla::utils::range::pflv(n_col, pc, NC);
 
-  int nv = 0;
-  for(int i = f_row; i < f_row + ln_row; i++) {
-    int ii, jj;
+  long int nv = 0;
+  for(long int i = f_row; i < f_row + ln_row; i++) {
+    long int ii, jj;
     jj = i - cdiag;
     ii = i;
     if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -264,8 +264,8 @@ void tbsla::cpp::MatrixSCOO::fill_cdiag(int n_row, int n_col, int cdiag, int pr,
   this->col.reserve(nv);
   this->row.reserve(nv);
 
-  for(int i = f_row; i < f_row + ln_row; i++) {
-    int ii, jj;
+  for(long int i = f_row; i < f_row + ln_row; i++) {
+    long int ii, jj;
     jj = i - cdiag;
     ii = i;
     if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -300,8 +300,8 @@ void tbsla::cpp::MatrixSCOO::fill_cqmat(int n_row, int n_col, int c, double q, u
 
   int min_ = std::min(n_col - std::min(c, n_col) + 1, n_row);
 
-  int incr = 0, nv = 0;
-  for(int i = 0; i < min_; i++) {
+  long int incr = 0, nv = 0;
+  for(long int i = 0; i < min_; i++) {
     if(i < f_row) {
       incr += std::min(c, n_col);
     }
@@ -312,7 +312,7 @@ void tbsla::cpp::MatrixSCOO::fill_cqmat(int n_row, int n_col, int c, double q, u
       break;
     }
   }
-  for(int i = 0; i < std::min(n_row, n_col) - min_; i++) {
+  for(long int i = 0; i < std::min(n_row, n_col) - min_; i++) {
     if(i + min_ < f_row) {
       incr += std::min(c, n_col) - i - 1;
     }
@@ -325,14 +325,14 @@ void tbsla::cpp::MatrixSCOO::fill_cqmat(int n_row, int n_col, int c, double q, u
   }
 
   this->nnz = 0;
-  int incr_save = incr;
+  long int incr_save = incr;
 
-  int i;
+  long int i;
   for(i = f_row; i < std::min({n_row, n_col, f_row + ln_row}); i++) {
-    int j = 0;
+    long int j = 0;
     for(; j < std::min(c, n_col); j++) {
       auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
-      int ii, jj;
+      long int ii, jj;
       ii = std::get<0>(tuple);
       jj = std::get<1>(tuple);
       if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
@@ -353,9 +353,9 @@ void tbsla::cpp::MatrixSCOO::fill_cqmat(int n_row, int n_col, int c, double q, u
   this->row.reserve(this->nnz);
 
   for(i = f_row; i < std::min(min_, f_row + ln_row); i++) {
-    for(int j = 0; j < std::min(c, n_col); j++) {
+    for(long int j = 0; j < std::min(c, n_col); j++) {
       auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
-      int ii, jj;
+      long int ii, jj;
       double v;
       ii = std::get<0>(tuple);
       jj = std::get<1>(tuple);
@@ -367,9 +367,9 @@ void tbsla::cpp::MatrixSCOO::fill_cqmat(int n_row, int n_col, int c, double q, u
     }
   }
   for(; i < std::min({n_row, n_col, f_row + ln_row}); i++) {
-    for(int j = 0; j < std::min(c, n_col) - i + min_ - 1; j++) {
+    for(long int j = 0; j < std::min(c, n_col) - i + min_ - 1; j++) {
       auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);
-      int ii, jj;
+      long int ii, jj;
       double v;
       ii = std::get<0>(tuple);
       jj = std::get<1>(tuple);
@@ -389,17 +389,17 @@ void tbsla::cpp::MatrixSCOO::fill_cqmat(int n_row, int n_col, int c, double q, u
 void tbsla::cpp::MatrixSCOO::fill_cqmat_stochastic(int n_row, int n_col, int c, double q, unsigned int seed_mult, int pr, int pc, int NR, int NC) {
   this->fill_cqmat(n_row, n_col, c, q, seed_mult, pr, pc, NR, NC);
   std::vector<double> sum = tbsla::utils::values_generation::cqmat_sum_columns(n_row, n_col, c, q, seed_mult);
-  for(int i = 0; i < this->values.size(); i++) {
+  for(long int i = 0; i < this->values.size(); i++) {
     this->values[i] /= sum[this->col[i]];
   }
 }
 
 void tbsla::cpp::MatrixSCOO::normalize_columns() {
   std::vector<double> sum(this->ln_col, 0);
-  for(int i = 0; i < this->values.size(); i++) {
+  for(long int i = 0; i < this->values.size(); i++) {
     sum[this->col[i] - this->f_col] += this->values[i];
   }
-  for(int i = 0; i < this->values.size(); i++) {
+  for(long int i = 0; i < this->values.size(); i++) {
     this->values[i] /= sum[this->col[i] - this->f_col];
   }
 }
