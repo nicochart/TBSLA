@@ -5,17 +5,17 @@ std::tuple<std::size_t, std::size_t, double, std::size_t> tbsla::utils::values_g
   if(cdiag == 0) {
     return std::make_tuple(i, i, 1, 10);
   }
-  if(i < std::max(std::min(nc - cdiag, cdiag), std::size_t(0))) {
+  if(i < std::max(std::min((long int)nc - (long int)cdiag, (long int)cdiag), (long int)0)) {
     return std::make_tuple(i, i + cdiag, 1, 30);
-  } else if (i < std::max(cdiag + 2 * (nc - 2 * cdiag), std::size_t(0))) {
-    std::size_t it = (i - cdiag) / 2 + cdiag;
+  } else if (i < std::max((long int)cdiag + 2 * ((long int)nc - 2 * (long int)cdiag), (long int)0)) {
+    long int it = (i + cdiag) / 2;
     if(i % 2 == 0) {
       return std::make_tuple(it, it - cdiag, 1, 31);
     } else {
       return std::make_tuple(it, it + cdiag, 1, 32);
     }
   } else {
-    std::size_t it = i - (nc - 2 * cdiag);
+    long int it = i - ((long int)nc - 2 * (long int)cdiag);
     if(cdiag > nc) {
       it -= cdiag - nc;
     }
