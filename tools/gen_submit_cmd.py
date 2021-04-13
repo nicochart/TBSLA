@@ -22,17 +22,16 @@ C = 300
 OP = 'a_axpx'
 MTYPE = 'cqmat'
 #formats = {'COO', 'CSR', 'ELL', 'DENSE', 'SCOO'}
-formats = {'COO', 'CSR', 'ELL' , 'SCOO'}
+formats = {'COO', 'CSR', 'ELL', 'SCOO'}
 machine_informations = importlib.import_module("machine." + args.machine)
 NODES = [int(math.pow(2, i)) for i in range(int(math.log2(args.Ns)), int(math.log2(args.Ne)) + 1)]
 ncores = machine_informations.get_cores_per_node(None)
 
-CPT = [ncores, 2 * ncores, 3 * ncores, 4 * ncores]
+CPT = [ncores // 2, ncores, 2 * ncores, 3 * ncores]
 BLOCKS = [1, 2, 4, 6, 8, 12, 16]
 CPT_BLOCKS = list(itertools.product(CPT, BLOCKS, BLOCKS))
 
-walltime = 5
-timeout = 60
+walltime = 2
 
 def decomp(n):
   i = 2
@@ -63,9 +62,9 @@ for n in NODES:
   for mf in formats:
     for f in factors:
       if args.MPI:
-        print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPI --timeout {timeout} --wall-time {walltime} --GR {f[0]} --GC {f[1]}')
+        print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPI --wall-time {walltime} --GR {f[0]} --GC {f[1]}')
       if args.HPX:
-        print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang HPX --timeout {timeout} --wall-time {walltime} --GR {f[0]} --GC {f[1]}')
+        print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang HPX --wall-time {walltime} --GR {f[0]} --GC {f[1]}')
       if args.YML:
         for cbb in CPT_BLOCKS:
           cpt = cbb[0]
@@ -76,18 +75,4 @@ for n in NODES:
           lgr = int(gr / bgr)
           lgc = int(gc / bgc)
           if lgc == 0 or lgr == 0 or lgc * lgr != cpt or gr != bgr * lgr or gc != bgc * lgc or cpt > n * ncores: continue
-          print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang YML --timeout {timeout} --wall-time {walltime} --GR {f[0]} --GC {f[1]} --CPT {cbb[0]} --BGR {cbb[1]} --BGC {cbb[2]} --LGC {lgc} --LGR {lgr} --compile')
-  factors = decomp_pairs(n * ncores * 2)
-  for mf in formats:
-    for f in factors:
-      if args.YML:
-        for cbb in CPT_BLOCKS:
-          cpt = cbb[0]
-          bgr = cbb[1]
-          bgc = cbb[2]
-          gr = f[0]
-          gc = f[1]
-          lgr = int(gr / bgr)
-          lgc = int(gc / bgc)
-          if lgc == 0 or lgr == 0 or lgc * lgr != cpt or gr != bgr * lgr or gc != bgc * lgc or cpt > n * ncores: continue
-          print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang YML --timeout {timeout} --wall-time {walltime} --GR {f[0]} --GC {f[1]} --CPT {cbb[0]} --BGR {cbb[1]} --BGC {cbb[2]} --LGC {lgc} --LGR {lgr} --compile')
+          print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang YML --wall-time {walltime} --GR {f[0]} --GC {f[1]} --CPT {cbb[0]} --BGR {cbb[1]} --BGC {cbb[2]} --LGC {lgc} --LGR {lgr} --compile')
