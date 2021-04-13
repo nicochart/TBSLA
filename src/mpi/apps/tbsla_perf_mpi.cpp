@@ -5,6 +5,10 @@
 #include <tbsla/mpi/MatrixDENSE.hpp>
 #include <tbsla/cpp/utils/InputParser.hpp>
 
+#if TBSLA_COMPILED_WITH_OMP
+#include <omp.h>
+#endif
+
 #include <algorithm>
 #include <chrono>
 #include <random>
@@ -149,7 +153,13 @@ int main(int argc, char** argv) {
     outmap["nnz_max"] = std::to_string(max_nnz);
     outmap["time_app_in"] = std::to_string((t_app_end - t_app_start) / 1e9);
     outmap["time_op"] = std::to_string((t_op_end - t_op_start) / 1e9);
+    outmap["processes"] = std::to_string(world);
+#if TBSLA_COMPILED_WITH_OMP
+    outmap["lang"] = "MPIOMP";
+    outmap["omp_threads"] = std::to_string(omp_get_max_threads());
+#else
     outmap["lang"] = "MPI";
+#endif
     if(input.has_opt("--cdiag")) {
       outmap["matrix_type"] = "cdiag";
       outmap["cdiag_c"] = std::to_string(C);

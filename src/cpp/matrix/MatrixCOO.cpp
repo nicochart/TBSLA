@@ -75,8 +75,10 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 
 std::vector<double> tbsla::cpp::MatrixCOO::spmv(const std::vector<double> &v, int vect_incr) const {
   std::vector<double> r (this->n_row, 0);
+  double *results = r.data();
+  #pragma omp parallel for reduction(+: results[:this->n_row])
   for (std::size_t i = 0; i < this->values.size(); i++) {
-     r[this->row[i] + vect_incr] += this->values[i] * v[this->col[i]];
+     results[this->row[i] + vect_incr] += this->values[i] * v[this->col[i]];
   }
   return r;
 }

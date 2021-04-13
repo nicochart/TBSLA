@@ -40,6 +40,7 @@ std::vector<double> tbsla::cpp::MatrixDENSE::spmv(const std::vector<double> &v, 
   std::vector<double> r (this->ln_row, 0);
   if(this->nnz == 0 || this->values.size() == 0)
     return r;
+  #pragma omp parallel for
   for (int i = 0; i < this->ln_row; i++) {
     for (int j = 0; j < this->ln_col; j++) {
       r[i] += this->values[i * this->ln_col + j] * v[j];

@@ -29,3 +29,13 @@ install(TARGETS tbsla_page_rank DESTINATION bin)
 add_executable(tbsla_personalized_page_rank tbsla_personalized_page_rank.cpp)
 target_link_libraries(tbsla_personalized_page_rank PRIVATE tbsla)
 install(TARGETS tbsla_personalized_page_rank DESTINATION bin)
+
+add_executable(tbsla_perf tbsla_perf.cpp)
+target_link_libraries(tbsla_perf PRIVATE tbsla)
+install(TARGETS tbsla_perf DESTINATION bin)
+
+if(TBSLA_ENABLE_OMP)
+  add_executable(tbsla_perf_omp tbsla_perf.cpp)
+  target_link_libraries(tbsla_perf_omp PRIVATE tbsla_omp)
+  install(TARGETS tbsla_perf_omp DESTINATION bin)
+endif()

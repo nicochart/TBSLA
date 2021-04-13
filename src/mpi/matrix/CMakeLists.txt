@@ -16,4 +16,17 @@ target_include_directories(tbsla_mpi
   PUBLIC $<INSTALL_INTERFACE:include>
 )
 install(TARGETS tbsla_mpi)
+
+if(TBSLA_ENABLE_OMP)
+  add_library(tbsla_mpi_omp SHARED ${SRC_LIST})
+  target_include_directories(tbsla_mpi_omp PUBLIC ${PROJECT_SOURCE_DIR}/mpi/include)
+  target_link_libraries(tbsla_mpi_omp PUBLIC MPI::MPI_CXX)
+  target_link_libraries(tbsla_mpi_omp PUBLIC tbsla_omp)
+  target_include_directories(tbsla_mpi_omp
+    PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/mpi/include>
+    PUBLIC $<INSTALL_INTERFACE:include>
+  )
+  install(TARGETS tbsla_mpi_omp)
+endif()
+
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/mpi/include/tbsla DESTINATION "include")

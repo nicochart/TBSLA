@@ -8,6 +8,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 include(CTest)
 enable_testing()
 
+if(TBSLA_ENABLE_OMP)
+  find_package(OpenMP REQUIRED)
+endif()
+
 add_subdirectory(cpp)
 
 if(TBSLA_ENABLE_MPI)
