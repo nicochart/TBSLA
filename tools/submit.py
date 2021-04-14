@@ -18,6 +18,9 @@ if args.op == "a_axpx" and args.NR != args.NC:
 
 machine = importlib.import_module("machine." + args.machine)
 
+if args.lang == "MPIOMP":
+  parser2 = argparse.ArgumentParser(parents=[cap.init_mpiomp()])
+  parser2.parse_args(rest, args)
 header = machine.get_header(args)
 
 ncores = machine.get_cores_per_node(args) * args.nodes
@@ -29,6 +32,10 @@ command = f'python tools/run.py'
 for k in ['resfile',  'machine', 'timeout']:
   command += f" --{k} {dict_to_pass[k]}"
 command += ' " '
+
+if args.lang == "MPIOMP":
+  header += f"export OMP_NUM_THREADS={args.threads}\n"
+  command += machine.get_mpirun(args) + " " + machine.get_mpirun_options_mpiomp(args) + " tbsla_perf_mpi_omp"
 
 if args.lang == "MPI":
   command += machine.get_mpirun(args) + f" -n {ncores} tbsla_perf_mpi"
@@ -148,5 +155,8 @@ if args.lang != "YML":
     header += command +  f'" --dic "{dict_to_pass}"\n\n'
 
   header += machine.post_processing(args) + "\n"
-  fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_nr{args.NR}_nc{args.NC}_{args.matrixtype}_{args.format}_c{args.C}_gr{args.GR}_gc{args.GC}.sh"
+  if args.lang == "MPI" or args.lang == "HPX" or args.lang == "PETSC":
+    fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_nr{args.NR}_nc{args.NC}_{args.matrixtype}_{args.format}_c{args.C}_gr{args.GR}_gc{args.GC}.sh"
+  elif args.lang == "MPIOMP":
+    fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_nr{args.NR}_nc{args.NC}_{args.matrixtype}_{args.format}_c{args.C}_gr{args.GR}_gc{args.GC}_t{args.threads}.sh"
   sub.gen_submit_cmd(machine, args, fname, header)

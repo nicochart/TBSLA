@@ -15,6 +15,9 @@ def get_mpirun(args):
 def get_mpirun_options_hpx(args):
   return "-ppn 1"
 
+def get_mpirun_options_mpiomp(args):
+  return f"-ppn {int(get_cores_per_node(args)/args.threads)} -genv OMP_NUM_THREADS={args.threads} -genv I_MPI_PIN_DOMAIN=omp"
+
 def get_submit_cmd(args):
   return "bsub <"
 
@@ -34,8 +37,12 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${INSTALL_DIR}/tbsla/lib:${INSTALL_DIR}/
 
 
 def get_header(args):
-  #ncores_per_nodes = get_cores_per_node(args)
-  ncores_per_nodes = get_cores_per_node(args) if args.lang != "HPX" else get_sockets_per_node(args)
+  if args.lang == "HPX":
+    ncores_per_nodes = get_sockets_per_node(args)
+  elif args.lang == "MPIOMP":
+    ncores_per_nodes = int(get_cores_per_node(args)/args.threads)
+  else:
+    ncores_per_nodes = get_cores_per_node(args)
   ncores = ncores_per_nodes * args.nodes
   if args.lang == "YML":
     ncores += 1

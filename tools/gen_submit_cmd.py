@@ -14,6 +14,7 @@ parser.add_argument("--NC", dest="NC", help="Matrix size (columns)", type=int, r
 parser.add_argument("--machine", dest="machine", help="Machine name", type=str, required=True)
 parser.add_argument("--YML", dest="YML", help="Generate submission commands for YML", action='store_const', default=False, const=True)
 parser.add_argument("--MPI", dest="MPI", help="Generate submission commands for MPI", action='store_const', default=False, const=True)
+parser.add_argument("--MPIOMP", dest="MPIOMP", help="Generate submission commands for MPI+OpenMP", action='store_const', default=False, const=True)
 parser.add_argument("--HPX", dest="HPX", help="Generate submission commands for HPX", action='store_const', default=False, const=True)
 args = parser.parse_args()
 
@@ -30,6 +31,7 @@ ncores = machine_informations.get_cores_per_node(None)
 CPT = [ncores // 2, ncores, 2 * ncores, 3 * ncores]
 BLOCKS = [1, 2, 4, 6, 8, 12, 16]
 CPT_BLOCKS = list(itertools.product(CPT, BLOCKS, BLOCKS))
+THREADS = [1, 2, 4, 6]
 
 walltime = 2
 
@@ -76,3 +78,9 @@ for n in NODES:
           lgc = int(gc / bgc)
           if lgc == 0 or lgr == 0 or lgc * lgr != cpt or gr != bgr * lgr or gc != bgc * lgc or cpt > n * ncores: continue
           print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang YML --wall-time {walltime} --GR {f[0]} --GC {f[1]} --CPT {cbb[0]} --BGR {cbb[1]} --BGC {cbb[2]} --LGC {lgc} --LGR {lgr} --compile')
+  if args.MPIOMP:
+    for t in THREADS:
+      factors = decomp_pairs(int(n * ncores / t))
+      for mf in formats:
+        for f in factors:
+          print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t}')

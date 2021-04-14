@@ -22,6 +22,11 @@ def init_pagerank():
   parser.add_argument("--personalized_nodes", dest="personalized_nodes", help="List of personalized nodes in double quotes and separated by spaces", type=str, required=False, default="")
   return parser
 
+def init_mpiomp():
+  parser = argparse.ArgumentParser(add_help=False)
+  parser.add_argument("--threads", dest="threads", help="Number of threads per MPI process", type=int, required=True)
+  return parser
+
 def init_yml():
   parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument("--CPT", dest="CPT", help="Cores per task", type=int, required=True)

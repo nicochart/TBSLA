@@ -15,6 +15,9 @@ def get_mpirun(args):
 def get_mpirun_options_hpx(args):
   return f"-n {args.nodes}"
 
+def get_mpirun_options_mpiomp(args):
+  return f"-n {int(args.nodes * get_cores_per_node(args) / args.threads)}"
+
 def get_submit_cmd(args):
   return "llsubmit"
 
