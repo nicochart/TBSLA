@@ -74,10 +74,13 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 
 std::vector<double> tbsla::cpp::MatrixSCOO::spmv(const std::vector<double> &v, int vect_incr) const {
   std::vector<double> r (this->ln_row, 0);
-  double *results = r.data();
-  #pragma omp parallel for reduction(+: results[:this->ln_row])
+  // https://stackoverflow.com/questions/43168661/openmp-and-reduction-on-stdvector
+  #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
+                    std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
+                    initializer(omp_priv = decltype(omp_orig)(omp_orig.size()))
+  #pragma omp parallel for reduction(vec_double_plus: r)
   for (int i = 0; i < this->values.size(); i++) {
-     results[this->row[i] + vect_incr - this->f_row] += this->values[i] * v[this->col[i] - this->f_col];
+     r[this->row[i] + vect_incr - this->f_row] += this->values[i] * v[this->col[i] - this->f_col];
   }
   return r;
 }
