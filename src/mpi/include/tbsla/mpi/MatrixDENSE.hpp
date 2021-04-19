@@ -22,6 +22,7 @@ class MatrixDENSE : public tbsla::cpp::MatrixDENSE, public tbsla::mpi::Matrix {
     using tbsla::cpp::MatrixDENSE::fill_cqmat;
     using tbsla::cpp::MatrixDENSE::read;
     using tbsla::cpp::MatrixDENSE::write;
+    using tbsla::mpi::Matrix::spmv_no_redist;
 };
 
 }}

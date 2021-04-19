@@ -26,6 +26,10 @@ long int const tbsla::mpi::Matrix::compute_max_nnz(MPI_Comm comm) {
   return nnz;
 }
 
+std::vector<double> tbsla::mpi::Matrix::spmv_no_redist(MPI_Comm comm, const std::vector<double> &v, int vect_incr) {
+  return this->spmv(v, vect_incr);
+}
+
 std::vector<double> tbsla::mpi::Matrix::page_rank(MPI_Comm comm, double beta, double epsilon, int max_iterations, int &nb_iterations_done){
   int proc_rank;
   MPI_Comm_rank(comm, &proc_rank);

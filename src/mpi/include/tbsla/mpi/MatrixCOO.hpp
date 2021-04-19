@@ -25,6 +25,7 @@ class MatrixCOO : public tbsla::cpp::MatrixCOO, public virtual tbsla::mpi::Matri
     using tbsla::cpp::MatrixCOO::fill_cqmat;
     using tbsla::cpp::MatrixCOO::read;
     using tbsla::cpp::MatrixCOO::write;
+    using tbsla::mpi::Matrix::spmv_no_redist;
 };
 
 }}

@@ -22,6 +22,7 @@ class MatrixCSR : public tbsla::cpp::MatrixCSR, public tbsla::mpi::Matrix {
     using tbsla::cpp::MatrixCSR::fill_cqmat;
     using tbsla::cpp::MatrixCSR::read;
     using tbsla::cpp::MatrixCSR::write;
+    using tbsla::mpi::Matrix::spmv_no_redist;
 };
 
 }}
