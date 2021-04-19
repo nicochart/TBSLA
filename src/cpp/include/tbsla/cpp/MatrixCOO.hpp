@@ -2,7 +2,6 @@
 #define TBSLA_CPP_MatrixCOO
 
 #include <tbsla/cpp/Matrix.hpp>
-#include <tbsla/cpp/MatrixCSR.hpp>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -16,6 +15,9 @@ class MatrixCOO : public virtual Matrix {
     MatrixCOO(int n_row, int n_col, long int n_values);
     MatrixCOO(int n_row, int n_col);
     MatrixCOO() : values(0), row(0), col(0) {};
+    const std::vector<double>& get_values() const { return values; }
+    const std::vector<int>& get_row() const { return row; }
+    const std::vector<int>& get_col() const { return col; }
     std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
     using tbsla::cpp::Matrix::a_axpx_;
     void push_back(int r, int c, double v);
@@ -26,7 +28,6 @@ class MatrixCOO : public virtual Matrix {
     std::istream & read(std::istream &is, std::size_t pos = 0, std::size_t n = 1);
     std::ostream& print(std::ostream& os) const;
 
-    MatrixCSR toCSR();
     void fill_cdiag(int n_row, int n_col, int cdiag, int pr = 0, int pc = 0, int NR = 1, int NC = 1);
     void fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult = 1, int pr = 0, int pc = 0, int NR = 1, int NC = 1);
     void fill_cqmat_stochastic(int n_row, int n_col, int c, double q, unsigned int seed_mult = 1, int pr = 0, int pc = 0, int NR = 1, int NC = 1);

@@ -14,13 +14,13 @@ class Matrix {
     std::vector<double> & saxpy(const std::vector<double> &x, std::vector<double> &y);
     std::vector<double> page_rank(double epsilon, double beta, int max_iteration, int& nb_iterations_done);
     std::vector<double> personalized_page_rank(double epsilon, double beta, int max_iteration, std::vector<int> personalized_nodes, int& nb_iterations_done);
-    int const get_n_row() {return n_row;}
-    int const get_n_col() {return n_col;}
-    int const get_f_row() {return f_row;}
-    int const get_f_col() {return f_col;}
-    int const get_ln_row() {return ln_row;}
-    int const get_ln_col() {return ln_col;}
-    long int const get_nnz() {return nnz;};
+    int get_n_row() const {return n_row;}
+    int get_n_col() const {return n_col;}
+    int get_f_row() const {return f_row;}
+    int get_f_col() const {return f_col;}
+    int get_ln_row() const {return ln_row;}
+    int get_ln_col() const {return ln_col;}
+    long int get_nnz() const {return nnz;};
 
     virtual std::ostream & print_stats(std::ostream &os) = 0;
     virtual std::ostream & print_infos(std::ostream &os) = 0;

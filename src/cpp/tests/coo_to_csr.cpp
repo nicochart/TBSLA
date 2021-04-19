@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
   tbsla::cpp::MatrixCOO m(7, 7, values, row, col);
   std::cout << m << std::endl;
 
-  tbsla::cpp::MatrixCSR m2 = m.toCSR();
+  tbsla::cpp::MatrixCSR m2(m);
 
   std::cout << m2 << std::endl;
 

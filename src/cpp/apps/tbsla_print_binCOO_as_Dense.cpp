@@ -11,6 +11,7 @@ int main(int argc, char** argv) {
     tbsla::cpp::MatrixCOO mcoo;
     mcoo.read(is);
     is.close();
+    tbsla::cpp::MatrixCSR mcsr(mcoo);
     mcoo.print_stats(std::cout);
     mcoo.print_infos(std::cout);
     std::cout << "--------------" << std::endl;
@@ -18,6 +19,6 @@ int main(int argc, char** argv) {
     std::cout << "--------------" << std::endl;
     mcoo.print_as_dense(std::cout) << std::endl;
     std::cout << "------CSR-----" << std::endl;
-    std::cout << mcoo.toCSR() << std::endl;
+    std::cout << mcsr << std::endl;
   }
 }

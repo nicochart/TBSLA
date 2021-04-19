@@ -2,7 +2,6 @@
 #include <tbsla/cpp/utils/vector.hpp>
 #include <tbsla/cpp/utils/values_generation.hpp>
 #include <tbsla/cpp/utils/range.hpp>
-#include <tbsla/cpp/utils/csr.hpp>
 #include <numeric>
 #include <algorithm>
 #include <cassert>
@@ -189,43 +188,6 @@ std::istream & tbsla::cpp::MatrixCOO::read(std::istream &is, std::size_t pos, st
   this->col.resize(size);
   is.read(reinterpret_cast<char*>(this->col.data()), size * sizeof(int));
   return is;
-}
-
-tbsla::cpp::MatrixCSR tbsla::cpp::MatrixCOO::toCSR() {
-  std::vector<int> p(this->values.size());
-  std::iota(p.begin(), p.end(), 0);
-  std::sort(p.begin(), p.end(), [&](unsigned i, unsigned j){ return tbsla::cpp::utils::csr::compare_row(this->row, this->col, i, j); });
-
-  std::vector<int> pr = tbsla::cpp::utils::csr::applyPermutation<int>(p, this->row);
-  std::vector<int> pc = tbsla::cpp::utils::csr::applyPermutation<int>(p, this->col);
-  std::vector<double> pv = tbsla::cpp::utils::csr::applyPermutation<double>(p, this->values);
-
-  if(this->values.size() == 0) {
-    std::vector<int> cr(this->n_row + 1, 0);
-    return tbsla::cpp::MatrixCSR(this->n_row, this->n_col, pv, cr, pc);
-  }
-
-  std::vector<int> cr(this->n_row + 1);
-  cr[0] = 0;
-  size_t incr = 1;
-  for(int i = 0; i < pr[0]; i++) {
-    incr++;
-    cr[incr] = 0;
-  }
-  for(int i = 0; i < pr.size() - 1; i++) {
-    cr[incr]++;
-    if(pr[i] != pr[i + 1]) {
-      for(int j = 0; j < pr[i + 1] - pr[i]; j++) {
-        incr++;
-        cr[incr] = cr[incr - 1];
-      }
-    }
-  }
-  cr[incr]++;
-  for(int i = incr; i < this->n_row; i++) {
-    cr[i + 1] = cr[i];
-  }
-  return tbsla::cpp::MatrixCSR(this->n_row, this->n_col, pv, cr, pc);
 }
 
 void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int pr, int pc, int NR, int NC) {

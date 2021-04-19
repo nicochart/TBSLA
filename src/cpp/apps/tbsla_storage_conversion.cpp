@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
     mcoo.print_stats(std::cout);
     mcoo.print_infos(std::cout);
 
-    tbsla::cpp::MatrixCSR mcsr = mcoo.toCSR();
+    tbsla::cpp::MatrixCSR mcsr(mcoo);
     std::ofstream os(std::string(argv[2]), std::ofstream::binary);
     mcsr.write(os);
     os.close();

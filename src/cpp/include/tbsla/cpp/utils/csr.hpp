@@ -9,7 +9,7 @@ namespace tbsla { namespace cpp { namespace utils { namespace csr {
 template <typename T>
 std::vector<T> applyPermutation(
     const std::vector<int>& order,
-    std::vector<T>& t)
+    const std::vector<T>& t)
 {
     assert(order.size() == t.size());
     std::vector<T> st(t.size());

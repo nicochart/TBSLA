@@ -1,7 +1,10 @@
 #include <tbsla/cpp/MatrixCSR.hpp>
+#include <tbsla/cpp/MatrixCOO.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
 #include <tbsla/cpp/utils/values_generation.hpp>
 #include <tbsla/cpp/utils/range.hpp>
+#include <tbsla/cpp/utils/csr.hpp>
+#include <numeric>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -18,6 +21,49 @@ tbsla::cpp::MatrixCSR::MatrixCSR(int n_row, int n_col, std::vector<double> & val
   this->f_row = 0;
   this->f_col = 0;
 }
+
+tbsla::cpp::MatrixCSR::MatrixCSR(const tbsla::cpp::MatrixCOO & m) {
+  this->n_row = m.get_n_row();
+  this->n_col = m.get_n_col();
+  this->ln_row = m.get_n_row();
+  this->ln_col = m.get_n_col();
+  this->f_row = m.get_f_row();
+  this->f_col = m.get_f_col();
+
+  std::vector<int> p(m.get_values().size());
+  std::iota(p.begin(), p.end(), 0);
+  std::sort(p.begin(), p.end(), [&](unsigned i, unsigned j){ return tbsla::cpp::utils::csr::compare_row(m.get_row(), m.get_col(), i, j); });
+
+  std::vector<int> pr = tbsla::cpp::utils::csr::applyPermutation<int>(p, m.get_row());
+  this->colidx = tbsla::cpp::utils::csr::applyPermutation<int>(p, m.get_col());
+  this->values = tbsla::cpp::utils::csr::applyPermutation<double>(p, m.get_values());
+
+  if(m.get_values().size() == 0) {
+    this->rowptr = std::vector<int>(this->n_row + 1, 0);
+  } else {
+    this->rowptr = std::vector<int>(this->n_row + 1);
+    this->rowptr[0] = 0;
+    size_t incr = 1;
+    for(int i = 0; i < pr[0]; i++) {
+      incr++;
+      this->rowptr[incr] = 0;
+    }
+    for(int i = 0; i < pr.size() - 1; i++) {
+      this->rowptr[incr]++;
+      if(pr[i] != pr[i + 1]) {
+        for(int j = 0; j < pr[i + 1] - pr[i]; j++) {
+          incr++;
+          this->rowptr[incr] = this->rowptr[incr - 1];
+        }
+      }
+    }
+    this->rowptr[incr]++;
+    for(int i = incr; i < this->n_row; i++) {
+      this->rowptr[i + 1] = this->rowptr[i];
+    }
+  }
+}
+
 
 std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::MatrixCSR &m) {
   return m.print(os);

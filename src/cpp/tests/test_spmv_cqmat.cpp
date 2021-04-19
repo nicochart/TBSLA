@@ -41,8 +41,7 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
     exit(1);
   }
 
-  tbsla::cpp::MatrixCSR mcsr;
-  mcsr = mcoo.toCSR();
+  tbsla::cpp::MatrixCSR mcsr(mcoo);
   std::vector<double> rcsr = mcsr.spmv(v);
   if(rcoo != rcsr) {
     print(mcoo);

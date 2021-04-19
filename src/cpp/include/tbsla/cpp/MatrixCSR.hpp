@@ -2,6 +2,7 @@
 #define TBSLA_CPP_MatrixCSR
 
 #include <tbsla/cpp/Matrix.hpp>
+#include <tbsla/cpp/MatrixCOO.hpp>
 #include <iostream>
 #include <vector>
 
@@ -11,6 +12,7 @@ class MatrixCSR : public virtual Matrix {
   public:
     friend std::ostream & operator<<( std::ostream &os, const MatrixCSR &m);
     MatrixCSR(int n_row, int n_col, std::vector<double> & values, std::vector<int> & rowptr, std::vector<int> & colidx);
+    MatrixCSR(const tbsla::cpp::MatrixCOO & m);
     MatrixCSR() : values(0), rowptr(0), colidx(0) {};
     std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
     using tbsla::cpp::Matrix::a_axpx_;

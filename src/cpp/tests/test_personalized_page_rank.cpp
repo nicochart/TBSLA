@@ -42,8 +42,7 @@ void test_personalized_page_rank(int nr, int nc, int c, double q, double s, doub
     exit(1);
   }
 
-  tbsla::cpp::MatrixCSR mcsr;
-  mcsr = mcoo.toCSR();
+  tbsla::cpp::MatrixCSR mcsr(mcoo);
   std::vector<double> rcsr = mcsr.personalized_page_rank(beta, epsilon, max_iterations, personalized_nodes, nb_iterations_done);
   if(tbsla::utils::vector::compare_vectors(rcoo, rcsr)) {
     print(mcoo);
