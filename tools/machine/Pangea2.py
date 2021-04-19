@@ -16,7 +16,7 @@ def get_mpirun_options_hpx(args):
   return "-ppn 1"
 
 def get_mpirun_options_mpiomp(args):
-  return f"-ppn {int(get_cores_per_node(args)/args.threads)} -genv OMP_NUM_THREADS={args.threads} -genv I_MPI_PIN_DOMAIN=omp"
+  return f"-ppn {int(get_cores_per_node(args)/args.threads)} -genv OMP_NUM_THREADS={args.threads}"
 
 def get_submit_cmd(args):
   return "bsub <"
