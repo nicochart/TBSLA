@@ -10,9 +10,9 @@ add_executable(tbsla_mm_to_binCOO tbsla_mm_to_binCOO.cpp)
 target_link_libraries(tbsla_mm_to_binCOO PRIVATE tbsla)
 install(TARGETS tbsla_mm_to_binCOO DESTINATION bin)
 
-add_executable(tbsla_binCOO_to_binCSR tbsla_binCOO_to_binCSR.cpp)
-target_link_libraries(tbsla_binCOO_to_binCSR PRIVATE tbsla)
-install(TARGETS tbsla_binCOO_to_binCSR DESTINATION bin)
+add_executable(tbsla_storage_conversion tbsla_storage_conversion.cpp)
+target_link_libraries(tbsla_storage_conversion PRIVATE tbsla)
+install(TARGETS tbsla_storage_conversion DESTINATION bin)
 
 add_executable(tbsla_print_binCOO_as_Dense tbsla_print_binCOO_as_Dense.cpp)
 target_link_libraries(tbsla_print_binCOO_as_Dense PRIVATE tbsla)
