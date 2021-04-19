@@ -71,9 +71,11 @@ std::vector<double> tbsla::cpp::MatrixCSR::spmv(const std::vector<double> &v, in
     return r;
   #pragma omp parallel for
   for (int i = 0; i < this->rowptr.size() - 1; i++) {
+    double tmp = 0;
     for (int j = this->rowptr[i] - this->rowptr.front(); j < this->rowptr[i + 1] - this->rowptr.front(); j++) {
-       r[i] += this->values[j] * v[this->colidx[j] - this->f_col];
+       tmp += this->values[j] * v[this->colidx[j] - this->f_col];
     }
+    r[i] = tmp;
   }
   return r;
 }

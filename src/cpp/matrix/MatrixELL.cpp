@@ -53,11 +53,13 @@ std::vector<double> tbsla::cpp::MatrixELL::spmv(const std::vector<double> &v, in
     return r;
   #pragma omp parallel for
   for (int i = 0; i < std::min((size_t)this->ln_row, this->values.size() / this->max_col); i++) {
+    double tmp = 0;
     for (int j = 0; j < this->max_col; j++) {
       int idx = this->columns[i * this->max_col + j] - this->f_col;
       if(idx < 0) idx = 0;
-      r[i] += this->values[i * this->max_col + j] * v[idx];
+      tmp += this->values[i * this->max_col + j] * v[idx];
     }
+    r[i] = tmp;
   }
   return r;
 }
