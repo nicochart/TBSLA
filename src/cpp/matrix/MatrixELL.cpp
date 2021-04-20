@@ -2,11 +2,52 @@
 #include <tbsla/cpp/utils/vector.hpp>
 #include <tbsla/cpp/utils/values_generation.hpp>
 #include <tbsla/cpp/utils/range.hpp>
+#include <tbsla/cpp/utils/csr.hpp>
 #include <numeric>
 #include <algorithm>
 #include <iostream>
 #include <vector>
 #include <string>
+
+tbsla::cpp::MatrixELL::MatrixELL(const tbsla::cpp::MatrixCOO & m) {
+  this->n_row = m.get_n_row();
+  this->n_col = m.get_n_col();
+  this->ln_row = m.get_n_row();
+  this->ln_col = m.get_n_col();
+  this->f_row = m.get_f_row();
+  this->f_col = m.get_f_col();
+  this->nnz = m.get_nnz();
+
+
+  if(m.get_values().size() == 0) {
+    this->max_col = 0;
+    this->nnz = 0;
+  } else {
+    std::vector<int> permutations(m.get_values().size());
+    std::iota(permutations.begin(), permutations.end(), 0);
+    std::sort(permutations.begin(), permutations.end(), [&](unsigned i, unsigned j){ return tbsla::cpp::utils::csr::compare_row(m.get_row(), m.get_col(), i, j); });
+
+    std::vector<int> srow = tbsla::cpp::utils::csr::applyPermutation<int>(permutations, m.get_row());
+    std::vector<int> scol = tbsla::cpp::utils::csr::applyPermutation<int>(permutations, m.get_col());
+    std::vector<double> sval = tbsla::cpp::utils::csr::applyPermutation<double>(permutations, m.get_values());
+
+    std::vector<int> nvrow(this->n_row, 0);
+    for(int i = 0; i < srow.size(); i++) {
+      nvrow[srow[i]]++;
+    }
+    this->max_col = *std::max_element(nvrow.begin(), nvrow.end());
+    this->values = std::vector<double>(this->n_row * this->max_col, 0);
+    this->columns = std::vector<int>(this->n_row * this->max_col, 0);
+    std::size_t incr = 0;
+    for(int i = 0; i < this->n_row; i++) {
+      for(int j = 0; j < nvrow[i]; j++) {
+        this->values[i * this->max_col + j] = sval[incr];
+        this->columns[i * this->max_col + j] = scol[incr];
+        incr++;
+      }
+    }
+  }
+}
 
 std::ostream& tbsla::cpp::MatrixELL::print(std::ostream& os) const {
   os << "-----------------" << std::endl;

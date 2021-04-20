@@ -72,8 +72,7 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
     exit(1);
   }
 
-  tbsla::cpp::MatrixELL mell;
-  mell.fill_cqmat(nr, nc, c, q, s);
+  tbsla::cpp::MatrixELL mell(mcoo);
   std::vector<double> rell = mell.spmv(v);
   if(rcoo != rell) {
     print(mcoo);
@@ -84,6 +83,22 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
     tbsla::utils::vector::streamvector<double>(std::cout, "rcoo", rcoo);
     std::cout << std::endl;
     tbsla::utils::vector::streamvector<double>(std::cout, "rell", rell);
+    std::cout << std::endl;
+    exit(1);
+  }
+
+  tbsla::cpp::MatrixELL mell2;
+  mell2.fill_cqmat(nr, nc, c, q, s);
+  std::vector<double> rell2 = mell2.spmv(v);
+  if(rcoo != rell2) {
+    print(mcoo);
+    mcoo.print_as_dense(std::cout);
+    print(mell);
+    tbsla::utils::vector::streamvector<double>(std::cout, "v", v);
+    std::cout << std::endl;
+    tbsla::utils::vector::streamvector<double>(std::cout, "rcoo", rcoo);
+    std::cout << std::endl;
+    tbsla::utils::vector::streamvector<double>(std::cout, "rell2", rell2);
     std::cout << std::endl;
     exit(1);
   }

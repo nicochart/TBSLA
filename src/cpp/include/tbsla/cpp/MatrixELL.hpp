@@ -2,6 +2,7 @@
 #define TBSLA_CPP_MatrixELL
 
 #include <tbsla/cpp/Matrix.hpp>
+#include <tbsla/cpp/MatrixCOO.hpp>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -11,6 +12,7 @@ namespace tbsla { namespace cpp {
 class MatrixELL : public virtual Matrix {
   public:
     MatrixELL() : values(0), columns(0), max_col(0) {};
+    MatrixELL(const tbsla::cpp::MatrixCOO & m);
     friend std::ostream & operator<<( std::ostream &os, const MatrixELL &m);
     std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
     using tbsla::cpp::Matrix::a_axpx_;
