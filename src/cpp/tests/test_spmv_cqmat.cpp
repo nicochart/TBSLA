@@ -25,8 +25,7 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
   mcoo.fill_cqmat(nr, nc, c, q, s);
   std::vector<double> rcoo = mcoo.spmv(v);
 
-  tbsla::cpp::MatrixSCOO mscoo;
-  mscoo.fill_cqmat(nr, nc, c, q, s);
+  tbsla::cpp::MatrixSCOO mscoo(mcoo);
   std::vector<double> rscoo = mscoo.spmv(v);
   if(rcoo != rscoo) {
     print(mcoo);
@@ -37,6 +36,22 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
     tbsla::utils::vector::streamvector<double>(std::cout, "rcoo", rcoo);
     std::cout << std::endl;
     tbsla::utils::vector::streamvector<double>(std::cout, "rscoo", rscoo);
+    std::cout << std::endl;
+    exit(1);
+  }
+
+  tbsla::cpp::MatrixSCOO mscoo2;
+  mscoo2.fill_cqmat(nr, nc, c, q, s);
+  std::vector<double> rscoo2 = mscoo2.spmv(v);
+  if(rcoo != rscoo2) {
+    print(mcoo);
+    mcoo.print_as_dense(std::cout);
+    print(mscoo);
+    tbsla::utils::vector::streamvector<double>(std::cout, "v", v);
+    std::cout << std::endl;
+    tbsla::utils::vector::streamvector<double>(std::cout, "rcoo", rcoo);
+    std::cout << std::endl;
+    tbsla::utils::vector::streamvector<double>(std::cout, "rscoo2", rscoo2);
     std::cout << std::endl;
     exit(1);
   }

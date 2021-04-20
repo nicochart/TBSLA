@@ -2,7 +2,7 @@
 #define TBSLA_CPP_MatrixSCOO
 
 #include <tbsla/cpp/Matrix.hpp>
-#include <tbsla/cpp/MatrixCSR.hpp>
+#include <tbsla/cpp/MatrixCOO.hpp>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -16,6 +16,7 @@ class MatrixSCOO : public virtual Matrix {
     MatrixSCOO(int n_row, int n_col, int n_values);
     MatrixSCOO(int n_row, int n_col);
     MatrixSCOO() : values(0), row(0), col(0) {};
+    MatrixSCOO(const tbsla::cpp::MatrixCOO & m);
     std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
     using tbsla::cpp::Matrix::a_axpx_;
     void push_back(int r, int c, double v);
@@ -26,7 +27,6 @@ class MatrixSCOO : public virtual Matrix {
     std::istream & read(std::istream &is, std::size_t pos = 0, std::size_t n = 1);
     std::ostream& print(std::ostream& os) const;
 
-    MatrixCSR toCSR();
     void fill_cdiag(int n_row, int n_col, int cdiag, int pr = 0, int pc = 0, int NR = 1, int NC = 1);
     void fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult = 1, int pr = 0, int pc = 0, int NR = 1, int NC = 1);
     void fill_cqmat_stochastic(int n_row, int n_col, int c, double q, unsigned int seed_mult = 1, int pr = 0, int pc = 0, int NR = 1, int NC = 1);
