@@ -118,8 +118,7 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
     exit(1);
   }
 
-  tbsla::cpp::MatrixDENSE mdense;
-  mdense.fill_cqmat(nr, nc, c, q, s);
+  tbsla::cpp::MatrixDENSE mdense(mcoo);
   std::vector<double> rdense = mdense.spmv(v);
   if(rcoo != rdense) {
     print(mcoo);
@@ -130,6 +129,22 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
     tbsla::utils::vector::streamvector<double>(std::cout, "rcoo", rcoo);
     std::cout << std::endl;
     tbsla::utils::vector::streamvector<double>(std::cout, "rdense", rdense);
+    std::cout << std::endl;
+    exit(1);
+  }
+
+  tbsla::cpp::MatrixDENSE mdense2;
+  mdense2.fill_cqmat(nr, nc, c, q, s);
+  std::vector<double> rdense2 = mdense2.spmv(v);
+  if(rcoo != rdense2) {
+    print(mcoo);
+    mcoo.print_as_dense(std::cout);
+    print(mdense);
+    tbsla::utils::vector::streamvector<double>(std::cout, "v", v);
+    std::cout << std::endl;
+    tbsla::utils::vector::streamvector<double>(std::cout, "rcoo", rcoo);
+    std::cout << std::endl;
+    tbsla::utils::vector::streamvector<double>(std::cout, "rdense2", rdense2);
     std::cout << std::endl;
     exit(1);
   }

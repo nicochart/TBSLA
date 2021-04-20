@@ -2,6 +2,7 @@
 #define TBSLA_CPP_MatrixDENSE
 
 #include <tbsla/cpp/Matrix.hpp>
+#include <tbsla/cpp/MatrixCOO.hpp>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -11,6 +12,7 @@ namespace tbsla { namespace cpp {
 class MatrixDENSE : public virtual Matrix {
   public:
     MatrixDENSE() : values(0) {};
+    MatrixDENSE(const tbsla::cpp::MatrixCOO & m);
     friend std::ostream & operator<<( std::ostream &os, const MatrixDENSE &m);
     std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
     using tbsla::cpp::Matrix::a_axpx_;

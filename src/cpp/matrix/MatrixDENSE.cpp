@@ -8,6 +8,21 @@
 #include <vector>
 #include <string>
 
+tbsla::cpp::MatrixDENSE::MatrixDENSE(const tbsla::cpp::MatrixCOO & m) {
+  this->n_row = m.get_n_row();
+  this->n_col = m.get_n_col();
+  this->ln_row = m.get_n_row();
+  this->ln_col = m.get_n_col();
+  this->f_row = m.get_f_row();
+  this->f_col = m.get_f_col();
+  this->nnz = m.get_nnz();
+
+  this->values = std::vector<double>(this->ln_row * this->ln_col, 0);
+  for(int i = 0; i < m.get_values().size(); i++) {
+    this->values[m.get_row()[i] * this->ln_col + m.get_col()[i]] += m.get_values()[i];
+  }
+}
+
 std::ostream& tbsla::cpp::MatrixDENSE::print(std::ostream& os) const {
   os << "-----------------" << std::endl;
   os << "----- DENSE -----" << std::endl;

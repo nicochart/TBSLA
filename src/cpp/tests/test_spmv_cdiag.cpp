@@ -65,9 +65,12 @@ void test_cdiag(int nr, int nc, int c) {
   mell2.fill_cdiag(nr, nc, c);
   test_matrix(mell2, c);
 
-  tbsla::cpp::MatrixDENSE mdense;
-  mdense.fill_cdiag(nr, nc, c);
+  tbsla::cpp::MatrixDENSE mdense(mcoo);
   test_matrix(mdense, c);
+
+  tbsla::cpp::MatrixDENSE mdense2;
+  mdense2.fill_cdiag(nr, nc, c);
+  test_matrix(mdense2, c);
 }
 
 int main(int argc, char** argv) {
