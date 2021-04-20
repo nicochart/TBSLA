@@ -29,6 +29,7 @@ tbsla::cpp::MatrixCSR::MatrixCSR(const tbsla::cpp::MatrixCOO & m) {
   this->ln_col = m.get_n_col();
   this->f_row = m.get_f_row();
   this->f_col = m.get_f_col();
+  this->nnz = m.get_nnz();
 
   std::vector<int> p(m.get_values().size());
   std::iota(p.begin(), p.end(), 0);
