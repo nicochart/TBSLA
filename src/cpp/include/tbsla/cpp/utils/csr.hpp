@@ -20,7 +20,7 @@ std::vector<T> applyPermutation(
     return st;
 }
 
-bool compare_row(std::vector<int> row, std::vector<int> col, unsigned i, unsigned j);
+bool compare_row(const std::vector<int> & row, const std::vector<int> & col, unsigned i, unsigned j);
 
 }}}}
 
