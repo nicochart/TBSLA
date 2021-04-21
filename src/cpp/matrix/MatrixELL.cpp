@@ -16,6 +16,10 @@ tbsla::cpp::MatrixELL::MatrixELL(const tbsla::cpp::MatrixCOO & m) {
   this->ln_col = m.get_n_col();
   this->f_row = m.get_f_row();
   this->f_col = m.get_f_col();
+  this->pr = m.get_pr();
+  this->pc = m.get_pc();
+  this->NR = m.get_NR();
+  this->NC = m.get_NC();
   this->nnz = m.get_nnz();
 
 

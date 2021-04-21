@@ -19,11 +19,21 @@ tbsla::cpp::MatrixSCOO::MatrixSCOO(int n_row, int n_col, std::vector<double> & v
   this->ln_col = n_col;
   this->f_row = 0;
   this->f_col = 0;
+  this->pr = 0;
+  this->pc = 0;
+  this->NR = 1;
+  this->NC = 1;
 }
 
 tbsla::cpp::MatrixSCOO::MatrixSCOO(int n_row, int n_col, int n_values) {
   this->n_row = n_row;
   this->n_col = n_col;
+  this->f_row = 0;
+  this->f_col = 0;
+  this->pr = 0;
+  this->pc = 0;
+  this->NR = 1;
+  this->NC = 1;
   this->values.reserve(n_values);
   this->row.reserve(n_values);
   this->col.reserve(n_values);
@@ -32,6 +42,12 @@ tbsla::cpp::MatrixSCOO::MatrixSCOO(int n_row, int n_col, int n_values) {
 tbsla::cpp::MatrixSCOO::MatrixSCOO(int n_row, int n_col) {
   this->n_row = n_row;
   this->n_col = n_col;
+  this->f_row = 0;
+  this->f_col = 0;
+  this->pr = 0;
+  this->pc = 0;
+  this->NR = 1;
+  this->NC = 1;
 }
 
 tbsla::cpp::MatrixSCOO::MatrixSCOO(const tbsla::cpp::MatrixCOO & m) {
@@ -41,6 +57,10 @@ tbsla::cpp::MatrixSCOO::MatrixSCOO(const tbsla::cpp::MatrixCOO & m) {
   this->ln_col = m.get_n_col();
   this->f_row = m.get_f_row();
   this->f_col = m.get_f_col();
+  this->pr = m.get_pr();
+  this->pc = m.get_pc();
+  this->NR = m.get_NR();
+  this->NC = m.get_NC();
   this->nnz = m.get_nnz();
   this->row = std::vector<int>(m.get_row());
   this->col = std::vector<int>(m.get_col());

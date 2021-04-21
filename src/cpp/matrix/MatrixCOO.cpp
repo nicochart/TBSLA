@@ -19,11 +19,23 @@ tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col, std::vector<double> & val
   this->ln_col = n_col;
   this->f_row = 0;
   this->f_col = 0;
+  this->pr = 0;
+  this->pc = 0;
+  this->NR = 1;
+  this->NC = 1;
 }
 
 tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col, long int n_values) {
   this->n_row = n_row;
   this->n_col = n_col;
+  this->ln_row = n_row;
+  this->ln_col = n_col;
+  this->f_row = 0;
+  this->f_col = 0;
+  this->pr = 0;
+  this->pc = 0;
+  this->NR = 1;
+  this->NC = 1;
   this->values.reserve(n_values);
   this->row.reserve(n_values);
   this->col.reserve(n_values);
@@ -32,6 +44,14 @@ tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col, long int n_values) {
 tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col) {
   this->n_row = n_row;
   this->n_col = n_col;
+  this->ln_row = n_row;
+  this->ln_col = n_col;
+  this->f_row = 0;
+  this->f_col = 0;
+  this->pr = 0;
+  this->pc = 0;
+  this->NR = 1;
+  this->NC = 1;
 }
 
 std::ostream& tbsla::cpp::MatrixCOO::print_as_dense(std::ostream& os) {
