@@ -46,6 +46,7 @@ tbsla::cpp::MatrixCOO readMM(std::string fname) {
           is >> v;
           m.push_back(r - 1, c - 1, v);
         }
+        m.update_nnz();
         return m;
       } else if(splits[4].compare(std::string("symmetric")) == 0) {
         while(line.rfind("%", 0) == 0) {
@@ -68,6 +69,7 @@ tbsla::cpp::MatrixCOO readMM(std::string fname) {
           if(r != c)
             m.push_back(c - 1, r - 1, v);
         }
+        m.update_nnz();
         return m;
       }
     }

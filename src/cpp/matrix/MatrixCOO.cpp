@@ -115,6 +115,13 @@ void tbsla::cpp::MatrixCOO::push_back(int r, int c, double v) {
   this->col.push_back(c);
 }
 
+void tbsla::cpp::MatrixCOO::update_nnz() {
+  this->values.shrink_to_fit();
+  this->col.shrink_to_fit();
+  this->row.shrink_to_fit();
+  this->nnz = values.size();
+}
+
 std::ostream & tbsla::cpp::MatrixCOO::print_infos(std::ostream &os) {
   os << "-----------------" << std::endl;
   os << "------ COO ------" << std::endl;
