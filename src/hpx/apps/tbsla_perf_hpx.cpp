@@ -14,6 +14,7 @@
 int hpx_main(hpx::program_options::variables_map& vm)
 {
   std::string format = vm["format"].as<std::string>();
+  std::string matrix = vm["matrix"].as<std::string>();
   std::string op = vm["op"].as<std::string>();
   std::uint64_t GR = vm["GR"].as<std::uint64_t>();
   std::uint64_t GC = vm["GC"].as<std::uint64_t>();
@@ -34,12 +35,8 @@ int hpx_main(hpx::program_options::variables_map& vm)
     return hpx::finalize();
   }
 
-  if(!vm.count("cdiag") && !vm.count("cqmat")) {
-    std::cerr << "No matrix type has been given (--cdiag or --cqmat)." << std::endl;
-    return hpx::finalize();
-  }
-  if(vm.count("cdiag") && vm.count("cqmat")) {
-    std::cerr << "Several matrix types cannot be given at the same time" << std::endl;
+  if(matrix != "cdiag" && matrix != "cqmat") {
+    std::cerr << "No matrix type has been given by --matrix matrix" << std::endl;
     return hpx::finalize();
   }
   if(op == "") {
@@ -69,9 +66,9 @@ int hpx_main(hpx::program_options::variables_map& vm)
   }
 
   std::uint64_t t_app_start = hpx::util::high_resolution_clock::now();
-  if(vm.count("cdiag")) {
+  if(matrix == "cdiag") {
     m->fill_cdiag(localities, NR, NC, C, GR, GC);
-  } else if(vm.count("cqmat")) {
+  } else if(matrix == "cqmat") {
     m->fill_cqmat(localities, NR, NC, C, Q, S, GR, GC);
   }
   m->wait();
@@ -105,10 +102,10 @@ int hpx_main(hpx::program_options::variables_map& vm)
   outmap["time_app_in"] = std::to_string((t_app_end - t_app_start) / 1e9);
   outmap["time_op"] = std::to_string((t_op_end - t_op_start) / 1e9);
   outmap["lang"] = "HPX";
-  if(vm.count("cdiag")) {
+  if(matrix == "cdiag") {
     outmap["matrix_type"] = "cdiag";
     outmap["cdiag_c"] = std::to_string(C);
-  } else if(vm.count("cqmat")) {
+  } else if(matrix == "cqmat") {
     outmap["matrix_type"] = "cqmat";
     outmap["cqmat_c"] = std::to_string(C);
     outmap["cqmat_q"] = std::to_string(Q);

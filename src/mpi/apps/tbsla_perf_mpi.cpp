@@ -54,19 +54,21 @@ int main(int argc, char** argv) {
     exit(99);
   }
 
-  if(input.has_opt("--cdiag")) {
+  std::string matrix = input.get_opt("--matrix");
+  std::string matrix_folder = input.get_opt("--matrix_folder", ".");
+  if(matrix == "cdiag") {
     std::string c_string = input.get_opt("--C", "8");
     C = std::stoi(c_string);
-  } else if(input.has_opt("--cqmat")) {
+  } else if(matrix == "cqmat") {
     std::string c_string = input.get_opt("--C", "8");
     C = std::stoi(c_string);
     std::string q_string = input.get_opt("--Q", "0.1");
     Q = std::stod(q_string);
     std::string s_string = input.get_opt("--S", "0");
     S = std::stoi(s_string);
-  } else {
+  } else if (matrix == "") {
     if(rank == 0) {
-      std::cerr << "No matrix type has been given (--cdiag or --cqmat)." << std::endl;
+      std::cerr << "No matrix has been given with the parameter --matrix matrix." << std::endl;
     }
     exit(1);
   }
@@ -106,10 +108,12 @@ int main(int argc, char** argv) {
   auto t_app_start = now();
 
 
-  if(input.has_opt("--cdiag")) {
+  if(matrix == "cdiag") {
     m->fill_cdiag(NR, NC, C, rank / GC, rank % GC, GR, GC);
-  } else if(input.has_opt("--cqmat")) {
+  } else if(matrix == "cqmat") {
     m->fill_cqmat(NR, NC, C, Q, S, rank / GC, rank % GC, GR, GC);
+  } else {
+    m->read_bin_mpiio(MPI_COMM_WORLD, matrix_folder + "/" + matrix + "." + format, rank / GC, rank % GC, GR, GC);
   }
 
   if(input.has_opt("--print-infos")) {
@@ -162,11 +166,10 @@ int main(int argc, char** argv) {
 #else
     outmap["lang"] = "MPI";
 #endif
-    if(input.has_opt("--cdiag")) {
-      outmap["matrix_type"] = "cdiag";
+    outmap["matrix_type"] = matrix;
+    if(matrix == "cdiag") {
       outmap["cdiag_c"] = std::to_string(C);
-    } else if(input.has_opt("--cqmat")) {
-      outmap["matrix_type"] = "cqmat";
+    } else if(matrix == "cqmat") {
       outmap["cqmat_c"] = std::to_string(C);
       outmap["cqmat_q"] = std::to_string(Q);
       outmap["cqmat_s"] = std::to_string(S);

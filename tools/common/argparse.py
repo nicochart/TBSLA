@@ -2,14 +2,12 @@ import argparse
 
 def init_parser():
   parser = argparse.ArgumentParser(add_help=False)
-  parser.add_argument("--NC", dest="NC", help="Number of columns", type=int, required=True)
-  parser.add_argument("--NR", dest="NR", help="Number of rows", type=int, required=True)
   parser.add_argument("--GC", dest="GC", help="Number of columns in the process grid", type=int, required=True)
   parser.add_argument("--GR", dest="GR", help="Number of rows in the process grid", type=int, required=True)
-  parser.add_argument("--C", dest="C", help="Number of diagonals", type=int, default=10)
   parser.add_argument("--op", dest="op", help="Operation", type=str, required=True, choices=['spmv', 'a_axpx', 'spmv_no_redist'])
   parser.add_argument("--format", dest="format", help="Matrix format", type=str, required=True)
-  parser.add_argument("--matrixtype", dest="matrixtype", help="Matrix generation type(cqmat, cdiag)", type=str, required=True, choices=['cdiag', 'cqmat'])
+  parser.add_argument("--matrixtype", dest="matrixtype", help="Matrix used as input", type=str, required=True)
+  parser.add_argument("--matrixfolder", dest="matrixfolder", help="Folder containing the matrices", type=str, default=".")
   return parser
 
 def init_pagerank():
@@ -58,3 +56,9 @@ def add_qs():
   parser.add_argument("--S", dest="S", help="Seed to generate cqmat", type=int, default=10)
   return parser
 
+def add_c():
+  parser = argparse.ArgumentParser(add_help=False)
+  parser.add_argument("--NC", dest="NC", help="Number of columns", type=int, required=True)
+  parser.add_argument("--NR", dest="NR", help="Number of rows", type=int, required=True)
+  parser.add_argument("--C", dest="C", help="Number of diagonals", type=int, default=10)
+  return parser
