@@ -15,6 +15,7 @@ int tbsla::mpi::MatrixDENSE::read_bin_mpiio(MPI_Comm comm, std::string filename,
 
   MPI_File_read_all(fh, &this->n_row, 1, MPI_INT, &status);
   MPI_File_read_all(fh, &this->n_col, 1, MPI_INT, &status);
+  MPI_File_read_at_all(fh, 6 * sizeof(int), &this->gnnz, 1, MPI_LONG, &status);
 
   size_t vec_size, depla_general;
   depla_general = 10 * sizeof(int) + sizeof(long int);
@@ -32,7 +33,6 @@ int tbsla::mpi::MatrixDENSE::read_bin_mpiio(MPI_Comm comm, std::string filename,
   int values_size = vec_size;
   MPI_File_read_at_all(fh, depla_general, &vec_size, 1, MPI_UNSIGNED_LONG, &status);
   depla_general += sizeof(size_t);
-  this->gnnz = n_row * n_col;
   this->nnz = ln_row * ln_col;
 
   this->values.resize(this->nnz);

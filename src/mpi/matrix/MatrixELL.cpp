@@ -15,6 +15,7 @@ int tbsla::mpi::MatrixELL::read_bin_mpiio(MPI_Comm comm, std::string filename, i
 
   MPI_File_read_all(fh, &this->n_row, 1, MPI_INT, &status);
   MPI_File_read_all(fh, &this->n_col, 1, MPI_INT, &status);
+  MPI_File_read_at_all(fh, 6 * sizeof(int), &this->gnnz, 1, MPI_LONG, &status);
   MPI_File_read_at_all(fh, 10 * sizeof(int) + sizeof(long int), &this->max_col, 1, MPI_INT, &status);
 
   size_t vec_size, depla_general, values_start, columns_start;
@@ -32,7 +33,6 @@ int tbsla::mpi::MatrixELL::read_bin_mpiio(MPI_Comm comm, std::string filename, i
 
   MPI_File_read_at_all(fh, depla_general, &vec_size, 1, MPI_UNSIGNED_LONG, &status);
   depla_general += sizeof(size_t);
-  this->gnnz = vec_size;
   this->nnz = 0;
   values_start = depla_general;
   depla_general += vec_size * sizeof(double);

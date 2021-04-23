@@ -15,6 +15,7 @@ int tbsla::mpi::MatrixCOO::read_bin_mpiio(MPI_Comm comm, std::string filename, i
 
   MPI_File_read_all(fh, &this->n_row, 1, MPI_INT, &status);
   MPI_File_read_all(fh, &this->n_col, 1, MPI_INT, &status);
+  MPI_File_read_at_all(fh, 6 * sizeof(int), &this->gnnz, 1, MPI_LONG, &status);
 
   this->pr = pr;
   this->pc = pc;
@@ -35,7 +36,6 @@ int tbsla::mpi::MatrixCOO::read_bin_mpiio(MPI_Comm comm, std::string filename, i
   */
   MPI_File_read_at_all(fh, depla_general, &vec_size, 1, MPI_UNSIGNED_LONG, &status);
   depla_general += sizeof(size_t);
-  this->gnnz = vec_size;
   int s = tbsla::utils::range::pflv(vec_size, pr * NC + pc, NR * NC);
   this->nnz = tbsla::utils::range::lnv(vec_size, pr * NC + pc, NR * NC);
 
