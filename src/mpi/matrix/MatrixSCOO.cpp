@@ -4,6 +4,8 @@
 #include <vector>
 #include <mpi.h>
 
+#define TBSLA_MATRIX_COO_READ 2048
+
 int tbsla::mpi::MatrixSCOO::read_bin_mpiio(MPI_Comm comm, std::string filename, int pr, int pc, int NR, int NC) {
   int world, rank;
   MPI_Comm_size(comm, &world);
@@ -38,23 +40,45 @@ int tbsla::mpi::MatrixSCOO::read_bin_mpiio(MPI_Comm comm, std::string filename, 
   row_start = values_start + sizeof(size_t) + this->gnnz * sizeof(double);
   col_start = row_start + sizeof(size_t) + this->gnnz * sizeof(int);
   int c, r;
-  double v;
 
   this->values.reserve(this->gnnz / NR / NC);
   this->col.reserve(this->gnnz / NR / NC);
   this->row.reserve(this->gnnz / NR / NC);
+  std::vector<int> ctmp(TBSLA_MATRIX_COO_READ);
+  std::vector<int> rtmp(TBSLA_MATRIX_COO_READ);
+  std::vector<double> vtmp(TBSLA_MATRIX_COO_READ);
 
-  for(int i = 0; i < this->gnnz; i++) {
-    MPI_File_read_at(fh, row_start + i * sizeof(int), &r, 1, MPI_INT, &status);
-    MPI_File_read_at(fh, col_start + i * sizeof(int), &c, 1, MPI_INT, &status);
+  int mod = this->gnnz % TBSLA_MATRIX_COO_READ;
+  MPI_File_read_at(fh, row_start, rtmp.data(), mod, MPI_INT, &status);
+  MPI_File_read_at(fh, col_start, ctmp.data(), mod, MPI_INT, &status);
+  MPI_File_read_at(fh, values_start, vtmp.data(), mod, MPI_DOUBLE, &status);
+  for(int idx = 0; idx < mod; idx++) {
+    r = rtmp[idx];
+    c = ctmp[idx];
     if(r >= f_row && r < f_row + ln_row && c >= f_col && c < f_col + ln_col) {
-      MPI_File_read_at(fh, values_start + i * sizeof(double), &v, 1, MPI_DOUBLE, &status);
       this->row.push_back(r);
       this->col.push_back(c);
-      this->values.push_back(v);
+      this->values.push_back(vtmp[idx]);
       this->nnz++;
     }
   }
+
+  for(int i = mod; i < this->gnnz; i += TBSLA_MATRIX_COO_READ) {
+    MPI_File_read_at(fh, row_start + i * sizeof(int), rtmp.data(), TBSLA_MATRIX_COO_READ, MPI_INT, &status);
+    MPI_File_read_at(fh, col_start + i * sizeof(int), ctmp.data(), TBSLA_MATRIX_COO_READ, MPI_INT, &status);
+    MPI_File_read_at(fh, values_start + i * sizeof(double), vtmp.data(), TBSLA_MATRIX_COO_READ, MPI_DOUBLE, &status);
+    for(int idx = 0; idx < TBSLA_MATRIX_COO_READ; idx++) {
+      r = rtmp[idx];
+      c = ctmp[idx];
+      if(r >= f_row && r < f_row + ln_row && c >= f_col && c < f_col + ln_col) {
+        this->row.push_back(r);
+        this->col.push_back(c);
+        this->values.push_back(vtmp[idx]);
+        this->nnz++;
+      }
+    }
+  }
+
   this->values.shrink_to_fit();
   this->col.shrink_to_fit();
   this->row.shrink_to_fit();

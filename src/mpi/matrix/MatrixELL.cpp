@@ -44,16 +44,18 @@ int tbsla::mpi::MatrixELL::read_bin_mpiio(MPI_Comm comm, std::string filename, i
   this->values.reserve(this->ln_row * this->max_col);
   this->columns.reserve(this->ln_row * this->max_col);
   int idx;
-  double val;
 
+  std::vector<int> ctmp(this->max_col);
+  std::vector<double> vtmp(this->max_col);
   for(int i = 0; i < this->ln_row; i++) {
+    MPI_File_read_at(fh, columns_start + (this->f_row + i) * this->max_col * sizeof(int), ctmp.data(), this->max_col, MPI_INT, &status);
+    MPI_File_read_at(fh, values_start + (this->f_row + i) * this->max_col * sizeof(double), vtmp.data(), this->max_col, MPI_DOUBLE, &status);
     int incr = 0;
     for(int j = 0; j < this->max_col; j++) {
-      MPI_File_read_at(fh, columns_start + ((this->f_row + i) * this->max_col + j) * sizeof(int), &idx, 1, MPI_INT, &status);
+      idx = ctmp[j];
       if(idx >= this->f_col && idx < this->f_col + this->ln_col) {
-        MPI_File_read_at(fh, values_start + ((this->f_row + i) * this->max_col + j) * sizeof(double), &val, 1, MPI_DOUBLE, &status);
         this->columns.push_back(idx);
-        this->values.push_back(val);
+        this->values.push_back(vtmp[j]);
         incr++;
       }
     }

@@ -50,18 +50,23 @@ int tbsla::mpi::MatrixCSR::read_bin_mpiio(MPI_Comm comm, std::string filename, i
   this->rowptr[0] = 0;
   this->nnz = 0;
   int idx, jmin, jmax;
-  double val;
   this->colidx.reserve(this->ln_row * 10);
   this->values.reserve(this->ln_row * 10);
+  std::vector<int> ctmp;
+  std::vector<double> vtmp;
   for(int i = 0; i < this->ln_row; i++) {
     MPI_File_read_at(fh, rowptr_start + i * sizeof(int), &jmin, 1, MPI_INT, &status);
     MPI_File_read_at(fh, rowptr_start + (i + 1) * sizeof(int), &jmax, 1, MPI_INT, &status);
-    for(int j = jmin; j < jmax; j++) {
-      MPI_File_read_at(fh, colidx_start + j * sizeof(int), &idx, 1, MPI_INT, &status);
+    int nv = jmax - jmin;
+    ctmp.reserve(nv);
+    vtmp.reserve(nv);
+    MPI_File_read_at(fh, colidx_start + jmin * sizeof(int), ctmp.data(), nv, MPI_INT, &status);
+    MPI_File_read_at(fh, values_start + jmin * sizeof(double), vtmp.data(), nv, MPI_DOUBLE, &status);
+    for(int j = 0; j < nv; j++) {
+      idx = ctmp[j];
       if(idx >= this->f_col && idx < this->f_col + this->ln_col) {
-        MPI_File_read_at(fh, values_start + j * sizeof(double), &val, 1, MPI_DOUBLE, &status);
         this->colidx.push_back(idx);
-        this->values.push_back(val);
+        this->values.push_back(vtmp[j]);
         this->nnz++;
       }
     }
