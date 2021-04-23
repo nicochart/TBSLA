@@ -155,6 +155,7 @@ int main(int argc, char** argv) {
     outmap["g_row"] = gr_string;
     outmap["g_col"] = gc_string;
     outmap["nnz"] = std::to_string(sum_nnz);
+    outmap["gnnz"] = std::to_string(m->get_gnnz());
     outmap["nnz_min"] = std::to_string(min_nnz);
     outmap["nnz_max"] = std::to_string(max_nnz);
     outmap["time_app_in"] = std::to_string((t_app_end - t_app_start) / 1e9);
