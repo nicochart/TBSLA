@@ -31,7 +31,7 @@ ncores = machine_informations.get_cores_per_node(None)
 CPT = [ncores // 2, ncores, 2 * ncores, 3 * ncores]
 BLOCKS = [1, 2, 4, 6, 8, 12, 16]
 CPT_BLOCKS = list(itertools.product(CPT, BLOCKS, BLOCKS))
-THREADS = [1, 2, 4, 6]
+THREADS = [1, 2, 4, 6, 12, 24]
 
 walltime = 2
 
@@ -44,7 +44,7 @@ def decomp(n):
     else:
       n //= i
       factors.append(i)
-  if n > 1:
+  if n >= 1:
     factors.append(n)
   return factors 
 
