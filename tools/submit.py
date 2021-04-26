@@ -23,7 +23,7 @@ if len(parents) > 0:
   parser2 = argparse.ArgumentParser(parents=parents)
   parser2.parse_args(rest, args)
 
-if args.op == "a_axpx" and args.NR != args.NC:
+if args.op == "a_axpx" and (args.matrixtype == "cqmat" or args.matrixtype == "cdiag") and args.NR != args.NC:
   print(f"The operation {args.op} needs a squarre matrix (with NR = NC).")
   sys.exit(1)
 
