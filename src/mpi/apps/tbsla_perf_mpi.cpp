@@ -4,6 +4,7 @@
 #include <tbsla/mpi/MatrixELL.hpp>
 #include <tbsla/mpi/MatrixDENSE.hpp>
 #include <tbsla/cpp/utils/InputParser.hpp>
+#include <tbsla/Configs.h>
 
 #if TBSLA_COMPILED_WITH_OMP
 #include <omp.h>
@@ -168,6 +169,15 @@ int main(int argc, char** argv) {
     outmap["lang"] = "MPI";
 #endif
     outmap["matrix_type"] = matrix;
+    outmap["compile_options"] = std::string(CMAKE_BUILD_TYPE);
+    if (std::string(CMAKE_CXX_FLAGS).length() > 0) {
+      outmap["compile_options"] += " " + std::string(CMAKE_CXX_FLAGS);
+    }
+    if (std::string(CMAKE_BUILD_TYPE) == "Release" && std::string(CMAKE_CXX_FLAGS_RELEASE).length() > 0) {
+      outmap["compile_options"] += " " + std::string(CMAKE_CXX_FLAGS_RELEASE);
+    } else if (std::string(CMAKE_BUILD_TYPE) == "Debug" && std::string(CMAKE_CXX_FLAGS_DEBUG).length() > 0) {
+      outmap["compile_options"] += " " + std::string(CMAKE_CXX_FLAGS_DEBUG);
+    }
     if(matrix == "cdiag") {
       outmap["cdiag_c"] = std::to_string(C);
     } else if(matrix == "cqmat") {
