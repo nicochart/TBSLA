@@ -3,7 +3,6 @@
 #include <tbsla/mpi/MatrixELL.hpp>
 #include <tbsla/mpi/MatrixDENSE.hpp>
 #include <tbsla/mpi/MatrixSCOO.hpp>
-#include <tbsla/cpp/utils/mm.hpp>
 #include <tbsla/cpp/utils/InputParser.hpp>
 
 #include <algorithm>

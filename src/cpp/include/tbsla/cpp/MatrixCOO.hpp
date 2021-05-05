@@ -29,6 +29,7 @@ class MatrixCOO : public virtual Matrix {
     std::istream & read(std::istream &is, std::size_t pos = 0, std::size_t n = 1);
     std::ostream& print(std::ostream& os) const;
 
+    void readMM(std::string name);
     void fill_cdiag(int n_row, int n_col, int cdiag, int pr = 0, int pc = 0, int NR = 1, int NC = 1);
     void fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult = 1, int pr = 0, int pc = 0, int NR = 1, int NC = 1);
     void fill_cqmat_stochastic(int n_row, int n_col, int c, double q, unsigned int seed_mult = 1, int pr = 0, int pc = 0, int NR = 1, int NC = 1);
@@ -39,6 +40,9 @@ class MatrixCOO : public virtual Matrix {
     std::vector<double> values;
     std::vector<int> row;
     std::vector<int> col;
+
+  private:
+    void init(int n_row, int n_col, long int n_values);
 };
 
 }}

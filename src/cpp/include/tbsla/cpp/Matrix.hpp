@@ -45,6 +45,12 @@ class Matrix {
 
 };
 
+struct MatrixFormatReadException : public std::exception {
+   const char * what () const throw () {
+      return "This Matrix format import is not implemented!";
+   }
+};
+
 }}
 
 #endif

@@ -1,5 +1,4 @@
 #include <tbsla/cpp/MatrixCOO.hpp>
-#include <tbsla/cpp/utils/mm.hpp>
 #include <tbsla/cpp/utils/InputParser.hpp>
 
 #include <algorithm>
@@ -21,7 +20,8 @@ int main(int argc, char** argv) {
   }
 
     auto t_read_start = now();
-    tbsla::cpp::MatrixCOO m = tbsla::utils::io::readMM(matrix_input);
+    tbsla::cpp::MatrixCOO m;
+    m.readMM(matrix_input);
     auto t_read_end = now();
     m.print_stats(std::cout);
     m.print_infos(std::cout);

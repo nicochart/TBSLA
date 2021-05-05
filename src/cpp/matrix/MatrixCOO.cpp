@@ -2,12 +2,30 @@
 #include <tbsla/cpp/utils/vector.hpp>
 #include <tbsla/cpp/utils/values_generation.hpp>
 #include <tbsla/cpp/utils/range.hpp>
+#include <tbsla/cpp/utils/split.hpp>
 #include <numeric>
 #include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sstream>
+
+void tbsla::cpp::MatrixCOO::init(int n_row, int n_col, long int n_values) {
+  this->n_row = n_row;
+  this->n_col = n_col;
+  this->ln_row = n_row;
+  this->ln_col = n_col;
+  this->f_row = 0;
+  this->f_col = 0;
+  this->pr = 0;
+  this->pc = 0;
+  this->NR = 1;
+  this->NC = 1;
+  this->values.reserve(n_values);
+  this->row.reserve(n_values);
+  this->col.reserve(n_values);
+}
 
 tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col, std::vector<double> & values, std::vector<int> & row,  std::vector<int> & col) {
   this->n_row = n_row;
@@ -26,19 +44,7 @@ tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col, std::vector<double> & val
 }
 
 tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col, long int n_values) {
-  this->n_row = n_row;
-  this->n_col = n_col;
-  this->ln_row = n_row;
-  this->ln_col = n_col;
-  this->f_row = 0;
-  this->f_col = 0;
-  this->pr = 0;
-  this->pc = 0;
-  this->NR = 1;
-  this->NC = 1;
-  this->values.reserve(n_values);
-  this->row.reserve(n_values);
-  this->col.reserve(n_values);
+  this->init(n_row, n_col, n_values);
 }
 
 tbsla::cpp::MatrixCOO::MatrixCOO(int n_row, int n_col) {
@@ -215,6 +221,67 @@ std::istream & tbsla::cpp::MatrixCOO::read(std::istream &is, std::size_t pos, st
   this->col.resize(size);
   is.read(reinterpret_cast<char*>(this->col.data()), size * sizeof(int));
   return is;
+}
+
+void tbsla::cpp::MatrixCOO::readMM(std::string fname) {
+  std::ifstream is(fname);
+  std::string line;
+  std::string delim(" ");
+
+  if (is.is_open()) {
+    getline(is, line);
+    std::vector<std::string> splits = tbsla::utils::io::split(line, delim);
+    std::cout << line << "\n";
+    if(splits[0].compare(std::string("%%MatrixMarket")) == 0
+       && splits[1].compare(std::string("matrix")) == 0
+       && splits[2].compare(std::string("coordinate")) == 0
+       && splits[3].compare(std::string("real")) == 0 ) {
+      if(splits[4].compare(std::string("general")) == 0) {
+        while(line.rfind("%", 0) == 0) {
+          getline(is, line);
+        }
+        std::cout << line << "\n";
+        std::stringstream ss(line);
+        int nc, nr, nv;
+        ss >> nr;
+        ss >> nc;
+        ss >> nv;
+        this->init(nr, nc, nv);
+        int r, c;
+        double v;
+        for(int i = 0; i < nv && !is.eof(); i++) {
+          is >> r;
+          is >> c;
+          is >> v;
+          this->push_back(r - 1, c - 1, v);
+        }
+        this->update_nnz();
+      } else if(splits[4].compare(std::string("symmetric")) == 0) {
+        while(line.rfind("%", 0) == 0) {
+          getline(is, line);
+        }
+        std::cout << line << "\n";
+        std::stringstream ss(line);
+        int nc, nr, nv;
+        ss >> nr;
+        ss >> nc;
+        ss >> nv;
+        this->init(nr, nc, nv * 2);
+        int r, c;
+        double v;
+        for(int i = 0; i < nv && !is.eof(); i++) {
+          is >> r;
+          is >> c;
+          is >> v;
+          this->push_back(r - 1, c - 1, v);
+          if(r != c)
+            this->push_back(c - 1, r - 1, v);
+        }
+        this->update_nnz();
+      }
+    }
+  }
+  throw tbsla::cpp::MatrixFormatReadException();
 }
 
 void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int pr, int pc, int NR, int NC) {

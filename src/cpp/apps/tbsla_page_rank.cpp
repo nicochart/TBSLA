@@ -1,5 +1,4 @@
 #include <tbsla/cpp/MatrixCOO.hpp>
-#include <tbsla/cpp/utils/mm.hpp>
 #include <tbsla/cpp/utils/vector.hpp>
 #include <vector>
 #include <iostream>
@@ -42,7 +41,8 @@ int main(int argc, char** argv) {
     exit(1);
   }
   auto t_read_start = now();
-  tbsla::cpp::MatrixCOO m = tbsla::utils::io::readMM(matrix_input);
+  tbsla::cpp::MatrixCOO m;
+  m.readMM(matrix_input);
   auto t_read_end = now();
   
   std::vector<double> b(n);

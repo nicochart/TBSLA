@@ -1,5 +1,4 @@
 #include <tbsla/cpp/MatrixCOO.hpp>
-#include <tbsla/cpp/utils/mm.hpp>
 
 #include <fstream>
 
@@ -7,7 +6,8 @@
 int main(int argc, char** argv) {
 
   if(argc == 3) {
-    tbsla::cpp::MatrixCOO m = tbsla::utils::io::readMM(std::string(argv[1]));
+    tbsla::cpp::MatrixCOO m;
+    m.readMM(std::string(argv[1]));
     std::ofstream os(std::string(argv[2]), std::ofstream::binary);
     m.print_stats(std::cout);
     m.print_infos(std::cout);
