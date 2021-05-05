@@ -63,3 +63,4 @@ for n in NODES:
       for mf in formats:
         for f in factors:
           print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --timeout {timeout}')
+          print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --tpc 2 --timeout {timeout}')

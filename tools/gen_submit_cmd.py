@@ -84,3 +84,4 @@ for n in NODES:
       for mf in formats:
         for f in factors:
           print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t}')
+          print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --tpc 2')

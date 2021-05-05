@@ -40,7 +40,7 @@ for k in ['resfile',  'machine', 'timeout']:
 command += ' " '
 
 if args.lang == "MPIOMP":
-  header += f"export OMP_NUM_THREADS={args.threads}\n"
+  header += f"export OMP_NUM_THREADS={args.threads * args.tpc}\n"
   command += machine.get_mpirun(args) + " " + machine.get_mpirun_options_mpiomp(args) + " tbsla_perf_mpi_omp"
 
 if args.lang == "MPI":

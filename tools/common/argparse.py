@@ -23,6 +23,7 @@ def init_pagerank():
 def init_mpiomp():
   parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument("--threads", dest="threads", help="Number of threads per MPI process", type=int, required=True)
+  parser.add_argument("--tpc", dest="tpc", help="Threads per cores", type=int, default=1)
   return parser
 
 def init_yml():
