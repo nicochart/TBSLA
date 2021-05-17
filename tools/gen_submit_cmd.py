@@ -31,9 +31,10 @@ ncores = machine_informations.get_cores_per_node(None)
 CPT = [ncores // 2, ncores, 2 * ncores, 3 * ncores]
 BLOCKS = [1, 2, 4, 6, 8, 12, 16]
 CPT_BLOCKS = list(itertools.product(CPT, BLOCKS, BLOCKS))
-THREADS = [1, 2, 4, 6, 12, 24]
+THREADS = [1, 2, 4, 6, 12, 24, 48]
 
-walltime = 2
+timeout = 500
+walltime = int(6 * timeout / 60) + 1
 
 def decomp(n):
   i = 2
@@ -64,9 +65,9 @@ for n in NODES:
   for mf in formats:
     for f in factors:
       if args.MPI:
-        print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPI --wall-time {walltime} --GR {f[0]} --GC {f[1]}')
+        print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPI --wall-time {walltime} --GR {f[0]} --GC {f[1]} --timeout {timeout}')
       if args.HPX:
-        print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang HPX --wall-time {walltime} --GR {f[0]} --GC {f[1]}')
+        print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang HPX --wall-time {walltime} --GR {f[0]} --GC {f[1]} --timeout {timeout}')
       if args.YML:
         for cbb in CPT_BLOCKS:
           cpt = cbb[0]
@@ -77,11 +78,10 @@ for n in NODES:
           lgr = int(gr / bgr)
           lgc = int(gc / bgc)
           if lgc == 0 or lgr == 0 or lgc * lgr != cpt or gr != bgr * lgr or gc != bgc * lgc or cpt > n * ncores: continue
-          print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang YML --wall-time {walltime} --GR {f[0]} --GC {f[1]} --CPT {cbb[0]} --BGR {cbb[1]} --BGC {cbb[2]} --LGC {lgc} --LGR {lgr} --compile')
+          print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang YML --wall-time {walltime} --GR {f[0]} --GC {f[1]} --CPT {cbb[0]} --BGR {cbb[1]} --BGC {cbb[2]} --LGC {lgc} --LGR {lgr} --compile --timeout {timeout}')
   if args.MPIOMP:
     for t in THREADS:
       factors = decomp_pairs(int(n * ncores / t))
       for mf in formats:
         for f in factors:
-          print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t}')
-          print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --tpc 2')
+          print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --timeout {timeout}')
