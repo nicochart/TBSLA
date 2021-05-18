@@ -12,6 +12,7 @@ parser.add_argument("--matrixtype", dest="matrixtype", help="Matrix type", type=
 parser.add_argument("--matrixfolder", dest="matrixfolder", help="Matrix folder", type=str, required=True)
 parser.add_argument("--MPI", dest="MPI", help="Generate submission commands for MPI", action='store_const', default=False, const=True)
 parser.add_argument("--MPIOMP", dest="MPIOMP", help="Generate submission commands for MPI+OpenMP", action='store_const', default=False, const=True)
+parser.add_argument("--OMP", dest="OMP", help="Generate submission commands for OpenMP", action='store_const', default=False, const=True)
 args = parser.parse_args()
 
 
@@ -22,7 +23,7 @@ machine_informations = importlib.import_module("machine." + args.machine)
 NODES = [int(math.pow(2, i)) for i in range(int(math.log2(args.Ns)), int(math.log2(args.Ne)) + 1)]
 ncores = machine_informations.get_cores_per_node(None)
 
-THREADS = [1, 2, 4, 6, 12, 24]
+THREADS = [1, 2, 4, 6, 12, 24, 48]
 
 walltime = 5
 timeout = 200
@@ -64,3 +65,7 @@ for n in NODES:
         for f in factors:
           print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --timeout {timeout}')
           print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --tpc 2 --timeout {timeout}')
+if args.OMP:
+  for t in THREADS:
+    for mf in formats:
+      print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes 1 --machine {args.machine} --lang OMP --wall-time {walltime} --threads {t} --timeout {timeout}')
