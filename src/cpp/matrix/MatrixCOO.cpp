@@ -278,10 +278,13 @@ void tbsla::cpp::MatrixCOO::readMM(std::string fname) {
             this->push_back(c - 1, r - 1, v);
         }
         this->update_nnz();
+      } else {
+        throw tbsla::cpp::MatrixFormatReadException();
       }
+    } else {
+      throw tbsla::cpp::MatrixFormatReadException();
     }
   }
-  throw tbsla::cpp::MatrixFormatReadException();
 }
 
 void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int pr, int pc, int NR, int NC) {
