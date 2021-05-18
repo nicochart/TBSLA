@@ -15,6 +15,13 @@ args, rest = parser.parse_known_args()
 parents = []
 if args.lang == "MPIOMP":
   parents.append(cap.init_mpiomp())
+if args.lang == "OMP":
+  parents.append(cap.init_omp())
+  if args.nodes != 1:
+    print("OMP supports only one node")
+    sys.exit(1)
+if args.lang != "OMP":
+  parents.append(cap.add_gcgr())
 if args.matrixtype == "cqmat" or args.matrixtype == "cdiag":
   parents.append(cap.add_c())
 if args.lang == "YML":
@@ -42,6 +49,10 @@ command += ' " '
 if args.lang == "MPIOMP":
   header += f"export OMP_NUM_THREADS={args.threads * args.tpc}\n"
   command += machine.get_mpirun(args) + " " + machine.get_mpirun_options_mpiomp(args) + " tbsla_perf_mpi_omp"
+
+if args.lang == "OMP":
+  header += f"export OMP_NUM_THREADS={args.threads * args.tpc}\n"
+  command += " tbsla_perf_omp"
 
 if args.lang == "MPI":
   command += machine.get_mpirun(args) + f" -n {ncores} tbsla_perf_mpi"
@@ -139,10 +150,11 @@ if args.lang == "YML":
     fname += ".sh"
     sub.gen_submit_cmd(machine, args, fname, header)
 
-if args.lang != "YML":
-  command += f" --op {args.op}"
+if args.lang != "YML" and args.lang != "OMP":
   command += f" --GR {args.GR}"
   command += f" --GC {args.GC}"
+if args.lang != "YML":
+  command += f" --op {args.op}"
   command += f" --matrix {args.matrixtype}"
   if args.matrixfolder != ".":
     command += f" --matrix_folder {args.matrixfolder}"
@@ -166,8 +178,9 @@ if args.lang != "YML":
   fname = f"submit_{args.op}_{args.lang}_n{args.nodes}_{args.matrixtype}_{args.format}"
   if args.matrixtype == "cqmat" or args.matrixtype == "cdiag":
     fname += f"_nr{args.NR}_nc{args.NC}_c{args.C}"
-  fname += f"_gr{args.GR}_gc{args.GC}"
-  if args.lang == "MPI" or args.lang == "HPX" or args.lang == "PETSC":
+  if args.lang != "OMP":
+    fname += f"_gr{args.GR}_gc{args.GC}"
+  if args.lang == "MPI" or args.lang == "HPX" or args.lang == "PETSC" or args.lang == "OMP":
     fname += f".sh"
   elif args.lang == "MPIOMP":
     fname += f"_t{args.threads}.sh"

@@ -2,8 +2,6 @@ import argparse
 
 def init_parser():
   parser = argparse.ArgumentParser(add_help=False)
-  parser.add_argument("--GC", dest="GC", help="Number of columns in the process grid", type=int, required=True)
-  parser.add_argument("--GR", dest="GR", help="Number of rows in the process grid", type=int, required=True)
   parser.add_argument("--op", dest="op", help="Operation", type=str, required=True, choices=['spmv', 'a_axpx', 'spmv_no_redist'])
   parser.add_argument("--format", dest="format", help="Matrix format", type=str, required=True)
   parser.add_argument("--matrixtype", dest="matrixtype", help="Matrix used as input", type=str, required=True)
@@ -23,6 +21,12 @@ def init_pagerank():
 def init_mpiomp():
   parser = argparse.ArgumentParser(add_help=False)
   parser.add_argument("--threads", dest="threads", help="Number of threads per MPI process", type=int, required=True)
+  parser.add_argument("--tpc", dest="tpc", help="Threads per cores", type=int, default=1)
+  return parser
+
+def init_omp():
+  parser = argparse.ArgumentParser(add_help=False)
+  parser.add_argument("--threads", dest="threads", help="Number of threads", type=int, required=True)
   parser.add_argument("--tpc", dest="tpc", help="Threads per cores", type=int, default=1)
   return parser
 
@@ -49,6 +53,12 @@ def add_common(required=False):
   parser.add_argument("--machine", dest="machine", help="configuration", type=str, default="_default", required=required)
   parser.add_argument("--timeout", dest="timeout", help="Timeout for the run of an application in seconds.", type=int, default=60, required=required)
   parser.add_argument("--dry", dest="dry", help="Do not submit the application", action='store_const', default="False", const="True")
+  return parser
+
+def add_gcgr():
+  parser = argparse.ArgumentParser(add_help=False)
+  parser.add_argument("--GC", dest="GC", help="Number of columns in the process grid", type=int, required=True)
+  parser.add_argument("--GR", dest="GR", help="Number of rows in the process grid", type=int, required=True)
   return parser
 
 def add_qs():

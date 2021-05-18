@@ -4,6 +4,7 @@
 #include <tbsla/cpp/MatrixELL.hpp>
 #include <tbsla/cpp/MatrixDENSE.hpp>
 #include <tbsla/cpp/utils/InputParser.hpp>
+#include <tbsla/Configs.h>
 
 #if TBSLA_COMPILED_WITH_OMP
 #include <omp.h>
@@ -39,18 +40,20 @@ int main(int argc, char** argv) {
   double Q = -1;
   int S = -1;
 
-  if(input.has_opt("--cdiag")) {
+  std::string matrix = input.get_opt("--matrix");
+  std::string matrix_folder = input.get_opt("--matrix_folder", ".");
+  if(matrix == "cdiag") {
     std::string c_string = input.get_opt("--C", "8");
     C = std::stoi(c_string);
-  } else if(input.has_opt("--cqmat")) {
+  } else if(matrix == "cqmat") {
     std::string c_string = input.get_opt("--C", "8");
     C = std::stoi(c_string);
     std::string q_string = input.get_opt("--Q", "0.1");
     Q = std::stod(q_string);
     std::string s_string = input.get_opt("--S", "0");
     S = std::stoi(s_string);
-  } else {
-    std::cerr << "No matrix type has been given (--cdiag or --cqmat)." << std::endl;
+  } else if (matrix == "") {
+    std::cerr << "No matrix has been given with the parameter --matrix matrix." << std::endl;
     exit(1);
   }
 
@@ -59,7 +62,7 @@ int main(int argc, char** argv) {
     std::cerr << "An operation (spmv, a_axpx) has to be given with the parameter --op op" << std::endl;
     exit(1);
   }
-  if(op != "spmv" && op != "a_axpx") {
+  if(op != "spmv" && op != "a_axpx" && op != "spmv_no_redist") {
     std::cerr << "OP : " << op << " unrecognized!" << std::endl;
     exit(1);
   }
@@ -83,10 +86,14 @@ int main(int argc, char** argv) {
   auto t_app_start = now();
 
 
-  if(input.has_opt("--cdiag")) {
+  if(matrix == "cdiag") {
     m->fill_cdiag(NR, NC, C, 0, 0, 1, 1);
-  } else if(input.has_opt("--cqmat")) {
+  } else if(matrix == "cqmat") {
     m->fill_cqmat(NR, NC, C, Q, S, 0, 0, 1, 1);
+  } else {
+    std::ifstream is(matrix_folder + "/" + matrix + "." + format, std::ifstream::binary);
+    m->read(is);
+    is.close();
   }
 
   if(input.has_opt("--print-infos")) {
@@ -102,7 +109,7 @@ int main(int argc, char** argv) {
   std::generate(begin(vec), end(vec), gen);
 
   auto t_op_start = now();
-  if(op == "spmv") {
+  if(op == "spmv" or op == "spmv_no_redist") {
     std::vector<double> res = m->spmv(vec);
   } else if(op == "a_axpx") {
     std::vector<double> res = m->a_axpx_(vec);
@@ -124,11 +131,19 @@ int main(int argc, char** argv) {
 #else
   outmap["lang"] = "CPP";
 #endif
-  if(input.has_opt("--cdiag")) {
-    outmap["matrix_type"] = "cdiag";
+  outmap["matrix_type"] = matrix;
+  outmap["compile_options"] = std::string(CMAKE_BUILD_TYPE);
+  if (std::string(CMAKE_CXX_FLAGS).length() > 0) {
+    outmap["compile_options"] += " " + std::string(CMAKE_CXX_FLAGS);
+  }
+  if (std::string(CMAKE_BUILD_TYPE) == "Release" && std::string(CMAKE_CXX_FLAGS_RELEASE).length() > 0) {
+    outmap["compile_options"] += " " + std::string(CMAKE_CXX_FLAGS_RELEASE);
+  } else if (std::string(CMAKE_BUILD_TYPE) == "Debug" && std::string(CMAKE_CXX_FLAGS_DEBUG).length() > 0) {
+    outmap["compile_options"] += " " + std::string(CMAKE_CXX_FLAGS_DEBUG);
+  }
+  if(matrix == "cdiag") {
     outmap["cdiag_c"] = std::to_string(C);
-  } else if(input.has_opt("--cqmat")) {
-    outmap["matrix_type"] = "cqmat";
+  } else if(matrix == "cqmat") {
     outmap["cqmat_c"] = std::to_string(C);
     outmap["cqmat_q"] = std::to_string(Q);
     outmap["cqmat_s"] = std::to_string(S);
