@@ -34,8 +34,15 @@ add_executable(tbsla_perf tbsla_perf.cpp)
 target_link_libraries(tbsla_perf PRIVATE tbsla)
 install(TARGETS tbsla_perf DESTINATION bin)
 
+add_executable(test_impl_csr test_impl_csr.cpp)
+install(TARGETS test_impl_csr DESTINATION bin)
+
 if(TBSLA_ENABLE_OMP)
   add_executable(tbsla_perf_omp tbsla_perf.cpp)
   target_link_libraries(tbsla_perf_omp PRIVATE tbsla_omp)
   install(TARGETS tbsla_perf_omp DESTINATION bin)
+
+  add_executable(test_impl_csr_omp test_impl_csr.cpp)
+  target_link_libraries(test_impl_csr_omp PUBLIC OpenMP::OpenMP_CXX)
+  install(TARGETS test_impl_csr_omp DESTINATION bin)
 endif()
