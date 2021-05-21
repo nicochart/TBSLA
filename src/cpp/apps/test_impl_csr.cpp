@@ -86,6 +86,28 @@ class MatrixCSRVector {
       }
       return b;
     }
+
+    void spmv_sched_static(std::vector<double> &b, std::vector<double> &x){
+      #pragma omp parallel for schedule(static)
+      for (int i = 0; i < this->rowptr.size() - 1; i++) {
+        double tmp = 0;
+        for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
+           tmp += this->values[j] * x[this->colidx[j]];
+        }
+        b[i] = tmp;
+      }
+    }
+
+    void spmv_sched_dynamic(std::vector<double> &b, std::vector<double> &x){
+      #pragma omp parallel for schedule(dynamic)
+      for (int i = 0; i < this->rowptr.size() - 1; i++) {
+        double tmp = 0;
+        for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
+           tmp += this->values[j] * x[this->colidx[j]];
+        }
+        b[i] = tmp;
+      }
+    }
 };
 
 class MatrixCSRCArray {
@@ -175,7 +197,7 @@ int main(int argc, char** argv) {
   double *b2 = new double[mc.n_col];
 
   int ITERATIONS = 100;
-  double t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0;
+  double t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, t7 = 0;
   for(int it = 0; it < ITERATIONS; it++) {
     auto start = now();
     mvec.spmv1(b, x);
@@ -193,26 +215,40 @@ int main(int argc, char** argv) {
     t3 += (end - start) / 10e9;
 
     start = now();
-    spmv1(b, x, mvec.values, mvec.colidx, mvec.rowptr);
+    mvec.spmv_sched_static(b, x);
     end = now();
     t4 += (end - start) / 10e9;
 
     start = now();
-    mc.spmv1(b2, x2);
+    mvec.spmv_sched_dynamic(b, x);
     end = now();
     t5 += (end - start) / 10e9;
+
+    start = now();
+    spmv1(b, x, mvec.values, mvec.colidx, mvec.rowptr);
+    end = now();
+    t6 += (end - start) / 10e9;
+
+    start = now();
+    mc.spmv1(b2, x2);
+    end = now();
+    t7 += (end - start) / 10e9;
   }
 
-  std::cout << "spmv vec class    --> time (s) : " << t1 / ITERATIONS << std::endl;
-  std::cout << "spmv vec class    --> GFlops   : " << 2 * mvec.nnz / t1 * ITERATIONS / 10e9 << std::endl;
-  std::cout << "spmv2 vec class   --> time (s) : " << t2 / ITERATIONS << std::endl;
-  std::cout << "spmv2 vec class   --> GFlops   : " << 2 * mvec.nnz / t2 * ITERATIONS / 10e9 << std::endl;
-  std::cout << "spmv3 vec class   --> time (s) : " << t3 / ITERATIONS << std::endl;
-  std::cout << "spmv3 vec class   --> GFlops   : " << 2 * mvec.nnz / t3 * ITERATIONS / 10e9 << std::endl;
-  std::cout << "spmv vec no class --> time (s) : " << t4 / ITERATIONS << std::endl;
-  std::cout << "spmv vec no class --> GFlops   : " << 2 * mvec.nnz / t4 * ITERATIONS / 10e9 << std::endl;
-  std::cout << "spmv array class  --> time (s) : " << t5 / ITERATIONS << std::endl;
-  std::cout << "spmv array class  --> GFlops   : " << 2 * mvec.nnz / t5 * ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv vec class                --> time (s) : " << t1 / ITERATIONS << std::endl;
+  std::cout << "spmv vec class                --> GFlops   : " << 2 * mvec.nnz / t1 * ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv2 vec class               --> time (s) : " << t2 / ITERATIONS << std::endl;
+  std::cout << "spmv2 vec class               --> GFlops   : " << 2 * mvec.nnz / t2 * ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv3 vec class               --> time (s) : " << t3 / ITERATIONS << std::endl;
+  std::cout << "spmv3 vec class               --> GFlops   : " << 2 * mvec.nnz / t3 * ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv_sched_static vec class   --> time (s) : " << t4 / ITERATIONS << std::endl;
+  std::cout << "spmv_sched_static vec class   --> GFlops   : " << 2 * mvec.nnz / t4 * ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv_sched_dynamic vec class  --> time (s) : " << t5 / ITERATIONS << std::endl;
+  std::cout << "spmv_sched_dynamic vec class  --> GFlops   : " << 2 * mvec.nnz / t5 * ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv vec no class             --> time (s) : " << t6 / ITERATIONS << std::endl;
+  std::cout << "spmv vec no class             --> GFlops   : " << 2 * mvec.nnz / t6 * ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv array class              --> time (s) : " << t7 / ITERATIONS << std::endl;
+  std::cout << "spmv array class              --> GFlops   : " << 2 * mvec.nnz / t7 * ITERATIONS / 10e9 << std::endl;
 
   return 0;
 }
