@@ -204,15 +204,15 @@ int main(int argc, char** argv) {
   }
 
   std::cout << "spmv vec class    --> time (s) : " << t1 / ITERATIONS << std::endl;
-  std::cout << "spmv vec class    --> GFlops   : " << 2 * mvec.nnz / t1 / ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv vec class    --> GFlops   : " << 2 * mvec.nnz / t1 * ITERATIONS / 10e9 << std::endl;
   std::cout << "spmv2 vec class   --> time (s) : " << t2 / ITERATIONS << std::endl;
-  std::cout << "spmv2 vec class   --> GFlops   : " << 2 * mvec.nnz / t2 / ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv2 vec class   --> GFlops   : " << 2 * mvec.nnz / t2 * ITERATIONS / 10e9 << std::endl;
   std::cout << "spmv3 vec class   --> time (s) : " << t3 / ITERATIONS << std::endl;
-  std::cout << "spmv3 vec class   --> GFlops   : " << 2 * mvec.nnz / t3 / ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv3 vec class   --> GFlops   : " << 2 * mvec.nnz / t3 * ITERATIONS / 10e9 << std::endl;
   std::cout << "spmv vec no class --> time (s) : " << t4 / ITERATIONS << std::endl;
-  std::cout << "spmv vec no class --> GFlops   : " << 2 * mvec.nnz / t4 / ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv vec no class --> GFlops   : " << 2 * mvec.nnz / t4 * ITERATIONS / 10e9 << std::endl;
   std::cout << "spmv array class  --> time (s) : " << t5 / ITERATIONS << std::endl;
-  std::cout << "spmv array class  --> GFlops   : " << 2 * mvec.nnz / t5 / ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv array class  --> GFlops   : " << 2 * mvec.nnz / t5 * ITERATIONS / 10e9 << std::endl;
 
   return 0;
 }
