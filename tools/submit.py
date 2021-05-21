@@ -180,8 +180,8 @@ if args.lang != "YML":
     fname += f"_nr{args.NR}_nc{args.NC}_c{args.C}"
   if args.lang != "OMP":
     fname += f"_gr{args.GR}_gc{args.GC}"
-  if args.lang == "MPI" or args.lang == "HPX" or args.lang == "PETSC" or args.lang == "OMP":
+  if args.lang == "MPI" or args.lang == "HPX" or args.lang == "PETSC":
     fname += f".sh"
-  elif args.lang == "MPIOMP":
+  elif args.lang == "MPIOMP" or args.lang == "OMP":
     fname += f"_t{args.threads}.sh"
   sub.gen_submit_cmd(machine, args, fname, header)
