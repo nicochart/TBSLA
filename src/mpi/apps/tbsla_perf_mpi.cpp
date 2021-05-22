@@ -169,6 +169,7 @@ int main(int argc, char** argv) {
     outmap["lang"] = "MPI";
 #endif
     outmap["matrix_type"] = matrix;
+    outmap["compiler"] = std::string(CMAKE_CXX_COMPILER_ID) + " " + std::string(CMAKE_CXX_COMPILER_VERSION);
     outmap["compile_options"] = std::string(CMAKE_BUILD_TYPE);
     if (std::string(CMAKE_CXX_FLAGS).length() > 0) {
       outmap["compile_options"] += " " + std::string(CMAKE_CXX_FLAGS);
@@ -178,6 +179,9 @@ int main(int argc, char** argv) {
     } else if (std::string(CMAKE_BUILD_TYPE) == "Debug" && std::string(CMAKE_CXX_FLAGS_DEBUG).length() > 0) {
       outmap["compile_options"] += " " + std::string(CMAKE_CXX_FLAGS_DEBUG);
     }
+#if TBSLA_COMPILED_WITH_OMP
+    outmap["compile_options"] += " " + std::string(OpenMP_CXX_FLAGS);
+#endif
     if(matrix == "cdiag") {
       outmap["cdiag_c"] = std::to_string(C);
     } else if(matrix == "cqmat") {
