@@ -202,53 +202,53 @@ int main(int argc, char** argv) {
     auto start = now();
     mvec.spmv1(b, x);
     auto end = now();
-    t1 += (end - start) / 10e9;
+    t1 += (end - start) / 1e9;
 
     start = now();
     std::vector<double> r2 = mvec.spmv2(x);
     end = now();
-    t2 += (end - start) / 10e9;
+    t2 += (end - start) / 1e9;
 
     start = now();
     std::vector<double> r3 = mvec.spmv3(x);
     end = now();
-    t3 += (end - start) / 10e9;
+    t3 += (end - start) / 1e9;
 
     start = now();
     mvec.spmv_sched_static(b, x);
     end = now();
-    t4 += (end - start) / 10e9;
+    t4 += (end - start) / 1e9;
 
     start = now();
     mvec.spmv_sched_dynamic(b, x);
     end = now();
-    t5 += (end - start) / 10e9;
+    t5 += (end - start) / 1e9;
 
     start = now();
     spmv1(b, x, mvec.values, mvec.colidx, mvec.rowptr);
     end = now();
-    t6 += (end - start) / 10e9;
+    t6 += (end - start) / 1e9;
 
     start = now();
     mc.spmv1(b2, x2);
     end = now();
-    t7 += (end - start) / 10e9;
+    t7 += (end - start) / 1e9;
   }
 
   std::cout << "spmv vec class                --> time (s) : " << t1 / ITERATIONS << std::endl;
-  std::cout << "spmv vec class                --> GFlops   : " << 2 * mvec.nnz / t1 * ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv vec class                --> GFlops   : " << 2 * mvec.nnz / t1 * ITERATIONS / 1e9 << std::endl;
   std::cout << "spmv2 vec class               --> time (s) : " << t2 / ITERATIONS << std::endl;
-  std::cout << "spmv2 vec class               --> GFlops   : " << 2 * mvec.nnz / t2 * ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv2 vec class               --> GFlops   : " << 2 * mvec.nnz / t2 * ITERATIONS / 1e9 << std::endl;
   std::cout << "spmv3 vec class               --> time (s) : " << t3 / ITERATIONS << std::endl;
-  std::cout << "spmv3 vec class               --> GFlops   : " << 2 * mvec.nnz / t3 * ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv3 vec class               --> GFlops   : " << 2 * mvec.nnz / t3 * ITERATIONS / 1e9 << std::endl;
   std::cout << "spmv_sched_static vec class   --> time (s) : " << t4 / ITERATIONS << std::endl;
-  std::cout << "spmv_sched_static vec class   --> GFlops   : " << 2 * mvec.nnz / t4 * ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv_sched_static vec class   --> GFlops   : " << 2 * mvec.nnz / t4 * ITERATIONS / 1e9 << std::endl;
   std::cout << "spmv_sched_dynamic vec class  --> time (s) : " << t5 / ITERATIONS << std::endl;
-  std::cout << "spmv_sched_dynamic vec class  --> GFlops   : " << 2 * mvec.nnz / t5 * ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv_sched_dynamic vec class  --> GFlops   : " << 2 * mvec.nnz / t5 * ITERATIONS / 1e9 << std::endl;
   std::cout << "spmv vec no class             --> time (s) : " << t6 / ITERATIONS << std::endl;
-  std::cout << "spmv vec no class             --> GFlops   : " << 2 * mvec.nnz / t6 * ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv vec no class             --> GFlops   : " << 2 * mvec.nnz / t6 * ITERATIONS / 1e9 << std::endl;
   std::cout << "spmv array class              --> time (s) : " << t7 / ITERATIONS << std::endl;
-  std::cout << "spmv array class              --> GFlops   : " << 2 * mvec.nnz / t7 * ITERATIONS / 10e9 << std::endl;
+  std::cout << "spmv array class              --> GFlops   : " << 2 * mvec.nnz / t7 * ITERATIONS / 1e9 << std::endl;
 
   return 0;
 }
