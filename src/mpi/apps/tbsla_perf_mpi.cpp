@@ -162,6 +162,11 @@ int main(int argc, char** argv) {
     outmap["time_app_in"] = std::to_string((t_app_end - t_app_start) / 1e9);
     outmap["time_op"] = std::to_string((t_op_end - t_op_start) / 1e9);
     outmap["processes"] = std::to_string(world);
+    if(op == "spmv" or op == "spmv_no_redist") {
+      outmap["gflops"] = std::to_string(2.0 * m->get_nnz() / (t_op_end - t_op_start));
+    } else if(op == "a_axpx") {
+      outmap["gflops"] = std::to_string(4.0 * m->get_nnz() / (t_op_end - t_op_start));
+    }
 #if TBSLA_COMPILED_WITH_OMP
     outmap["lang"] = "MPIOMP";
     outmap["omp_threads"] = std::to_string(omp_get_max_threads());
