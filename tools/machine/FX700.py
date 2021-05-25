@@ -72,7 +72,7 @@ export OMP_PROC_BIND=close
 
 def get_additional_info(args):
   dic = dict()
-  dic['log_file'] = os.environ['TBSLA_LOG_FILE']
+  dic['log_file'] = os.environ.get('TBSLA_LOG_FILE', '')
   dic['OMPI_MCA_plm_ple_numanode_assign_policy'] = os.environ.get('OMPI_MCA_plm_ple_numanode_assign_policy', '')
   dic['FLIB_CPU_AFFINITY'] = os.environ.get('FLIB_CPU_AFFINITY', '')
   dic['GOMP_CPU_AFFINITY'] = os.environ.get('GOMP_CPU_AFFINITY', '')
