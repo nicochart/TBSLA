@@ -121,9 +121,14 @@ std::ostream& tbsla::cpp::MatrixCSR::print_as_dense(std::ostream& os) {
 }
 
 std::vector<double> tbsla::cpp::MatrixCSR::spmv(const std::vector<double> &v, int vect_incr) const {
-  std::vector<double> r (this->ln_row, 0);
+  std::vector<double> r (this->n_row, 0);
+  this->Ax(r, v, vect_incr);
+  return r;
+}
+
+inline void tbsla::cpp::MatrixCSR::Ax(std::vector<double> &r, const std::vector<double> &v, int vect_incr) const {
   if (this->values.size() == 0)
-    return r;
+    return;
   #pragma omp parallel for
   for (int i = 0; i < this->rowptr.size() - 1; i++) {
     double tmp = 0;
@@ -132,7 +137,6 @@ std::vector<double> tbsla::cpp::MatrixCSR::spmv(const std::vector<double> &v, in
     }
     r[i] = tmp;
   }
-  return r;
 }
 
 std::ostream & tbsla::cpp::MatrixCSR::print_infos(std::ostream &os) {

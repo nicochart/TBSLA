@@ -15,6 +15,7 @@ class MatrixDENSE : public virtual Matrix {
     MatrixDENSE(const tbsla::cpp::MatrixCOO & m);
     friend std::ostream & operator<<( std::ostream &os, const MatrixDENSE &m);
     std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
+    inline void Ax(std::vector<double> &r, const std::vector<double> &v, int vect_incr = 0) const;
     using tbsla::cpp::Matrix::a_axpx_;
     std::ostream & print_stats(std::ostream &os);
     std::ostream & print_infos(std::ostream &os);

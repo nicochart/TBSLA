@@ -15,6 +15,7 @@ class MatrixCSR : public virtual Matrix {
     MatrixCSR(const tbsla::cpp::MatrixCOO & m);
     MatrixCSR() : values(0), rowptr(0), colidx(0) {};
     std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
+    inline void Ax(std::vector<double> &r, const std::vector<double> &v, int vect_incr = 0) const;
     using tbsla::cpp::Matrix::a_axpx_;
     std::ostream & print_stats(std::ostream &os);
     std::ostream & print_infos(std::ostream &os);

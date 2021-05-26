@@ -19,6 +19,7 @@ class MatrixCOO : public virtual Matrix {
     const std::vector<int>& get_row() const { return row; }
     const std::vector<int>& get_col() const { return col; }
     std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const;
+    inline void Ax(std::vector<double> &r, const std::vector<double> &v, int vect_incr = 0) const;
     using tbsla::cpp::Matrix::a_axpx_;
     void push_back(int r, int c, double v);
     void update_nnz();

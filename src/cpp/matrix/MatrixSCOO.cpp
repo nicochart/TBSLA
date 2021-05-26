@@ -106,7 +106,12 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 }
 
 std::vector<double> tbsla::cpp::MatrixSCOO::spmv(const std::vector<double> &v, int vect_incr) const {
-  std::vector<double> r (this->ln_row, 0);
+  std::vector<double> r (this->n_row, 0);
+  this->Ax(r, v, vect_incr);
+  return r;
+}
+
+inline void tbsla::cpp::MatrixSCOO::Ax(std::vector<double> &r, const std::vector<double> &v, int vect_incr) const {
   // https://stackoverflow.com/questions/43168661/openmp-and-reduction-on-stdvector
   #pragma omp declare reduction(vec_double_plus : std::vector<double> : \
                     std::transform(omp_out.begin(), omp_out.end(), omp_in.begin(), omp_out.begin(), std::plus<double>())) \
@@ -115,7 +120,6 @@ std::vector<double> tbsla::cpp::MatrixSCOO::spmv(const std::vector<double> &v, i
   for (int i = 0; i < this->values.size(); i++) {
      r[this->row[i] + vect_incr - this->f_row] += this->values[i] * v[this->col[i] - this->f_col];
   }
-  return r;
 }
 
 void tbsla::cpp::MatrixSCOO::push_back(int r, int c, double v) {

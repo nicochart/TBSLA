@@ -93,9 +93,14 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 }
 
 std::vector<double> tbsla::cpp::MatrixELL::spmv(const std::vector<double> &v, int vect_incr) const {
-  std::vector<double> r (this->ln_row, 0);
+  std::vector<double> r (this->n_row, 0);
+  this->Ax(r, v, vect_incr);
+  return r;
+}
+
+inline void tbsla::cpp::MatrixELL::Ax(std::vector<double> &r, const std::vector<double> &v, int vect_incr) const {
   if(this->nnz == 0 || this->max_col == 0)
-    return r;
+    return;
   #pragma omp parallel for
   for (int i = 0; i < std::min((size_t)this->ln_row, this->values.size() / this->max_col); i++) {
     double tmp = 0;
@@ -106,7 +111,6 @@ std::vector<double> tbsla::cpp::MatrixELL::spmv(const std::vector<double> &v, in
     }
     r[i] = tmp;
   }
-  return r;
 }
 
 std::ostream & tbsla::cpp::MatrixELL::print_infos(std::ostream &os) {

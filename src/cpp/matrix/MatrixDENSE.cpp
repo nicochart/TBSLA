@@ -56,16 +56,20 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 }
 
 std::vector<double> tbsla::cpp::MatrixDENSE::spmv(const std::vector<double> &v, int vect_incr) const {
-  std::vector<double> r (this->ln_row, 0);
+  std::vector<double> r (this->n_row, 0);
+  this->Ax(r, v, vect_incr);
+  return r;
+}
+
+inline void tbsla::cpp::MatrixDENSE::Ax(std::vector<double> &r, const std::vector<double> &v, int vect_incr) const {
   if(this->nnz == 0 || this->values.size() == 0)
-    return r;
+    return;
   #pragma omp parallel for
   for (int i = 0; i < this->ln_row; i++) {
     for (int j = 0; j < this->ln_col; j++) {
       r[i] += this->values[i * this->ln_col + j] * v[j];
     }
   }
-  return r;
 }
 
 std::ostream & tbsla::cpp::MatrixDENSE::print_infos(std::ostream &os) {

@@ -10,6 +10,7 @@ class Matrix {
   public:
     friend std::ostream & operator<<( std::ostream &os, const Matrix &m) { return m.print(os); };
     virtual std::vector<double> spmv(const std::vector<double> &v, int vect_incr = 0) const = 0;
+    virtual inline void Ax(std::vector<double> &r, const std::vector<double> &v, int vect_incr = 0) const = 0;
     std::vector<double> a_axpx_(const std::vector<double> &v, int vect_incr = 0) const;
     std::vector<double> & saxpy(const std::vector<double> &x, std::vector<double> &y);
     std::vector<double> page_rank(double epsilon, double beta, int max_iteration, int& nb_iterations_done);
