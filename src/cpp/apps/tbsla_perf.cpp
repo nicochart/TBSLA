@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
     std::cerr << "An operation (spmv, a_axpx) has to be given with the parameter --op op" << std::endl;
     exit(1);
   }
-  if(op != "spmv" && op != "a_axpx" && op != "spmv_no_redist") {
+  if(op != "spmv" && op != "a_axpx" && op != "spmv_no_redist" && op != "Ax" && op != "Ax_") {
     std::cerr << "OP : " << op << " unrecognized!" << std::endl;
     exit(1);
   }
@@ -106,11 +106,14 @@ int main(int argc, char** argv) {
   std::uniform_real_distribution<double> dist {-1, 1};
   auto gen = [&dist, &mersenne_engine](){ return dist(mersenne_engine); };
   std::vector<double> vec(m->get_n_col());
+  std::vector<double> res(m->get_n_row());
   std::generate(begin(vec), end(vec), gen);
 
   auto t_op_start = now();
   if(op == "spmv" or op == "spmv_no_redist") {
     std::vector<double> res = m->spmv(vec);
+  } else if(op == "Ax" or op == "Ax_") {
+    m->Ax(res, vec);
   } else if(op == "a_axpx") {
     std::vector<double> res = m->a_axpx_(vec);
   }
@@ -125,7 +128,7 @@ int main(int argc, char** argv) {
   outmap["nnz"] = std::to_string(m->get_nnz());
   outmap["time_app_in"] = std::to_string((t_app_end - t_app_start) / 1e9);
   outmap["time_op"] = std::to_string((t_op_end - t_op_start) / 1e9);
-  if(op == "spmv" or op == "spmv_no_redist") {
+  if(op == "spmv" or op == "spmv_no_redist" or op == "Ax" or op == "Ax_") {
     outmap["gflops"] = std::to_string(2.0 * m->get_nnz() / (t_op_end - t_op_start));
   } else if(op == "a_axpx") {
     outmap["gflops"] = std::to_string(4.0 * m->get_nnz() / (t_op_end - t_op_start));
