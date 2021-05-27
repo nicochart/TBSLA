@@ -8,6 +8,9 @@
 
 #if TBSLA_COMPILED_WITH_OMP
 #include <omp.h>
+#include <tbsla/cpp/utils/cpuset_to_cstr.hpp>
+#include <cstring>
+#include <unistd.h>
 #endif
 
 #include <algorithm>
@@ -24,6 +27,25 @@ static std::uint64_t now() {
 int main(int argc, char** argv) {
   InputParser input(argc, argv);
 
+#if TBSLA_COMPILED_WITH_OMP
+  //https://www.nics.tennessee.edu/files/tutorials/HybridHello/HybridHello.c
+  if(input.has_opt("--report-affinity")) {
+    int thread;
+    cpu_set_t coremask;
+    char clbuf[7 * CPU_SETSIZE], hnbuf[64];
+    memset(clbuf, 0, sizeof(clbuf));
+    memset(hnbuf, 0, sizeof(hnbuf));
+    (void)gethostname(hnbuf, sizeof(hnbuf));
+    #pragma omp parallel private(thread, coremask, clbuf)
+    {
+      thread = omp_get_thread_num();
+      (void)sched_getaffinity(0, sizeof(coremask), &coremask);
+      tbsla::cpp::utils::cpuset_to_cstr(&coremask, clbuf);
+      #pragma omp barrier
+      printf("Hello from thread %d, on %s. (core affinity = %s)\n", thread, hnbuf, clbuf);
+    }
+  }
+#endif
 
   std::string format = input.get_opt("--format");
   if(format == "") {
