@@ -23,6 +23,8 @@ class MatrixCSR : public tbsla::cpp::MatrixCSR, public tbsla::mpi::Matrix {
     using tbsla::cpp::MatrixCSR::read;
     using tbsla::cpp::MatrixCSR::write;
     using tbsla::mpi::Matrix::spmv_no_redist;
+private:
+    void mpiio_read_lines(MPI_File &fh, int s, int n, int rowptr_start, int colidx_start, int values_start);
 };
 
 }}

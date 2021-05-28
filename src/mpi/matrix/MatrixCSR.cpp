@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <mpi.h>
 
+#define TBSLA_MATRIX_CSR_READLINES 2048
+
 int tbsla::mpi::MatrixCSR::read_bin_mpiio(MPI_Comm comm, std::string filename, int pr, int pc, int NR, int NC) {
   int world, rank;
   MPI_Comm_size(comm, &world);
@@ -49,20 +51,39 @@ int tbsla::mpi::MatrixCSR::read_bin_mpiio(MPI_Comm comm, std::string filename, i
 
   this->rowptr[0] = 0;
   this->nnz = 0;
-  int idx, jmin, jmax;
   this->colidx.reserve(this->ln_row * 10);
   this->values.reserve(this->ln_row * 10);
-  std::vector<int> ctmp;
-  std::vector<double> vtmp;
-  for(int i = 0; i < this->ln_row; i++) {
-    MPI_File_read_at(fh, rowptr_start + i * sizeof(int), &jmin, 1, MPI_INT, &status);
-    MPI_File_read_at(fh, rowptr_start + (i + 1) * sizeof(int), &jmax, 1, MPI_INT, &status);
-    int nv = jmax - jmin;
-    ctmp.reserve(nv);
-    vtmp.reserve(nv);
-    MPI_File_read_at(fh, colidx_start + jmin * sizeof(int), ctmp.data(), nv, MPI_INT, &status);
-    MPI_File_read_at(fh, values_start + jmin * sizeof(double), vtmp.data(), nv, MPI_DOUBLE, &status);
-    for(int j = 0; j < nv; j++) {
+  int mod = this->ln_row % TBSLA_MATRIX_CSR_READLINES;
+  tbsla::mpi::MatrixCSR::mpiio_read_lines(fh, 0, mod, rowptr_start, colidx_start, values_start);
+  for(int i = mod; i < this->ln_row; i += TBSLA_MATRIX_CSR_READLINES) {
+    tbsla::mpi::MatrixCSR::mpiio_read_lines(fh, i, TBSLA_MATRIX_CSR_READLINES, rowptr_start, colidx_start, values_start);
+  }
+  this->colidx.shrink_to_fit();
+  this->rowptr.shrink_to_fit();
+
+  MPI_File_close(&fh);
+  return 0;
+}
+
+void tbsla::mpi::MatrixCSR::mpiio_read_lines(MPI_File &fh, int s, int n, int rowptr_start, int colidx_start, int values_start) {
+  MPI_Status status;
+  std::vector<int> jtmp(n + 1);
+  int idx, jmin, jmax, nv;
+  MPI_File_read_at(fh, rowptr_start + s * sizeof(int), jtmp.data(), n + 1, MPI_INT, &status);
+  jmin = jtmp[0];
+  jmax = jtmp[n];
+  nv = jmax - jmin;
+  std::cout << nv << std::endl;
+  std::vector<int> ctmp(nv);
+  std::vector<double> vtmp(nv);
+  MPI_File_read_at(fh, colidx_start + jmin * sizeof(int), ctmp.data(), nv, MPI_INT, &status);
+  MPI_File_read_at(fh, values_start + jmin * sizeof(double), vtmp.data(), nv, MPI_DOUBLE, &status);
+  int incr = 0;
+  for(int i = 0; i < n; i++) {
+    jmin = jtmp[i];
+    jmax = jtmp[i + 1];
+    nv = jmax - jmin;
+    for(int j = incr; j < incr + nv; j++) {
       idx = ctmp[j];
       if(idx >= this->f_col && idx < this->f_col + this->ln_col) {
         this->colidx.push_back(idx);
@@ -70,13 +91,9 @@ int tbsla::mpi::MatrixCSR::read_bin_mpiio(MPI_Comm comm, std::string filename, i
         this->nnz++;
       }
     }
-    this->rowptr[i + 1] = this->nnz;
+    incr += nv;
+    this->rowptr[s + i + 1] = this->nnz;
   }
-  this->colidx.shrink_to_fit();
-  this->rowptr.shrink_to_fit();
-
-  MPI_File_close(&fh);
-  return 0;
 }
 
 std::vector<double> tbsla::mpi::MatrixCSR::spmv(MPI_Comm comm, const std::vector<double> &v, int vect_incr) {
