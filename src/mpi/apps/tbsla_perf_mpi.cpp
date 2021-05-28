@@ -114,7 +114,13 @@ int main(int argc, char** argv) {
   } else if(matrix == "cqmat") {
     m->fill_cqmat(NR, NC, C, Q, S, rank / GC, rank % GC, GR, GC);
   } else {
-    m->read_bin_mpiio(MPI_COMM_WORLD, matrix_folder + "/" + matrix + "." + format, rank / GC, rank % GC, GR, GC);
+    std::string filepath = matrix_folder + "/" + matrix + "." + format;
+    std::ifstream f(filepath);
+    if(!f.good()) {
+      std::cerr << filepath << " cannot be open!" << std::endl;
+    }
+    m->read_bin_mpiio(MPI_COMM_WORLD, filepath, rank / GC, rank % GC, GR, GC);
+    f.close();
   }
 
   if(input.has_opt("--print-infos")) {
