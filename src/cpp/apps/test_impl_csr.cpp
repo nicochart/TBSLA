@@ -170,6 +170,67 @@ class MatrixCSRCArray {
 
 };
 
+class MatrixCSRCMalloc {
+  public:
+    double *values;
+    int *colidx;
+    int *rowptr;
+    int n_row, n_col, f_row, f_col, ln_row, ln_col, pr, pc, NR, NC;
+    long int nnz;
+
+
+    MatrixCSRCMalloc(std::string filepath) {
+      std::ifstream is(filepath);
+      if(!is.good()) {
+        std::cerr << filepath << " cannot be open!" << std::endl;
+      }
+      is.read(reinterpret_cast<char*>(&this->n_row), sizeof(this->n_row));
+      is.read(reinterpret_cast<char*>(&this->n_col), sizeof(this->n_col));
+      is.read(reinterpret_cast<char*>(&this->ln_row), sizeof(this->ln_row));
+      is.read(reinterpret_cast<char*>(&this->ln_col), sizeof(this->ln_col));
+      is.read(reinterpret_cast<char*>(&this->f_row), sizeof(this->f_row));
+      is.read(reinterpret_cast<char*>(&this->f_col), sizeof(this->f_col));
+      is.read(reinterpret_cast<char*>(&this->nnz), sizeof(this->nnz));
+      is.read(reinterpret_cast<char*>(&this->pr), sizeof(this->pr));
+      is.read(reinterpret_cast<char*>(&this->pc), sizeof(this->pc));
+      is.read(reinterpret_cast<char*>(&this->NR), sizeof(this->NR));
+      is.read(reinterpret_cast<char*>(&this->NC), sizeof(this->NC));
+
+      size_t size;
+      is.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+      this->values = (double *) malloc(size * sizeof(double));
+      is.read(reinterpret_cast<char*>(this->values), size * sizeof(double));
+
+      is.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+      this->rowptr = (int *) malloc(size * sizeof(int));
+      is.read(reinterpret_cast<char*>(this->rowptr), size * sizeof(int));
+
+      is.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+      this->colidx = (int *) malloc(size * sizeof(int));
+      is.read(reinterpret_cast<char*>(this->colidx), size * sizeof(int));
+      is.close();
+    }
+
+    ~MatrixCSRCMalloc() {
+      std::cout << "call ~MatrixCSRCMalloc" << std::endl;
+      free(values);
+      free(rowptr);
+      free(colidx);
+    }
+
+    void spmv1(double *b, double *x){
+      #pragma omp parallel for
+      for (int i = 0; i < this->n_row - 1; i++) {
+        double tmp = 0;
+        for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
+           tmp += this->values[j] * x[this->colidx[j]];
+        }
+        b[i] = tmp;
+      }
+    }
+
+};
+
 inline void spmv_array_no_class(double *b, double *x, int *rowptr, int *colidx, double *values, int s){
   #pragma omp parallel for schedule(static)
   for (int i = 0; i < s - 1; i++) {
@@ -200,6 +261,7 @@ int main(int argc, char** argv) {
   std::string in(argv[1]);
   MatrixCSRVector mvec(in);
   MatrixCSRCArray mc(in);
+  MatrixCSRCMalloc mm(in);
   std::vector<double> x(mc.n_col), b(mc.n_col);
   for(int i = 0; i < mc.n_col; i++) {
     x[i] = i/mc.n_col;
@@ -208,7 +270,7 @@ int main(int argc, char** argv) {
   double *b2 = new double[mc.n_col];
 
   int ITERATIONS = 100;
-  double t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, t7 = 0, t8 = 0;
+  double t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, t7 = 0, t8 = 0, t9 = 0;
   for(int it = 0; it < ITERATIONS; it++) {
     auto start = now();
     mvec.spmv1(b, x);
@@ -249,6 +311,11 @@ int main(int argc, char** argv) {
     spmv_array_no_class(b2, x2, mc.rowptr, mc.colidx, mc.values, mc.n_row);
     end = now();
     t8 += (end - start) / 1e9;
+
+    start = now();
+    spmv_array_no_class(b2, x2, mm.rowptr, mm.colidx, mm.values, mm.n_row);
+    end = now();
+    t9 += (end - start) / 1e9;
   }
 
   std::cout << "spmv vec class                --> time (s) : " << t1 / ITERATIONS << std::endl;
@@ -267,6 +334,8 @@ int main(int argc, char** argv) {
   std::cout << "spmv array class              --> GFlops   : " << 2 * mvec.nnz / t7 * ITERATIONS / 1e9 << std::endl;
   std::cout << "spmv array no class           --> time (s) : " << t8 / ITERATIONS << std::endl;
   std::cout << "spmv array no class           --> GFlops   : " << 2 * mvec.nnz / t8 * ITERATIONS / 1e9 << std::endl;
+  std::cout << "spmv alloc no class           --> time (s) : " << t9 / ITERATIONS << std::endl;
+  std::cout << "spmv alloc no class           --> GFlops   : " << 2 * mvec.nnz / t9 * ITERATIONS / 1e9 << std::endl;
 
   return 0;
 }
