@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <stdlib.h>
 
 static std::uint64_t now() {
   std::chrono::nanoseconds ns = std::chrono::steady_clock::now().time_since_epoch();
@@ -157,6 +158,36 @@ class MatrixCSRCArray {
       delete [] colidx;
     }
 
+    void NUMAinit() {
+      double* newVal = new double[this->nnz];
+      int* newCol = new int[this->nnz];
+      int* newRowPtr = new int[this->n_row + 1];
+    
+      //NUMA init
+    #pragma omp parallel for schedule(static)
+      for(int row = 0; row < this->n_row + 1; ++row)
+      {
+        newRowPtr[row] = this->rowptr[row];
+      }
+    #pragma omp parallel for schedule(static)
+      for(int row = 0; row < this->n_row; ++row)
+      {
+        for(int idx = newRowPtr[row]; idx < newRowPtr[row + 1]; ++idx)
+        {
+          newCol[idx] = this->colidx[idx];
+          newVal[idx] = this->values[idx];
+        }
+      }
+
+      delete[] values;
+      delete[] rowptr;
+      delete[] colidx;
+
+      values = newVal;
+      rowptr = newRowPtr;
+      colidx = newCol;
+    }
+
     void spmv1(double *b, double *x){
       #pragma omp parallel for
       for (int i = 0; i < this->n_row - 1; i++) {
@@ -231,6 +262,8 @@ class MatrixCSRCMalloc {
 
 };
 
+
+
 inline void spmv_array_no_class(double *b, double *x, int *rowptr, int *colidx, double *values, int s){
   #pragma omp parallel for schedule(static)
   for (int i = 0; i < s - 1; i++) {
@@ -270,7 +303,7 @@ int main(int argc, char** argv) {
   double *b2 = new double[mc.n_col];
 
   int ITERATIONS = 100;
-  double t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, t7 = 0, t8 = 0, t9 = 0;
+  double t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, t7 = 0, t8 = 0, t9 = 0, t10 = 0;
   for(int it = 0; it < ITERATIONS; it++) {
     auto start = now();
     mvec.spmv1(b, x);
@@ -311,11 +344,20 @@ int main(int argc, char** argv) {
     spmv_array_no_class(b2, x2, mc.rowptr, mc.colidx, mc.values, mc.n_row);
     end = now();
     t8 += (end - start) / 1e9;
+  }
+
+  mc.NUMAinit();
+
+  for(int it = 0; it < ITERATIONS; it++) {
+    auto start = now();
+    spmv_array_no_class(b2, x2, mc.rowptr, mc.colidx, mc.values, mc.n_row);
+    auto end = now();
+    t9 += (end - start) / 1e9;
 
     start = now();
     spmv_array_no_class(b2, x2, mm.rowptr, mm.colidx, mm.values, mm.n_row);
     end = now();
-    t9 += (end - start) / 1e9;
+    t10 += (end - start) / 1e9;
   }
 
   std::cout << "spmv vec class                --> time (s) : " << t1 / ITERATIONS << std::endl;
@@ -334,8 +376,10 @@ int main(int argc, char** argv) {
   std::cout << "spmv array class              --> GFlops   : " << 2 * mvec.nnz / t7 * ITERATIONS / 1e9 << std::endl;
   std::cout << "spmv array no class           --> time (s) : " << t8 / ITERATIONS << std::endl;
   std::cout << "spmv array no class           --> GFlops   : " << 2 * mvec.nnz / t8 * ITERATIONS / 1e9 << std::endl;
-  std::cout << "spmv alloc no class           --> time (s) : " << t9 / ITERATIONS << std::endl;
-  std::cout << "spmv alloc no class           --> GFlops   : " << 2 * mvec.nnz / t9 * ITERATIONS / 1e9 << std::endl;
+  std::cout << "spmv array no class NUMAinit  --> time (s) : " << t9 / ITERATIONS << std::endl;
+  std::cout << "spmv array no class NUMAinit  --> GFlops   : " << 2 * mvec.nnz / t9 * ITERATIONS / 1e9 << std::endl;
+  std::cout << "spmv alloc no class           --> time (s) : " << t10 / ITERATIONS << std::endl;
+  std::cout << "spmv alloc no class           --> GFlops   : " << 2 * mvec.nnz / t10 * ITERATIONS / 1e9 << std::endl;
 
   return 0;
 }
