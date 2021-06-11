@@ -15,7 +15,7 @@ tbsla::cpp::MatrixELL::~MatrixELL() {
     delete[] this->columns;
 }
 
-tbsla::cpp::MatrixELL::MatrixELL(const tbsla::cpp::MatrixCOO & m) {
+tbsla::cpp::MatrixELL::MatrixELL(const tbsla::cpp::MatrixCOO & m) : values(NULL), columns(NULL) {
   this->n_row = m.get_n_row();
   this->n_col = m.get_n_col();
   this->ln_row = m.get_n_row();
@@ -33,7 +33,7 @@ tbsla::cpp::MatrixELL::MatrixELL(const tbsla::cpp::MatrixCOO & m) {
     this->max_col = 0;
     this->nnz = 0;
   } else {
-    int* p = new int[this->nnz];
+    int* p = new int[this->nnz]();
     std::iota(p, p + this->nnz, 0);
     std::sort(p, p + this->nnz, [&](unsigned i, unsigned j){ return tbsla::cpp::utils::csr::compare_row(m.get_row(), m.get_col(), i, j); });
 
@@ -41,11 +41,11 @@ tbsla::cpp::MatrixELL::MatrixELL(const tbsla::cpp::MatrixCOO & m) {
     int* scol = tbsla::cpp::utils::csr::applyPermutation<int>(p, m.get_col(), this->nnz);
     double* sval = tbsla::cpp::utils::csr::applyPermutation<double>(p, m.get_values(), this->nnz);
   
-    int* nvrow = new int[this->n_row];
+    int* nvrow = new int[this->n_row]();
     for(int i = 0; i < this->n_row; i++) {
       nvrow[i] = 0;
     }
-    for(int i = 0; i < this->n_row; i++) {
+    for(int i = 0; i < this->nnz; i++) {
       nvrow[srow[i]]++;
     }
     this->max_col = *std::max_element(nvrow, nvrow + this->n_row);
@@ -53,8 +53,8 @@ tbsla::cpp::MatrixELL::MatrixELL(const tbsla::cpp::MatrixCOO & m) {
       delete[] this->values;
     if (this->columns)
       delete[] this->columns;
-    this->values = new double[this->n_row * this->max_col];
-    this->columns = new int[this->n_row * this->max_col];
+    this->values = new double[this->n_row * this->max_col]();
+    this->columns = new int[this->n_row * this->max_col]();
     std::size_t incr = 0;
     for(int i = 0; i < this->n_row; i++) {
       for(int j = 0; j < nvrow[i]; j++) {
@@ -106,16 +106,19 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 }
 
 double* tbsla::cpp::MatrixELL::spmv(const double* v, int vect_incr) const {
-  double* r = new double[this->ln_row];
+  double* r = new double[this->ln_row]();
+  for (int i = 0; i < this->ln_row; i++) {
+    r[i] = 0;
+  }
   this->Ax(r, v, vect_incr);
   return r;
 }
 
 inline void tbsla::cpp::MatrixELL::Ax(double* r, const double* v, int vect_incr) const {
-  if(this->nnz == 0 || this->max_col == 0)
+  if(this->nnz == 0 || this->max_col == 0 || this->values == NULL || this->columns == NULL)
     return;
   #pragma omp parallel for
-  for (int i = 0; i < std::min((long int)this->ln_row, this->nnz / this->max_col); i++) {
+  for (int i = 0; i < this->ln_row; i++) {
     double tmp = 0;
     for (int j = 0; j < this->max_col; j++) {
       int idx = this->columns[i * this->max_col + j] - this->f_col;
@@ -222,8 +225,8 @@ void tbsla::cpp::MatrixELL::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
     delete[] this->values;
   if (this->columns)
     delete[] this->columns;
-  this->values = new double[this->ln_row * this->max_col];
-  this->columns = new int[this->ln_row * this->max_col];
+  this->values = new double[this->ln_row * this->max_col]();
+  this->columns = new int[this->ln_row * this->max_col]();
 
   int idx = 0;
   for(long int i = f_row; i < f_row + ln_row; i++) {

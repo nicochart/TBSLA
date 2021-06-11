@@ -123,9 +123,9 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 }
 
 double* tbsla::cpp::MatrixCOO::spmv(const double* v, int vect_incr) const {
-  double* r = new double[this->n_row];
+  double* r = new double[this->n_row]();
   #pragma omp parallel for
-  for (int i = 0; i < this->ln_row; i++) {
+  for (int i = 0; i < this->n_row; i++) {
     r[i] = 0;
   }
   this->Ax(r, v, vect_incr);

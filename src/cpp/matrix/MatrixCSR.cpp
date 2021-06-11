@@ -9,7 +9,7 @@
 #include <string>
 #include <algorithm>
 
-tbsla::cpp::MatrixCSR::MatrixCSR(int n_row, int n_col, double* values, int* rowptr,  int* colidx) {
+tbsla::cpp::MatrixCSR::MatrixCSR(int n_row, int n_col, double* values, int* rowptr,  int* colidx) : values(NULL), rowptr(NULL), colidx(NULL) {
   this->n_row = n_row;
   this->n_col = n_col;
   this->ln_row = n_row;
@@ -37,7 +37,7 @@ tbsla::cpp::MatrixCSR::~MatrixCSR() {
     delete[] this->colidx;
 }
 
-tbsla::cpp::MatrixCSR::MatrixCSR(const tbsla::cpp::MatrixCOO & m) {
+tbsla::cpp::MatrixCSR::MatrixCSR(const tbsla::cpp::MatrixCOO & m) : values(NULL), rowptr(NULL), colidx(NULL) {
   this->n_row = m.get_n_row();
   this->n_col = m.get_n_col();
   this->ln_row = m.get_n_row();
@@ -59,9 +59,9 @@ tbsla::cpp::MatrixCSR::MatrixCSR(const tbsla::cpp::MatrixCOO & m) {
   this->values = tbsla::cpp::utils::csr::applyPermutation<double>(p, m.get_values(), this->nnz);
 
   if(this->nnz == 0) {
-    this->rowptr = new int[this->n_row + 1];
+    this->rowptr = new int[this->n_row + 1]();
   } else {
-    this->rowptr = new int[this->n_row + 1];
+    this->rowptr = new int[this->n_row + 1]();
     this->rowptr[0] = 0;
     size_t incr = 1;
     for(int i = 0; i < pr[0]; i++) {
@@ -131,7 +131,11 @@ std::ostream& tbsla::cpp::MatrixCSR::print_as_dense(std::ostream& os) {
 }
 
 double* tbsla::cpp::MatrixCSR::spmv(const double* v, int vect_incr) const {
-  double* r = new double[this->ln_row];
+  double* r = new double[this->ln_row]();
+  #pragma omp parallel for
+  for (int i = 0; i < ln_row; i++) {
+    r[i] = 0;
+  }
   this->Ax(r, v, vect_incr);
   return r;
 }
@@ -231,28 +235,28 @@ void tbsla::cpp::MatrixCSR::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
   ln_col = tbsla::utils::range::lnv(n_col, pc, NC);
   f_col = tbsla::utils::range::pflv(n_col, pc, NC);
 
-  long int nv = 0;
+  this->nnz = 0;
   for(long int i = f_row; i < f_row + ln_row; i++) {
     long int ii, jj;
     jj = i - cdiag;
     ii = i;
     if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
-      nv++;
+      this->nnz++;
     }
     if(cdiag != 0) {
       jj = i + cdiag;
       ii = i;
       if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
-        nv++;
+        this->nnz++;
       }
     }
   }
 
-  if(nv == 0)
+  if(this->nnz == 0)
     return;
 
-  this->values = new double[nv];
-  this->colidx = new int[nv];
+  this->values = new double[this->nnz];
+  this->colidx = new int[this->nnz];
   this->rowptr = new int[ln_row + 1];
 
   size_t incr = 0;
@@ -275,7 +279,7 @@ void tbsla::cpp::MatrixCSR::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
         incr++;
       }
     }
-    this->rowptr[i - f_row] = incr;
+    this->rowptr[i - f_row + 1] = incr;
   }
 }
 

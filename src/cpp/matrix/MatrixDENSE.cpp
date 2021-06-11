@@ -12,7 +12,7 @@ tbsla::cpp::MatrixDENSE::~MatrixDENSE() {
     delete[] this->values;
 }
 
-tbsla::cpp::MatrixDENSE::MatrixDENSE(const tbsla::cpp::MatrixCOO & m) {
+tbsla::cpp::MatrixDENSE::MatrixDENSE(const tbsla::cpp::MatrixCOO & m) : values(NULL) {
   this->n_row = m.get_n_row();
   this->n_col = m.get_n_col();
   this->ln_row = m.get_n_row();
@@ -27,7 +27,7 @@ tbsla::cpp::MatrixDENSE::MatrixDENSE(const tbsla::cpp::MatrixCOO & m) {
 
   if (this->values)
     delete[] this->values;
-  this->values = new double[this->ln_row * this->ln_col];
+  this->values = new double[this->ln_row * this->ln_col]();
   for(int i = 0; i < this->ln_row * this->ln_col; i++) {
     this->values[i] = 0;
   }
@@ -65,13 +65,17 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 }
 
 double* tbsla::cpp::MatrixDENSE::spmv(const double* v, int vect_incr) const {
-  double* r = new double[this->n_row];
+  double* r = new double[this->ln_row]();
+  #pragma omp parallel for
+  for (int i = 0; i < this->ln_row; i++) {
+    r[i] = 0;
+  }
   this->Ax(r, v, vect_incr);
   return r;
 }
 
 inline void tbsla::cpp::MatrixDENSE::Ax(double* r, const double* v, int vect_incr) const {
-  if(this->nnz == 0)
+  if(this->nnz == 0 || this->values == NULL)
     return;
   #pragma omp parallel for
   for (int i = 0; i < this->ln_row; i++) {

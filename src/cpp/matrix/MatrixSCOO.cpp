@@ -18,7 +18,7 @@ tbsla::cpp::MatrixSCOO::~MatrixSCOO() {
     delete[] this->col;
 }
 
-tbsla::cpp::MatrixSCOO::MatrixSCOO(int n_row, int n_col, double* values, int* row,  int* col) {
+tbsla::cpp::MatrixSCOO::MatrixSCOO(int n_row, int n_col, double* values, int* row,  int* col) : values(NULL), row(NULL), col(NULL) {
   if (this->values)
     delete[] this->values;
   if (this->row)
@@ -40,7 +40,7 @@ tbsla::cpp::MatrixSCOO::MatrixSCOO(int n_row, int n_col, double* values, int* ro
   this->NC = 1;
 }
 
-tbsla::cpp::MatrixSCOO::MatrixSCOO(int n_row, int n_col, int n_values) {
+tbsla::cpp::MatrixSCOO::MatrixSCOO(int n_row, int n_col, int n_values) : values(NULL), row(NULL), col(NULL) {
   if (this->values)
     delete[] this->values;
   if (this->row)
@@ -60,7 +60,7 @@ tbsla::cpp::MatrixSCOO::MatrixSCOO(int n_row, int n_col, int n_values) {
   this->NC = 1;
 }
 
-tbsla::cpp::MatrixSCOO::MatrixSCOO(int n_row, int n_col) {
+tbsla::cpp::MatrixSCOO::MatrixSCOO(int n_row, int n_col) : values(NULL), row(NULL), col(NULL) {
   this->n_row = n_row;
   this->n_col = n_col;
   this->f_row = 0;
@@ -71,7 +71,7 @@ tbsla::cpp::MatrixSCOO::MatrixSCOO(int n_row, int n_col) {
   this->NC = 1;
 }
 
-tbsla::cpp::MatrixSCOO::MatrixSCOO(const tbsla::cpp::MatrixCOO & m) {
+tbsla::cpp::MatrixSCOO::MatrixSCOO(const tbsla::cpp::MatrixCOO & m) : values(NULL), row(NULL), col(NULL) {
   this->n_row = m.get_n_row();
   this->n_col = m.get_n_col();
   this->ln_row = m.get_n_row();
@@ -231,24 +231,24 @@ void tbsla::cpp::MatrixSCOO::fill_cdiag(int n_row, int n_col, int cdiag, int pr,
   this->ln_col = tbsla::utils::range::lnv(n_col, pc, NC);
   this->f_col = tbsla::utils::range::pflv(n_col, pc, NC);
 
-  long int nv = 0;
+  this->nnz = 0;
   for(long int i = f_row; i < f_row + ln_row; i++) {
     long int ii, jj;
     jj = i - cdiag;
     ii = i;
     if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
-      nv++;
+      this->nnz++;
     }
     if(cdiag != 0) {
       jj = i + cdiag;
       ii = i;
       if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
-        nv++;
+        this->nnz++;
       }
     }
   }
 
-  if(nv == 0)
+  if(this->nnz == 0)
     return;
 
   if (this->values)
@@ -257,9 +257,9 @@ void tbsla::cpp::MatrixSCOO::fill_cdiag(int n_row, int n_col, int cdiag, int pr,
     delete[] this->row;
   if (this->col)
     delete[] this->col;
-  this->values = new double[nv];
-  this->row = new int[nv];
-  this->col = new int[nv];
+  this->values = new double[this->nnz];
+  this->row = new int[this->nnz];
+  this->col = new int[this->nnz];
 
   long int idx = 0;
   for(long int i = f_row; i < f_row + ln_row; i++) {
