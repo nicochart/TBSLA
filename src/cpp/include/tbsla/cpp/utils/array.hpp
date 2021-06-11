@@ -1,5 +1,5 @@
 #ifndef TBSLA_CPP_ARRAY
-#define TBSLA_CPP_ARRAy
+#define TBSLA_CPP_ARRAY
 
 #include <iostream>
 
