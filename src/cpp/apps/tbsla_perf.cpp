@@ -118,11 +118,6 @@ int main(int argc, char** argv) {
     is.close();
   }
 
-  if(input.has_opt("--print-infos")) {
-    m->print_stats(std::cout);
-    m->print_infos(std::cout);
-  }
-
   std::random_device rnd_device;
   std::mt19937 mersenne_engine {rnd_device()};  // Generates random integers
   std::uniform_real_distribution<double> dist {-1, 1};
@@ -133,11 +128,11 @@ int main(int argc, char** argv) {
 
   auto t_op_start = now();
   if(op == "spmv" or op == "spmv_no_redist") {
-    std::vector<double> res = m->spmv(vec);
+    double* res = m->spmv(vec.data());
   } else if(op == "Ax" or op == "Ax_") {
-    m->Ax(res, vec);
+    m->Ax(res.data(), vec.data());
   } else if(op == "a_axpx") {
-    std::vector<double> res = m->a_axpx_(vec);
+    double* res = m->a_axpx_(vec.data());
   }
   auto t_op_end = now();
   auto t_app_end = now();
