@@ -82,6 +82,8 @@ tbsla::cpp::MatrixCSR::MatrixCSR(const tbsla::cpp::MatrixCOO & m) : values(NULL)
       this->rowptr[i + 1] = this->rowptr[i];
     }
   }
+  delete[] p;
+  delete[] pr;
 }
 
 

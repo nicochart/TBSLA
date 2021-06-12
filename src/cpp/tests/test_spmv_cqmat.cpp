@@ -147,6 +147,16 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
     std::cout << std::endl;
     exit(1);
   }
+  delete[] v;
+  delete[] rcoo;
+  delete[] rscoo;
+  delete[] rscoo2;
+  delete[] rcsr;
+  delete[] rcsr2;
+  delete[] rell;
+  delete[] rell2;
+  delete[] rdense;
+  delete[] rdense2;
 }
 
 void test_mat(int nr, int nc, int c) {
@@ -158,13 +168,6 @@ void test_mat(int nr, int nc, int c) {
 }
 
 int main(int argc, char** argv) {
-  test_mat(10, 5, 8);
-  test_mat(5, 10, 7);
-  test_mat(10, 10, 12);
-  test_mat(10, 10, 3);
-  test_mat(10, 5, 3);
-  test_mat(10, 5, 6);
-
   int t = 0;
   for(int i = 0; i <= 12; i++) {
     std::cout << "=== test " << t++ << " ===" << std::endl;

@@ -43,6 +43,7 @@ int tbsla::utils::array::test_spmv_cdiag(int nr, int nc, int c, double* v, doubl
     int rv = tbsla::utils::array::check(i, r[i], rc[i], 14, debug);
     if(rv) return rv;
   }
+  delete [] rc;
   if(i < nr) {
     return 222;
   }
@@ -57,7 +58,9 @@ int tbsla::utils::array::test_a_axpx__cdiag(int nr, int nc, int c, double* v, do
   for (int i = 0; i < nr; i++) {
     rc[i] += v[i];
   }
+  double * tmp = rc;
   rc = compute_spmv_res_cdiag(nr, nc, c, rc);
+  delete[] tmp;
   int i;
   for(i = 0; i < std::min(c, nr); i++) {
     int rv = tbsla::utils::array::check(i, r[i], rc[i], 10, debug);
@@ -71,6 +74,7 @@ int tbsla::utils::array::test_a_axpx__cdiag(int nr, int nc, int c, double* v, do
     int rv = tbsla::utils::array::check(i, r[i], rc[i], 14, debug);
     if(rv) return rv;
   }
+  delete [] rc;
   if(i < nr) {
     return 222;
   }

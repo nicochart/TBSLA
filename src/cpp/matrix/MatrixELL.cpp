@@ -63,6 +63,11 @@ tbsla::cpp::MatrixELL::MatrixELL(const tbsla::cpp::MatrixCOO & m) : values(NULL)
         incr++;
       }
     }
+    delete[] p;
+    delete[] nvrow;
+    delete[] srow;
+    delete[] scol;
+    delete[] sval;
   }
 }
 

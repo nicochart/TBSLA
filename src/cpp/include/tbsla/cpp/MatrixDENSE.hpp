@@ -10,7 +10,7 @@ namespace tbsla { namespace cpp {
 
 class MatrixDENSE : public virtual Matrix {
   public:
-    MatrixDENSE() : values(0) {};
+    MatrixDENSE() : values(NULL) {};
     MatrixDENSE(const tbsla::cpp::MatrixCOO & m);
     ~MatrixDENSE();
     friend std::ostream & operator<<( std::ostream &os, const MatrixDENSE &m);
