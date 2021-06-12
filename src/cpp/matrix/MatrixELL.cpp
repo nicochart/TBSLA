@@ -112,6 +112,7 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 
 double* tbsla::cpp::MatrixELL::spmv(const double* v, int vect_incr) const {
   double* r = new double[this->ln_row]();
+  #pragma omp parallel for schedule(static)
   for (int i = 0; i < this->ln_row; i++) {
     r[i] = 0;
   }
@@ -122,7 +123,7 @@ double* tbsla::cpp::MatrixELL::spmv(const double* v, int vect_incr) const {
 inline void tbsla::cpp::MatrixELL::Ax(double* r, const double* v, int vect_incr) const {
   if(this->nnz == 0 || this->max_col == 0 || this->values == NULL || this->columns == NULL)
     return;
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(static)
   for (int i = 0; i < this->ln_row; i++) {
     double tmp = 0;
     for (int j = 0; j < this->max_col; j++) {
@@ -394,3 +395,22 @@ void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, un
   }
 }
 
+void tbsla::cpp::MatrixELL::NUMAinit() {
+  double* newVal = new double[this->ln_row * this->max_col];
+  int* newCol = new int[this->ln_row * this->max_col];
+
+  //NUMA init
+  #pragma omp parallel for schedule(static)
+  for (int i = 0; i < this->ln_row; i++) {
+    for (int j = 0; j < this->max_col; j++) {
+      newCol[i * this->max_col + j] = this->columns[i * this->max_col + j];
+      newVal[i * this->max_col + j] = this->values[i * this->max_col + j];
+    }
+  }
+
+  delete[] this->values;
+  delete[] this->columns;
+
+  this->values = newVal;
+  this->columns = newCol;
+}

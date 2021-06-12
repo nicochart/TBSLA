@@ -118,6 +118,10 @@ int main(int argc, char** argv) {
     is.close();
   }
 
+  if(input.has_opt("--numa-init")) {
+    m->NUMAinit();
+  }
+
   std::random_device rnd_device;
   std::mt19937 mersenne_engine {rnd_device()};  // Generates random integers
   std::uniform_real_distribution<double> dist {-1, 1};

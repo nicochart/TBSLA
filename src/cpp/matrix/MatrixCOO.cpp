@@ -124,7 +124,7 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 
 double* tbsla::cpp::MatrixCOO::spmv(const double* v, int vect_incr) const {
   double* r = new double[this->n_row]();
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(static)
   for (int i = 0; i < this->n_row; i++) {
     r[i] = 0;
   }
@@ -134,7 +134,7 @@ double* tbsla::cpp::MatrixCOO::spmv(const double* v, int vect_incr) const {
 
 inline void tbsla::cpp::MatrixCOO::Ax(double* r, const double* v, int vect_incr) const {
   tbsla::cpp::reduction::array<double> s(r, this->n_row);
-  #pragma omp parallel for reduction(add_arr:s)
+  #pragma omp parallel for reduction(add_arr:s) schedule(static)
   for (std::size_t i = 0; i < this->nnz; i++) {
      s[this->row[i] + vect_incr] += this->values[i] * v[this->col[i]];
   }
@@ -342,3 +342,24 @@ void tbsla::cpp::MatrixCOO::fill_cqmat(int n_row, int n_col, int c, double q, un
   }
 }
 
+void tbsla::cpp::MatrixCOO::NUMAinit() {
+  double* newVal = new double[this->nnz];
+  int* newCol = new int[this->nnz];
+  int* newRow = new int[this->nnz];
+
+  //NUMA init
+#pragma omp parallel for schedule(static)
+  for(int idx = 0; idx < this->nnz; ++idx) {
+    newCol[idx] = this->col[idx];
+    newRow[idx] = this->row[idx];
+    newVal[idx] = this->values[idx];
+  }
+
+  delete[] this->values;
+  delete[] this->row;
+  delete[] this->col;
+
+  this->values = newVal;
+  this->row = newRow;
+  this->col = newCol;
+}

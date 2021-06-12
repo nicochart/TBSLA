@@ -29,6 +29,8 @@ class Matrix {
     virtual std::ostream& print(std::ostream& os) const = 0;
     virtual std::ostream& print_as_dense(std::ostream& os) = 0;
 
+    virtual void NUMAinit() = 0;
+
     virtual void fill_cdiag(int n_row, int n_col, int cdiag, int pr = 0, int pc = 0, int NR = 1, int NC = 1) = 0;
     virtual void fill_cqmat(int n_row, int n_col, int c, double q, unsigned int seed_mult = 1, int pr = 0, int pc = 0, int NR = 1, int NC = 1) = 0;
 

@@ -66,7 +66,7 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
 
 double* tbsla::cpp::MatrixDENSE::spmv(const double* v, int vect_incr) const {
   double* r = new double[this->ln_row]();
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(static)
   for (int i = 0; i < this->ln_row; i++) {
     r[i] = 0;
   }
@@ -77,7 +77,7 @@ double* tbsla::cpp::MatrixDENSE::spmv(const double* v, int vect_incr) const {
 inline void tbsla::cpp::MatrixDENSE::Ax(double* r, const double* v, int vect_incr) const {
   if(this->nnz == 0 || this->values == NULL)
     return;
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(static)
   for (int i = 0; i < this->ln_row; i++) {
     for (int j = 0; j < this->ln_col; j++) {
       r[i] += this->values[i * this->ln_col + j] * v[j];
@@ -269,3 +269,17 @@ void tbsla::cpp::MatrixDENSE::fill_cqmat(int n_row, int n_col, int c, double q, 
   }
 }
 
+void tbsla::cpp::MatrixDENSE::NUMAinit() {
+  double* newVal = new double[this->ln_row * this->ln_col];
+
+  //NUMA init
+  #pragma omp parallel for schedule(static)
+  for (int i = 0; i < this->ln_row; i++) {
+    for (int j = 0; j < this->ln_col; j++) {
+      newVal[i * this->ln_col + j] = this->values[i * this->ln_col + j];
+    }
+  }
+
+  delete[] this->values;
+  this->values = newVal;
+}
