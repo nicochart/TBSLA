@@ -8,7 +8,7 @@ namespace tbsla { namespace utils { namespace array {
 template <class myType>
 void stream(std::ostream &os, const std::string name, myType* v, int size) {
   os << name << " : ";
-  if (size > 0 && v != NULL) {
+  if (size > 0) {
     for (int i = 0; i < size - 1; i++) {
       os << v[i] << ", ";
     }

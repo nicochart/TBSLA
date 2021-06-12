@@ -19,7 +19,7 @@ void test_matrix(tbsla::cpp::Matrix & m, int c) {
   int nc, nr;
   nc = m.get_n_col();
   nr = m.get_n_row();
-  double* v = new double[nc];
+  double* v = new double[nc]();
   for(int i = 0; i < nc; i++) {
     v[i] = i;
   }

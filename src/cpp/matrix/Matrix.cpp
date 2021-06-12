@@ -7,7 +7,8 @@ double* tbsla::cpp::Matrix::a_axpx_(const double* v, int vect_incr) const {
   for (int i = 0; i < this->ln_col; i++) {
     r[i] += v[i];
   }
-  r = this->spmv(r, vect_incr);
-  return r;
+  double* r2 = this->spmv(r, vect_incr);
+  delete[] r;
+  return r2;
 }
 

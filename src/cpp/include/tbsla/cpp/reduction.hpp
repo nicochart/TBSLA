@@ -8,7 +8,7 @@ struct array {
   public:
     array(T* _v, std::size_t _len) : v(_v), len(_len) { del = false;}
     array(std::size_t _len) : len(_len) {
-      v = new T[len];
+      v = new T[len]();
       del = true;
     }
     ~array() {
@@ -16,10 +16,10 @@ struct array {
         delete[] v;
       }
     }
-    void add(tbsla::cpp::reduction::array<T> &v) {
+    void add(tbsla::cpp::reduction::array<T> &vin) {
       #pragma omp paralell for
       for(int i = 0; i < this->len; i++) {
-        this->v[i] += v[i];
+        this->v[i] += vin[i];
       }
     }
     std::size_t size() {return len;}

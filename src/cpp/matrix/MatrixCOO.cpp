@@ -28,9 +28,9 @@ void tbsla::cpp::MatrixCOO::init(int n_row, int n_col, long int n_values) {
     delete[] this->row;
   if (this->col)
     delete[] this->col;
-  this->values = new double[n_values];
-  this->row = new int[n_values];
-  this->col = new int[n_values];
+  this->values = new double[n_values]();
+  this->row = new int[n_values]();
+  this->col = new int[n_values]();
 }
 
 tbsla::cpp::MatrixCOO::~MatrixCOO() {
@@ -293,8 +293,8 @@ void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
   this->pc = pc;
   this->NR = NR;
   this->NC = NC;
-  this->ln_row = this->NR;
-  this->ln_col = this->NC;
+  this->ln_row = n_row;
+  this->ln_col = n_col;
   this->f_row = 0;
   this->f_col = 0;
 
@@ -314,22 +314,25 @@ void tbsla::cpp::MatrixCOO::fill_cqmat(int n_row, int n_col, int c, double q, un
   for(long int i = 0; i < std::min(n_row, n_col) - std::min(n_col - std::min(c, n_col) + 1, n_row); i++) {
     gnv += std::min(c, n_col) - i - 1;
   }
+  this->nnz = 0;
+  this->pr = pr;
+  this->pc = pc;
+  this->NR = NR;
+  this->NC = NC;
+  this->ln_row = n_row;
+  this->ln_col = n_col;
+  this->n_row = n_row;
+  this->n_col = n_col;
+  this->f_row = 0;
+  this->f_col = 0;
+
   if(gnv == 0)
     return;
 
   long int s = tbsla::utils::range::pflv(gnv, pr * NC + pc, NR * NC);
   long int n = tbsla::utils::range::lnv(gnv, pr * NC + pc, NR * NC);
   this->nnz = n;
-
   this->init(n_row, n_col, n);
-  this->pr = pr;
-  this->pc = pc;
-  this->NR = NR;
-  this->NC = NC;
-  this->ln_row = this->NR;
-  this->ln_col = this->NC;
-  this->f_row = 0;
-  this->f_col = 0;
 
   for(long int i = 0; i < n; i++) {
     auto tuple = tbsla::utils::values_generation::cqmat_value(i + s, n_row, n_col, c, q, seed_mult);

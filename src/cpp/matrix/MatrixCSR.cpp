@@ -366,13 +366,13 @@ void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, un
       jj = std::get<1>(tuple);
       v = std::get<2>(tuple);
       if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
-        this->colidx[incr] = jj;
-        this->values[incr] = v;
+        this->colidx[lincr] = jj;
+        this->values[lincr] = v;
         lincr++;
       }
       incr++;
     }
-    this->rowptr[i - f_row] = lincr;
+    this->rowptr[i - f_row + 1] = lincr;
   }
   for(; i < std::min({n_row, n_col, f_row + ln_row}); i++) {
     for(long int j = 0; j < std::min(c, n_col) - i + min_ - 1; j++) {
@@ -383,13 +383,16 @@ void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, un
       jj = std::get<1>(tuple);
       v = std::get<2>(tuple);
       if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
-        this->colidx[incr] = jj;
-        this->values[incr] = v;
+        this->colidx[lincr] = jj;
+        this->values[lincr] = v;
         lincr++;
       }
       incr++;
     }
-    this->rowptr[i - f_row] = lincr;
+    this->rowptr[i - f_row + 1] = lincr;
+  }
+  for(; i < f_row + ln_row; i++) {
+    this->rowptr[i - f_row + 1] = lincr;
   }
 }
 

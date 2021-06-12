@@ -17,7 +17,7 @@ void print(tbsla::cpp::Matrix & m) {
 
 void test_cqmat(int nr, int nc, int c, double q, double s) {
   std::cout << "---- nr : " << nr << "; nc : " << nc << "; c : " << c << "; q : " << q << "; s : " << s << " ----  " << std::endl;
-  double* v = new double[nc];
+  double* v = new double[nc]();
   std::iota (v, v + nc, 0);
 
   tbsla::cpp::MatrixCOO mcoo;
@@ -26,7 +26,7 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
 
   tbsla::cpp::MatrixSCOO mscoo(mcoo);
   double* rscoo = mscoo.spmv(v);
-  if(rcoo != rscoo) {
+  if(tbsla::utils::array::compare_arrays(rcoo, rscoo, nr)) {
     print(mcoo);
     mcoo.print_as_dense(std::cout);
     print(mscoo);
@@ -42,7 +42,7 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
   tbsla::cpp::MatrixSCOO mscoo2;
   mscoo2.fill_cqmat(nr, nc, c, q, s);
   double* rscoo2 = mscoo2.spmv(v);
-  if(rcoo != rscoo2) {
+  if(tbsla::utils::array::compare_arrays(rcoo, rscoo2, nr)) {
     print(mcoo);
     mcoo.print_as_dense(std::cout);
     print(mscoo);
@@ -57,7 +57,7 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
 
   tbsla::cpp::MatrixCSR mcsr(mcoo);
   double* rcsr = mcsr.spmv(v);
-  if(rcoo != rcsr) {
+  if(tbsla::utils::array::compare_arrays(rcoo, rcsr, nr)) {
     print(mcoo);
     mcoo.print_as_dense(std::cout);
     print(mcsr);
@@ -73,7 +73,7 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
   tbsla::cpp::MatrixCSR mcsr2;
   mcsr2.fill_cqmat(nr, nc, c, q, s);
   double* rcsr2 = mcsr2.spmv(v);
-  if(rcoo != rcsr2) {
+  if(tbsla::utils::array::compare_arrays(rcoo, rcsr2, nr)) {
     print(mcoo);
     mcoo.print_as_dense(std::cout);
     print(mcsr2);
@@ -88,7 +88,7 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
 
   tbsla::cpp::MatrixELL mell(mcoo);
   double* rell = mell.spmv(v);
-  if(rcoo != rell) {
+  if(tbsla::utils::array::compare_arrays(rcoo, rell, nr)) {
     print(mcoo);
     mcoo.print_as_dense(std::cout);
     print(mell);
@@ -104,7 +104,7 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
   tbsla::cpp::MatrixELL mell2;
   mell2.fill_cqmat(nr, nc, c, q, s);
   double* rell2 = mell2.spmv(v);
-  if(rcoo != rell2) {
+  if(tbsla::utils::array::compare_arrays(rcoo, rell2, nr)) {
     print(mcoo);
     mcoo.print_as_dense(std::cout);
     print(mell);
@@ -119,7 +119,7 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
 
   tbsla::cpp::MatrixDENSE mdense(mcoo);
   double* rdense = mdense.spmv(v);
-  if(rcoo != rdense) {
+  if(tbsla::utils::array::compare_arrays(rcoo, rdense, nr)) {
     print(mcoo);
     mcoo.print_as_dense(std::cout);
     print(mdense);
@@ -135,7 +135,7 @@ void test_cqmat(int nr, int nc, int c, double q, double s) {
   tbsla::cpp::MatrixDENSE mdense2;
   mdense2.fill_cqmat(nr, nc, c, q, s);
   double* rdense2 = mdense2.spmv(v);
-  if(rcoo != rdense2) {
+  if(tbsla::utils::array::compare_arrays(rcoo, rdense2, nr)) {
     print(mcoo);
     mcoo.print_as_dense(std::cout);
     print(mdense);

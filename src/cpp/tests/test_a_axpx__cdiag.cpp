@@ -18,14 +18,13 @@ void test_matrix(tbsla::cpp::Matrix & m, int c) {
   int nc, nr;
   nc = m.get_n_col();
   nr = m.get_n_row();
-  double* v = new double[nc];
+  double* v = new double[nc]();
   for(int i = 0; i < nc; i++) {
     v[i] = 2 * i + 1;
   }
   double* r = m.a_axpx_(v);
   int res;
   res = tbsla::utils::array::test_a_axpx__cdiag(nr, nc, c, v, r, false);
-  std::cout << "return : " << res << std::endl;
   if (res) {
     tbsla::utils::array::stream<double>(std::cout, "v", v, nc);
     std::cout << std::endl;
@@ -35,6 +34,8 @@ void test_matrix(tbsla::cpp::Matrix & m, int c) {
     res = tbsla::utils::array::test_a_axpx__cdiag(nr, nc, c, v, r, true);
     exit(res);
   }
+  delete[] v;
+  delete[] r;
 }
 
 void test_cdiag(int nr, int nc, int c) {

@@ -85,16 +85,18 @@ tbsla::cpp::MatrixSCOO::MatrixSCOO(const tbsla::cpp::MatrixCOO & m) : values(NUL
   this->nnz = m.get_nnz();
   if (this->values)
     delete[] this->values;
-  this->values = new double[this->nnz];
-  std::copy(m.get_values(), m.get_values() + this->nnz, this->values);
+  this->values = new double[this->nnz]();
   if (this->row)
     delete[] this->row;
-  this->row = new int[this->nnz];
-  std::copy(m.get_row(), m.get_row() + this->nnz, this->row);
+  this->row = new int[this->nnz]();
   if (this->col)
     delete[] this->col;
-  this->col = new int[this->nnz];
-  std::copy(m.get_col(), m.get_col() + this->nnz, this->col);
+  this->col = new int[this->nnz]();
+  for(int i = 0; i < this->nnz; i++) {
+    this->values[i] = m.get_values()[i];
+    this->col[i] = m.get_col()[i];
+    this->row[i] = m.get_row()[i];
+  }
 }
 
 std::ostream& tbsla::cpp::MatrixSCOO::print_as_dense(std::ostream& os) {
@@ -149,10 +151,13 @@ double* tbsla::cpp::MatrixSCOO::spmv(const double* v, int vect_incr) const {
 }
 
 inline void tbsla::cpp::MatrixSCOO::Ax(double* r, const double* v, int vect_incr) const {
+  if (this->nnz == 0) {
+    return;
+  }
   tbsla::cpp::reduction::array<double> s(r, this->ln_row);
   #pragma omp parallel for reduction(add_arr:s)
   for (int i = 0; i < this->nnz; i++) {
-     r[this->row[i] + vect_incr - this->f_row] += this->values[i] * v[this->col[i] - this->f_col];
+     s[this->row[i] + vect_incr - this->f_row] += this->values[i] * v[this->col[i] - this->f_col];
   }
 }
 
@@ -392,5 +397,6 @@ void tbsla::cpp::MatrixSCOO::fill_cqmat(int n_row, int n_col, int c, double q, u
       incr++;
     }
   }
+  this->nnz = idx;
 }
 
