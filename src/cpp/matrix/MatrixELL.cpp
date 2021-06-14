@@ -110,7 +110,7 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
   return m.print(os);
 }
 
-double* tbsla::cpp::MatrixELL::spmv(const double* v, int vect_incr) const {
+double* tbsla::cpp::MatrixELL::spmv(double* v, int vect_incr) const {
   double* r = new double[this->ln_row]();
   #pragma omp parallel for schedule(static)
   for (int i = 0; i < this->ln_row; i++) {
@@ -120,7 +120,7 @@ double* tbsla::cpp::MatrixELL::spmv(const double* v, int vect_incr) const {
   return r;
 }
 
-inline void tbsla::cpp::MatrixELL::Ax(double* r, const double* v, int vect_incr) const {
+inline void tbsla::cpp::MatrixELL::Ax(double* r, double* v, int vect_incr) const {
   if(this->nnz == 0 || this->max_col == 0 || this->values == NULL || this->columns == NULL)
     return;
   #pragma omp parallel for schedule(static)

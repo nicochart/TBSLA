@@ -132,7 +132,7 @@ std::ostream& tbsla::cpp::MatrixCSR::print_as_dense(std::ostream& os) {
   return os;
 }
 
-double* tbsla::cpp::MatrixCSR::spmv(const double* v, int vect_incr) const {
+double* tbsla::cpp::MatrixCSR::spmv(double* v, int vect_incr) const {
   double* r = new double[this->ln_row]();
   #pragma omp parallel for schedule(static)
   for (int i = 0; i < ln_row; i++) {
@@ -142,15 +142,16 @@ double* tbsla::cpp::MatrixCSR::spmv(const double* v, int vect_incr) const {
   return r;
 }
 
-inline void tbsla::cpp::MatrixCSR::Ax(double* r, const double* v, int vect_incr) const {
+inline void tbsla::cpp::MatrixCSR::Ax(double* r, double* v, int vect_incr) const {
   if (this->nnz == 0)
     return;
+  double * vt = v - this->f_row;
   #pragma omp parallel for schedule(static)
   for (int i = 0; i < this->ln_row; i++) {
     double tmp = 0;
     // front ?
     for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
-       tmp += this->values[j] * v[this->colidx[j] - this->f_col];
+       tmp += this->values[j] * vt[this->colidx[j]];
     }
     r[i] = tmp;
   }

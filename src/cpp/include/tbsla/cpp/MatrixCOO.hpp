@@ -18,8 +18,8 @@ class MatrixCOO : public virtual Matrix {
     const double* get_values() const { return values; }
     const int* get_row() const { return row; }
     const int* get_col() const { return col; }
-    double* spmv(const double* v, int vect_incr = 0) const;
-    inline void Ax(double* r, const double* v, int vect_incr = 0) const;
+    double* spmv(double* v, int vect_incr = 0) const;
+    inline void Ax(double* r, double* v, int vect_incr = 0) const;
     using tbsla::cpp::Matrix::a_axpx_;
     std::ostream & print_as_dense(std::ostream &os);
     std::ostream & write(std::ostream &os);

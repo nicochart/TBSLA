@@ -14,8 +14,8 @@ class MatrixELL : public virtual Matrix {
     MatrixELL(const tbsla::cpp::MatrixCOO & m);
     ~MatrixELL();
     friend std::ostream & operator<<( std::ostream &os, const MatrixELL &m);
-    double* spmv(const double* v, int vect_incr = 0) const;
-    inline void Ax(double* r, const double* v, int vect_incr = 0) const;
+    double* spmv(double* v, int vect_incr = 0) const;
+    inline void Ax(double* r, double* v, int vect_incr = 0) const;
     using tbsla::cpp::Matrix::a_axpx_;
     std::ostream & print_as_dense(std::ostream &os);
     std::ostream & write(std::ostream &os);

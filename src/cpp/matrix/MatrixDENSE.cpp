@@ -64,7 +64,7 @@ std::ostream & tbsla::cpp::operator<<( std::ostream &os, const tbsla::cpp::Matri
   return m.print(os);
 }
 
-double* tbsla::cpp::MatrixDENSE::spmv(const double* v, int vect_incr) const {
+double* tbsla::cpp::MatrixDENSE::spmv(double* v, int vect_incr) const {
   double* r = new double[this->ln_row]();
   #pragma omp parallel for schedule(static)
   for (int i = 0; i < this->ln_row; i++) {
@@ -74,7 +74,7 @@ double* tbsla::cpp::MatrixDENSE::spmv(const double* v, int vect_incr) const {
   return r;
 }
 
-inline void tbsla::cpp::MatrixDENSE::Ax(double* r, const double* v, int vect_incr) const {
+inline void tbsla::cpp::MatrixDENSE::Ax(double* r, double* v, int vect_incr) const {
   if(this->nnz == 0 || this->values == NULL)
     return;
   #pragma omp parallel for schedule(static)
