@@ -145,14 +145,26 @@ double* tbsla::cpp::MatrixCSR::spmv(const double* v, int vect_incr) const {
 inline void tbsla::cpp::MatrixCSR::Ax(double* r, const double* v, int vect_incr) const {
   if (this->nnz == 0)
     return;
-  #pragma omp parallel for schedule(static)
-  for (int i = 0; i < this->ln_row; i++) {
-    double tmp = 0;
-    // front ?
-    for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
-       tmp += this->values[j] * v[this->colidx[j] - this->f_col];
+  if (this->f_col == 0) {
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < this->ln_row; i++) {
+      double tmp = 0;
+      // front ?
+      for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
+         tmp += this->values[j] * v[this->colidx[j]];
+      }
+      r[i] = tmp;
     }
-    r[i] = tmp;
+  } else {
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < this->ln_row; i++) {
+      double tmp = 0;
+      // front ?
+      for (int j = this->rowptr[i]; j < this->rowptr[i + 1]; j++) {
+         tmp += this->values[j] * v[this->colidx[j] - this->f_col];
+      }
+      r[i] = tmp;
+    }
   }
 }
 

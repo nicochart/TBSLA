@@ -123,15 +123,24 @@ double* tbsla::cpp::MatrixELL::spmv(const double* v, int vect_incr) const {
 inline void tbsla::cpp::MatrixELL::Ax(double* r, const double* v, int vect_incr) const {
   if(this->nnz == 0 || this->max_col == 0 || this->values == NULL || this->columns == NULL)
     return;
-  #pragma omp parallel for schedule(static)
-  for (int i = 0; i < this->ln_row; i++) {
-    double tmp = 0;
-    for (int j = 0; j < this->max_col; j++) {
-      int idx = this->columns[i * this->max_col + j] - this->f_col;
-      if(idx < 0) idx = 0;
-      tmp += this->values[i * this->max_col + j] * v[idx];
+  if (this->f_col == 0) {
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < this->ln_row; i++) {
+      double tmp = 0;
+      for (int j = 0; j < this->max_col; j++) {
+        tmp += this->values[i * this->max_col + j] * v[this->columns[i * this->max_col + j]];
+      }
+      r[i] = tmp;
     }
-    r[i] = tmp;
+  } else {
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < this->ln_row; i++) {
+      double tmp = 0;
+      for (int j = 0; j < this->max_col; j++) {
+        tmp += this->values[i * this->max_col + j] * v[this->columns[i * this->max_col + j] - this->f_col];
+      }
+      r[i] = tmp;
+    }
   }
 }
 
