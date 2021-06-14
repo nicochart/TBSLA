@@ -123,26 +123,21 @@ int main(int argc, char** argv) {
     f.close();
   }
 
-  if(input.has_opt("--print-infos")) {
-    m->print_stats(std::cout);
-    m->print_infos(std::cout);
-  }
-
   std::random_device rnd_device;
   std::mt19937 mersenne_engine {rnd_device()};  // Generates random integers
   std::uniform_real_distribution<double> dist {-1, 1};
   auto gen = [&dist, &mersenne_engine](){ return dist(mersenne_engine); };
-  std::vector<double> vec(m->get_n_col());
-  std::generate(begin(vec), end(vec), gen);
+  double* vec = new double[m->get_n_col()];
+  std::generate(vec, vec + m->get_n_col(), gen);
 
   MPI_Barrier(MPI_COMM_WORLD);
   auto t_op_start = now();
   if(op == "spmv") {
-    std::vector<double> res = m->spmv(MPI_COMM_WORLD, vec);
+    double* res = m->spmv(MPI_COMM_WORLD, vec);
   } else if(op == "spmv_no_redist") {
-    std::vector<double> res = m->spmv_no_redist(MPI_COMM_WORLD, vec);
+    double* res = m->spmv_no_redist(MPI_COMM_WORLD, vec);
   } else if(op == "a_axpx") {
-    std::vector<double> res = m->a_axpx_(MPI_COMM_WORLD, vec);
+    double* res = m->a_axpx_(MPI_COMM_WORLD, vec);
   }
   MPI_Barrier(MPI_COMM_WORLD);
   auto t_op_end = now();

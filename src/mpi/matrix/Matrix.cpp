@@ -1,6 +1,5 @@
 #include <tbsla/mpi/Matrix.hpp>
 #include <tbsla/cpp/utils/range.hpp>
-#include <vector>
 #include <algorithm>
 #include <mpi.h>
 #include <iostream>
@@ -26,112 +25,60 @@ long int const tbsla::mpi::Matrix::compute_max_nnz(MPI_Comm comm) {
   return nnz;
 }
 
-std::vector<double> tbsla::mpi::Matrix::spmv_no_redist(MPI_Comm comm, const std::vector<double> &v, int vect_incr) {
+double* tbsla::mpi::Matrix::spmv_no_redist(MPI_Comm comm, const double* v, int vect_incr) {
   return this->spmv(v, vect_incr);
 }
 
-std::vector<double> tbsla::mpi::Matrix::page_rank(MPI_Comm comm, double beta, double epsilon, int max_iterations, int &nb_iterations_done){
-  int proc_rank;
-  MPI_Comm_rank(comm, &proc_rank);
-  std::vector<double> b(n_col, 1.0);
-  bool converge = false;
-  int nb_iterations = 0;
-  std::vector<double> b_t(n_col);
-  double max, error, teleportation_sum;
-
-  while(!converge && nb_iterations < max_iterations){
-    b_t = b;
-    
-    auto begin = b_t.begin() + f_col; 
-    auto end = begin + ln_col; 
-    std::vector<double> tmp(begin, end); 
-    b = this->spmv(comm, tmp);
- 
-    max = b[0];
-    teleportation_sum = b_t[0];
-    for(int i = 1; i < n_col; i++){
-      if(max < b[i])
-        max = b[i];
-      teleportation_sum += b_t[i];
+double* tbsla::mpi::Matrix::spmv(MPI_Comm comm, const double* v, int vect_incr) {
+  double* send = this->spmv(v, vect_incr);
+  if(this->NC == 1 && this->NR == 1) {
+    return send;
+  } else if(this->NC == 1 && this->NR > 1) {
+    int* recvcounts = new int[this->NR]();
+    int* displs = new int[this->NR]();
+    for(int i = 0; i < this->NR; i++) {
+      recvcounts[i] = tbsla::utils::range::lnv(this->get_n_row(), i, this->NR);
+      displs[i] = 0;
     }
-     
-    teleportation_sum *= (1-beta)/n_col;
-    max = beta*max + teleportation_sum;
-    error = 0.0;
-
-    for(int  i = 0 ; i < n_col; i++){
-      b[i] = (beta*b[i] + teleportation_sum)/max;
-      error += std::abs(b[i] - b_t[i]);
+    for(int i = 1; i < this->NR; i++) {
+      displs[i] = displs[i - 1] + recvcounts[i - 1];
     }
+    double* recv = new double[this->ln_row]();
+    MPI_Allgatherv(send, this->ln_row, MPI_DOUBLE, recv, recvcounts, displs, MPI_DOUBLE, comm);
+    return recv;
+  } else if(this->NC > 1 && this->NR == 1) {
+    double* recv = new double[this->ln_row]();
+    MPI_Allreduce(send, recv, this->ln_row, MPI_DOUBLE, MPI_SUM, comm);
+    return recv;
+  } else {
+    MPI_Comm row_comm;
+    MPI_Comm_split(comm, this->pr, this->pc, &row_comm);
+    double* recv = new double[this->ln_row]();
+    MPI_Allreduce(send, recv, this->ln_row, MPI_DOUBLE, MPI_SUM, comm);
 
-    if(error < epsilon)
-      converge = true;
-    nb_iterations++;
+    double* recv2 = new double[this->n_row]();
+    int* recvcounts = new int[this->NR]();
+    int* displs = new int[this->NR]();
+    for(int i = 0; i < this->NR; i++) {
+      recvcounts[i] = tbsla::utils::range::lnv(this->get_n_row(), i, this->NR);
+      displs[i] = 0;
+    }
+    for(int i = 1; i < this->NR; i++) {
+      displs[i] = displs[i - 1] + recvcounts[i - 1];
+    }
+    MPI_Comm col_comm;
+    MPI_Comm_split(comm, this->pc, this->pr, &col_comm);
+    MPI_Allgatherv(recv, this->ln_row, MPI_DOUBLE, recv2, recvcounts, displs, MPI_DOUBLE, col_comm);
+    MPI_Comm_free(&col_comm);
+    MPI_Comm_free(&row_comm);
+    return recv2;
   }
-  
-  nb_iterations_done = nb_iterations; 
-
-  double sum = b[0];
-  for(int i = 1; i < n_col; i++) {
-    sum += b[i];
-  }
-
-  for(int i = 0 ; i < n_col; i++) {
-    b[i] = b[i]/sum;
-  }
-  return b;
 }
 
-std::vector<double> tbsla::mpi::Matrix::personalized_page_rank(MPI_Comm comm, double beta, double epsilon, int max_iterations, std::vector<int> personalized_nodes, int &nb_iterations_done){
-  int proc_rank;
-  MPI_Comm_rank(comm, &proc_rank);
-  std::vector<double> b(n_col, 0.25);
-  bool converge = false;
-  int nb_iterations = 0;
-  std::vector<double> b_t(n_col);
-  double max, error, teleportation_sum;
-  while(!converge && nb_iterations < max_iterations){
-    b_t = b;
-    auto begin = b_t.begin() + f_col; 
-    auto end = begin + ln_col; 
-    std::vector<double> tmp(begin, end); 
-    b = this->spmv(comm, tmp);
-
-    teleportation_sum = b_t[0];
-    for(int i = 1; i < n_col; i++){
-      teleportation_sum += b_t[i];
-    }
-    teleportation_sum *= (1-beta)/personalized_nodes.size(); 
-
-    max = 0.0;
-    for(int  i = 0; i < n_col; i++){
-      b[i] = beta*b[i];
-      if(std::find(personalized_nodes.begin(), personalized_nodes.end(), i) != personalized_nodes.end()){
-        b[i] += teleportation_sum;
-      }
-      if(max < b[i])
-      max = b[i]; 
-    }
-
-    error = 0.0;
-    for(int i = 0; i < n_col; i++){
-      b[i] = b[i]/max;
-      error += std::abs(b[i] - b_t[i]);
-    }
-    if(error < epsilon)
-      converge = true;
-    nb_iterations++;
-  }
-  
-  nb_iterations_done = nb_iterations; 
-
-  double sum = b[0];
-  for(int i = 1; i < n_col; i++) {
-    sum += b[i];
-  }
-
-  for(int i = 0 ; i < n_col; i++) {
-    b[i] = b[i]/sum;
-  }
-  return b;
+double* tbsla::mpi::Matrix::a_axpx_(MPI_Comm comm, const double* v, int vect_incr) {
+  double* r = this->spmv(comm, v + this->f_col, vect_incr);
+  std::transform (r, r + this->ln_row, v, r, std::plus<double>());
+  double* r2 = this->spmv(comm, r + this->f_col, vect_incr);
+  delete[] r;
+  return r2;
 }

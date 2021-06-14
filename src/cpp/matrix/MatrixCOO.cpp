@@ -281,6 +281,16 @@ void tbsla::cpp::MatrixCOO::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
   if(cdiag == 0)
     gnv /= 2;
   this->nnz = 0;
+  this->pr = pr;
+  this->pc = pc;
+  this->NR = NR;
+  this->NC = NC;
+  this->ln_row = n_row;
+  this->ln_col = n_col;
+  this->n_row = n_row;
+  this->n_col = n_col;
+  this->f_row = 0;
+  this->f_col = 0;
   if(gnv == 0)
     return;
 
