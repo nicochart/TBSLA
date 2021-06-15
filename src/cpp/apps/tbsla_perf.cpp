@@ -155,6 +155,11 @@ void dothings(InputParser& input, std::string &format) {
     outmap["cqmat_q"] = std::to_string(Q);
     outmap["cqmat_s"] = std::to_string(S);
   }
+  if(input.has_opt("--numa-init")) {
+    outmap["numa_init"] = "true";
+  } else {
+    outmap["numa_init"] = "false";
+  }
 
   std::map<std::string, std::string>::iterator it=outmap.begin();
   std::cout << "{\"" << it->first << "\":\"" << it->second << "\"";
