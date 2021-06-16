@@ -77,7 +77,7 @@ double* tbsla::mpi::Matrix::spmv(MPI_Comm comm, const double* v, int vect_incr) 
 
 double* tbsla::mpi::Matrix::a_axpx_(MPI_Comm comm, const double* v, int vect_incr) {
   double* r = this->spmv(comm, v + this->f_col, vect_incr);
-  std::transform (r, r + this->ln_row, v, r, std::plus<double>());
+  std::transform (r, r + this->n_row, v, r, std::plus<double>());
   double* r2 = this->spmv(comm, r + this->f_col, vect_incr);
   delete[] r;
   return r2;
