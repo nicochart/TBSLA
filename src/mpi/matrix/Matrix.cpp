@@ -43,18 +43,18 @@ double* tbsla::mpi::Matrix::spmv(MPI_Comm comm, const double* v, int vect_incr) 
     for(int i = 1; i < this->NR; i++) {
       displs[i] = displs[i - 1] + recvcounts[i - 1];
     }
-    double* recv = new double[this->ln_row]();
+    double* recv = new double[this->n_row]();
     MPI_Allgatherv(send, this->ln_row, MPI_DOUBLE, recv, recvcounts, displs, MPI_DOUBLE, comm);
     return recv;
   } else if(this->NC > 1 && this->NR == 1) {
-    double* recv = new double[this->ln_row]();
-    MPI_Allreduce(send, recv, this->ln_row, MPI_DOUBLE, MPI_SUM, comm);
+    double* recv = new double[this->n_row]();
+    MPI_Allreduce(send, recv, this->n_row, MPI_DOUBLE, MPI_SUM, comm);
     return recv;
   } else {
     MPI_Comm row_comm;
     MPI_Comm_split(comm, this->pr, this->pc, &row_comm);
     double* recv = new double[this->ln_row]();
-    MPI_Allreduce(send, recv, this->ln_row, MPI_DOUBLE, MPI_SUM, comm);
+    MPI_Allreduce(send, recv, this->ln_row, MPI_DOUBLE, MPI_SUM, row_comm);
 
     double* recv2 = new double[this->n_row]();
     int* recvcounts = new int[this->NR]();

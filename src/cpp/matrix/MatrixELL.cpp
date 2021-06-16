@@ -137,7 +137,9 @@ inline void tbsla::cpp::MatrixELL::Ax(double* r, const double* v, int vect_incr)
     for (int i = 0; i < this->ln_row; i++) {
       double tmp = 0;
       for (int j = 0; j < this->max_col; j++) {
-        tmp += this->values[i * this->max_col + j] * v[this->columns[i * this->max_col + j] - this->f_col];
+        int idx = this->columns[i * this->max_col + j] - this->f_col;
+        if(idx < 0) idx = 0;
+        tmp += this->values[i * this->max_col + j] * v[idx];
       }
       r[i] = tmp;
     }
@@ -232,10 +234,10 @@ void tbsla::cpp::MatrixELL::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
     }
   }
 
+  this->nnz = nv;
   if(nv == 0)
     return;
 
-  this->nnz = nv;
   if (this->values)
     delete[] this->values;
   if (this->columns)
@@ -359,8 +361,8 @@ void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, un
     delete[] this->values;
   if (this->columns)
     delete[] this->columns;
-  this->values = new double[this->ln_row * this->max_col];
-  this->columns = new int[this->ln_row * this->max_col];
+  this->values = new double[this->ln_row * this->max_col]();
+  this->columns = new int[this->ln_row * this->max_col]();
 
   incr = incr_save;
   long int lincr;
@@ -372,15 +374,15 @@ void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, un
       ii = std::get<0>(tuple);
       jj = std::get<1>(tuple);
       if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
-        this->columns[i * this->max_col + lincr] = jj;
-        this->values[i * this->max_col + lincr] = std::get<2>(tuple);
+        this->columns[(i - f_row) * this->max_col + lincr] = jj;
+        this->values[(i - f_row) * this->max_col + lincr] = std::get<2>(tuple);
         lincr++;
       }
       incr++;
     }
     for(long int j = lincr; j < max_col; j++) {
-      this->columns[i * this->max_col + j] = 0;
-      this->values[i * this->max_col + j] = 0;
+      this->columns[(i - f_row) * this->max_col + j] = 0;
+      this->values[(i - f_row) * this->max_col + j] = 0;
     }
   }
   for(; i < std::min({n_row, f_row + ln_row}); i++) {
@@ -391,15 +393,15 @@ void tbsla::cpp::MatrixELL::fill_cqmat(int n_row, int n_col, int c, double q, un
       ii = std::get<0>(tuple);
       jj = std::get<1>(tuple);
       if(ii >= f_row && ii < f_row + ln_row && jj >= f_col && jj < f_col + ln_col) {
-        this->columns[i * this->max_col + lincr] = jj;
-        this->values[i * this->max_col + lincr] = std::get<2>(tuple);
+        this->columns[(i - f_row) * this->max_col + lincr] = jj;
+        this->values[(i - f_row) * this->max_col + lincr] = std::get<2>(tuple);
         lincr++;
       }
       incr++;
     }
     for(long int j = lincr; j < max_col; j++) {
-      this->columns[i * this->max_col + j] = 0;
-      this->values[i * this->max_col + j] = 0;
+      this->columns[(i - f_row) * this->max_col + j] = 0;
+      this->values[(i - f_row) * this->max_col + j] = 0;
     }
   }
 }

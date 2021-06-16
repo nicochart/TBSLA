@@ -108,7 +108,7 @@ std::ostream& tbsla::cpp::MatrixCSR::print(std::ostream& os) const {
   os << "number of blocks (column)  -  NC      : " << this->NC << std::endl;
   tbsla::utils::array::stream<double>(os, "values", this->values, this->nnz);
   os << std::endl;
-  tbsla::utils::array::stream<int>(os, "rowptr", this->rowptr, this->n_row + 1);
+  tbsla::utils::array::stream<int>(os, "rowptr", this->rowptr, this->ln_row + 1);
   os << std::endl;
   tbsla::utils::array::stream<int>(os, "colidx", this->colidx, this->nnz);
   os << std::endl;
@@ -237,12 +237,18 @@ void tbsla::cpp::MatrixCSR::fill_cdiag(int n_row, int n_col, int cdiag, int pr, 
   this->NR = NR;
   this->NC = NC;
 
-  if (this->values)
+  if (this->values) {
     delete[] this->values;
-  if (this->rowptr)
+    this->values = NULL;
+  }
+  if (this->rowptr) {
     delete[] this->rowptr;
-  if (this->colidx)
+    this->rowptr = NULL;
+  }
+  if (this->colidx) {
     delete[] this->colidx;
+    this->colidx = NULL;
+  }
 
   ln_row = tbsla::utils::range::lnv(n_row, pr, NR);
   f_row = tbsla::utils::range::pflv(n_row, pr, NR);
@@ -370,7 +376,7 @@ void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, un
   this->rowptr = new int[ln_row + 1];
 
   long int lincr = 0;
-  this->rowptr[0] = incr;
+  this->rowptr[0] = lincr;
   for(i = f_row; i < std::min(min_, f_row + ln_row); i++) {
     for(long int j = 0; j < std::min(c, n_col); j++) {
       auto tuple = tbsla::utils::values_generation::cqmat_value(incr, n_row, n_col, c, q, seed_mult);

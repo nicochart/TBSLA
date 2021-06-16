@@ -156,10 +156,10 @@ void tbsla::cpp::MatrixDENSE::fill_cdiag(int n_row, int n_col, int cdiag, int pr
     }
   }
 
+  this->nnz = nv;
   if(nv == 0)
     return;
 
-  this->nnz = nv;
   if (this->values)
     delete[] this->values;
   this->values = new double[this->ln_row * this->ln_col];

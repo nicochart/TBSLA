@@ -47,8 +47,8 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int pr, int 
       std::cout << std::endl;
       tbsla::utils::array::stream<double>(std::cout, "rscoo ", rscoo, mscoo.get_n_row());
       std::cout << std::endl;
-      exit(1);
     }
+    exit(1);
   }
 
   tbsla::mpi::MatrixCSR mcsr;
@@ -72,8 +72,8 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int pr, int 
       std::cout << std::endl;
       tbsla::utils::array::stream<double>(std::cout, "rcsr ", rcsr, mscoo.get_n_row());
       std::cout << std::endl;
-      exit(1);
     }
+    exit(1);
   }
 
   tbsla::mpi::MatrixELL mell;
@@ -97,8 +97,8 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int pr, int 
       std::cout << std::endl;
       tbsla::utils::array::stream<double>(std::cout, "rell ", rell, mscoo.get_n_row());
       std::cout << std::endl;
-      exit(1);
     }
+    exit(1);
   }
 
   tbsla::mpi::MatrixDENSE mdense;
@@ -122,8 +122,8 @@ void test_cqmat(int nr, int nc, int c, double q, unsigned int seed, int pr, int 
       std::cout << std::endl;
       tbsla::utils::array::stream<double>(std::cout, "rdense ", rdense, mscoo.get_n_row());
       std::cout << std::endl;
-      exit(1);
     }
+    exit(1);
   }
 }
 

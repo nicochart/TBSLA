@@ -40,7 +40,7 @@ void test_matrix_split_vector(tbsla::mpi::Matrix & m, int nr, int nc, int cdiag,
       if(i == rank) {
         std::cout << m << std::endl;
         res = tbsla::utils::array::test_spmv_cdiag(nr, nc, cdiag, v, r, true);
-        tbsla::utils::array::stream<double>(std::cout, "r ", r, m.get_ln_row());
+        tbsla::utils::array::stream<double>(std::cout, "r ", r, nr);
         std::cout << std::endl;
       }
       MPI_Barrier(MPI_COMM_WORLD);
@@ -49,8 +49,8 @@ void test_matrix_split_vector(tbsla::mpi::Matrix & m, int nr, int nc, int cdiag,
     if(rank == 0) {
       tbsla::cpp::MatrixCOO ml;
       ml.fill_cdiag(nr, nc, cdiag);
-      exit(res);
     }
+    exit(res);
   }
   delete[] v;
   delete[] vl;
@@ -67,8 +67,8 @@ void test_matrix(tbsla::mpi::Matrix & m, int nr, int nc, int cdiag, int pr, int 
   double* v = new double[nc];
   std::iota (v, v + nc, 0);
   double* r = m.spmv(MPI_COMM_WORLD, v);
-  delete[] r;
   int res = tbsla::utils::array::test_spmv_cdiag(nr, nc, cdiag, v, r, false);
+  delete[] r;
   int res0;
   MPI_Allreduce(&res, &res0, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
   if(rank == 0) {
@@ -91,8 +91,8 @@ void test_matrix(tbsla::mpi::Matrix & m, int nr, int nc, int cdiag, int pr, int 
     if(rank == 0) {
       tbsla::cpp::MatrixCOO ml;
       ml.fill_cdiag(nr, nc, cdiag);
-      exit(res);
     }
+    exit(res);
   }
   delete[] v;
   MPI_Barrier(MPI_COMM_WORLD);
@@ -165,31 +165,39 @@ void test_cdiag(int nr, int nc, int cdiag) {
 
 int main(int argc, char** argv) {
 
+  int rank;
   MPI_Init(&argc, &argv);
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   int t = 0;
   for(int i = 0; i <= 12; i++) {
-    std::cout << "=== test " << t++ << " ===" << std::endl;
+    if(rank == 0)
+      std::cout << "=== test " << t++ << " ===" << std::endl;
     test_cdiag(10, 10, i);
   }
   for(int i = 0; i <= 12; i++) {
-    std::cout << "=== test " << t++ << " ===" << std::endl;
+    if(rank == 0)
+      std::cout << "=== test " << t++ << " ===" << std::endl;
     test_cdiag(5, 10, i);
   }
   for(int i = 0; i <= 12; i++) {
-    std::cout << "=== test " << t++ << " ===" << std::endl;
+    if(rank == 0)
+      std::cout << "=== test " << t++ << " ===" << std::endl;
     test_cdiag(10, 5, i);
   }
   for(int i = 0; i <= 12; i++) {
-    std::cout << "=== test " << t++ << " ===" << std::endl;
+    if(rank == 0)
+      std::cout << "=== test " << t++ << " ===" << std::endl;
     test_cdiag(30, 30, 2 * i);
   }
   for(int i = 0; i <= 12; i++) {
-    std::cout << "=== test " << t++ << " ===" << std::endl;
+    if(rank == 0)
+      std::cout << "=== test " << t++ << " ===" << std::endl;
     test_cdiag(20, 30, 2 * i);
   }
   for(int i = 0; i <= 12; i++) {
-    std::cout << "=== test " << t++ << " ===" << std::endl;
+    if(rank == 0)
+      std::cout << "=== test " << t++ << " ===" << std::endl;
     test_cdiag(30, 20, 2 * i);
   }
   std::cout << "=== finished without error === " << std::endl;

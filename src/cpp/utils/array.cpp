@@ -8,6 +8,7 @@ int tbsla::utils::array::check(int i, double v, double exp, int return_value, bo
   if(debug)
     std::cout << "i = " << i << " r[i] = " << v << " exp " << exp << std::endl;
   if(v != exp) {
+    std::cout << "error --> i = " << i << " r[i] = " << v << " exp " << exp << std::endl;
     return return_value;
   }
   return 0;
