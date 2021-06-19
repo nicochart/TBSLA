@@ -13,10 +13,10 @@ parser.add_argument("--matrixfolder", dest="matrixfolder", help="Matrix folder",
 parser.add_argument("--MPI", dest="MPI", help="Generate submission commands for MPI", action='store_const', default=False, const=True)
 parser.add_argument("--MPIOMP", dest="MPIOMP", help="Generate submission commands for MPI+OpenMP", action='store_const', default=False, const=True)
 parser.add_argument("--OMP", dest="OMP", help="Generate submission commands for OpenMP", action='store_const', default=False, const=True)
+parser.add_argument("--OP", dest="OP", help="Operation to execute", type=str, required=True)
 args = parser.parse_args()
 
-
-OP = 'a_axpx'
+OP = args.OP
 #formats = {'COO', 'CSR', 'ELL', 'DENSE', 'SCOO'}
 formats = {'COO', 'CSR', 'ELL', 'SCOO'}
 machine_informations = importlib.import_module("machine." + args.machine)

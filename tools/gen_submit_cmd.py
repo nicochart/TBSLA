@@ -11,17 +11,18 @@ parser.add_argument("--Ns", dest="Ns", help="Min Number of nodes", type=int, req
 parser.add_argument("--Ne", dest="Ne", help="Max Number of nodes", type=int, required=True)
 parser.add_argument("--NR", dest="NR", help="Matrix size (rows)", type=int, required=True)
 parser.add_argument("--NC", dest="NC", help="Matrix size (columns)", type=int, required=True)
+parser.add_argument("--C", dest="C", help="C for CQMAT", type=int, required=True)
 parser.add_argument("--machine", dest="machine", help="Machine name", type=str, required=True)
 parser.add_argument("--YML", dest="YML", help="Generate submission commands for YML", action='store_const', default=False, const=True)
 parser.add_argument("--MPI", dest="MPI", help="Generate submission commands for MPI", action='store_const', default=False, const=True)
 parser.add_argument("--MPIOMP", dest="MPIOMP", help="Generate submission commands for MPI+OpenMP", action='store_const', default=False, const=True)
 parser.add_argument("--OMP", dest="OMP", help="Generate submission commands for OpenMP", action='store_const', default=False, const=True)
 parser.add_argument("--HPX", dest="HPX", help="Generate submission commands for HPX", action='store_const', default=False, const=True)
+parser.add_argument("--OP", dest="OP", help="Operation to execute", type=str, required=True)
 args = parser.parse_args()
 
-
-C = 300
-OP = 'a_axpx'
+C = args.C
+OP = args.OP
 MTYPE = 'cqmat'
 #formats = {'COO', 'CSR', 'ELL', 'DENSE', 'SCOO'}
 formats = {'COO', 'CSR', 'ELL', 'SCOO'}
