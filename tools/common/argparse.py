@@ -6,6 +6,7 @@ def init_parser():
   parser.add_argument("--format", dest="format", help="Matrix format", type=str, required=True)
   parser.add_argument("--matrixtype", dest="matrixtype", help="Matrix used as input", type=str, required=True)
   parser.add_argument("--matrixfolder", dest="matrixfolder", help="Folder containing the matrices", type=str, default=".")
+  parser.add_argument("--numa-init", dest="numainit", help="Call NUMAinit function that perform first touch memory allocation", action='store_const', default='False', const='True')
   return parser
 
 def init_pagerank():

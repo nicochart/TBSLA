@@ -19,6 +19,7 @@ parser.add_argument("--MPIOMP", dest="MPIOMP", help="Generate submission command
 parser.add_argument("--OMP", dest="OMP", help="Generate submission commands for OpenMP", action='store_const', default=False, const=True)
 parser.add_argument("--HPX", dest="HPX", help="Generate submission commands for HPX", action='store_const', default=False, const=True)
 parser.add_argument("--OP", dest="OP", help="Operation to execute", type=str, required=True)
+parser.add_argument("--numa-init", dest="numainit", help="Call NUMAinit function that perform first touch memory allocation", action='store_const', default=False, const=True)
 args = parser.parse_args()
 
 C = args.C
@@ -67,7 +68,7 @@ for n in NODES:
   for mf in formats:
     for f in factors:
       if args.MPI:
-        print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPI --wall-time {walltime} --GR {f[0]} --GC {f[1]} --timeout {timeout}')
+        print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPI --wall-time {walltime} --GR {f[0]} --GC {f[1]} --timeout {timeout} {"--numa-init" if args.numainit else ""}')
       if args.HPX:
         print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang HPX --wall-time {walltime} --GR {f[0]} --GC {f[1]} --timeout {timeout}')
       if args.YML:
@@ -86,8 +87,8 @@ for n in NODES:
       factors = decomp_pairs(int(n * ncores / t))
       for mf in formats:
         for f in factors:
-          print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --timeout {timeout}')
+          print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes {n} --C {C} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --timeout {timeout} {"--numa-init" if args.numainit else ""}')
 if args.OMP:
   for t in THREADS:
     for mf in formats:
-      print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes 1 --C {C} --machine {args.machine} --lang OMP --wall-time {walltime} --threads {t} --timeout {timeout}')
+      print(f'python tools/submit.py --NR {args.NR} --NC {args.NC} --op {OP} --format {mf} --matrixtype {MTYPE} --nodes 1 --C {C} --machine {args.machine} --lang OMP --wall-time {walltime} --threads {t} --timeout {timeout} {"--numa-init" if args.numainit else ""}')

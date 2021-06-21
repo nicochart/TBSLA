@@ -150,6 +150,8 @@ if args.lang == "YML":
     fname += ".sh"
     sub.gen_submit_cmd(machine, args, fname, header)
 
+if args.numainit == "True":
+  command += " --numa-init"
 if args.lang != "YML" and args.lang != "OMP":
   command += f" --GR {args.GR}"
   command += f" --GC {args.GC}"

@@ -14,6 +14,7 @@ parser.add_argument("--MPI", dest="MPI", help="Generate submission commands for 
 parser.add_argument("--MPIOMP", dest="MPIOMP", help="Generate submission commands for MPI+OpenMP", action='store_const', default=False, const=True)
 parser.add_argument("--OMP", dest="OMP", help="Generate submission commands for OpenMP", action='store_const', default=False, const=True)
 parser.add_argument("--OP", dest="OP", help="Operation to execute", type=str, required=True)
+parser.add_argument("--numa-init", dest="numainit", help="Call NUMAinit function that perform first touch memory allocation", action='store_const', default=False, const=True)
 args = parser.parse_args()
 
 OP = args.OP
@@ -57,15 +58,14 @@ for n in NODES:
   if args.MPI:
     for mf in formats:
       for f in factors:
-        print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPI --wall-time {walltime} --GR {f[0]} --GC {f[1]} --timeout {timeout}')
+        print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPI --wall-time {walltime} --GR {f[0]} --GC {f[1]} --timeout {timeout} {"--numa-init" if args.numainit else ""}')
   if args.MPIOMP:
     for t in THREADS:
       factors = decomp_pairs(int(n * ncores / t))
       for mf in formats:
         for f in factors:
-          print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --timeout {timeout}')
-          print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --tpc 2 --timeout {timeout}')
+          print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --timeout {timeout} {"--numa-init" if args.numainit else ""}')
 if args.OMP:
   for t in THREADS:
     for mf in formats:
-      print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes 1 --machine {args.machine} --lang OMP --wall-time {walltime} --threads {t} --timeout {timeout}')
+      print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes 1 --machine {args.machine} --lang OMP --wall-time {walltime} --threads {t} --timeout {timeout} {"--numa-init" if args.numainit else ""}')
