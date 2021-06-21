@@ -86,6 +86,13 @@ double* tbsla::mpi::MatrixCOO::spmv(MPI_Comm comm, const double* v, int vect_inc
   return recv;
 }
 
+inline void tbsla::mpi::Matrix::Ax(MPI_Comm comm, double* r, const double* v, int vect_incr) {
+  double* send = new double[this->n_row]();
+  this->Ax(send, v, vect_incr);
+  MPI_Allreduce(send, r, this->n_row, MPI_DOUBLE, MPI_SUM, comm);
+  delete[] send;
+}
+
 double* tbsla::mpi::MatrixCOO::a_axpx_(MPI_Comm comm, const double* v, int vect_incr) {
   double* r = this->spmv(comm, v, vect_incr);
   std::transform (r, r + this->n_row, v, r, std::plus<double>());

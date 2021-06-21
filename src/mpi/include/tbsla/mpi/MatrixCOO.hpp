@@ -18,6 +18,7 @@ class MatrixCOO : public tbsla::cpp::MatrixCOO, public virtual tbsla::mpi::Matri
     double* spmv(MPI_Comm comm, const double* v, int vect_incr = 0);
     double* a_axpx_(MPI_Comm comm, const double* v, int vect_incr = 0);
     using tbsla::cpp::MatrixCOO::spmv;
+    using tbsla::cpp::MatrixCOO::Ax;
     using tbsla::cpp::MatrixCOO::fill_cdiag;
     using tbsla::cpp::MatrixCOO::fill_cqmat;
     using tbsla::cpp::MatrixCOO::read;
