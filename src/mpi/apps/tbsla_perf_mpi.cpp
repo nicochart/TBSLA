@@ -188,7 +188,7 @@ int main(int argc, char** argv) {
     outmap["time_app_in"] = std::to_string((t_app_end - t_app_start) / 1e9);
     outmap["time_op"] = std::to_string(t_op / 1e9);
     outmap["processes"] = std::to_string(world);
-    if(op == "spmv" or op == "spmv_no_redist") {
+    if(op == "spmv" or op == "spmv_no_redist" or op == "Ax" or op == "Ax_") {
       outmap["gflops"] = std::to_string(2.0 * m->get_nnz() / t_op);
     } else if(op == "a_axpx") {
       outmap["gflops"] = std::to_string(4.0 * m->get_nnz() / t_op);
