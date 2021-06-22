@@ -86,11 +86,16 @@ double* tbsla::mpi::MatrixCOO::spmv(MPI_Comm comm, const double* v, int vect_inc
   return recv;
 }
 
-inline void tbsla::mpi::Matrix::Ax(MPI_Comm comm, double* r, const double* v, int vect_incr) {
-  double* send = new double[this->n_row]();
-  this->Ax(send, v, vect_incr);
-  MPI_Allreduce(send, r, this->n_row, MPI_DOUBLE, MPI_SUM, comm);
-  delete[] send;
+/*
+ * comm : MPI communicator
+ * r : results (size : n_row)
+ * v : input vector (size : n_col)
+ * buffer : buffer for internal operations (size : ln_row(=n_row))
+ *
+ */
+inline void tbsla::mpi::Matrix::Ax(MPI_Comm comm, double* r, const double* v, double *buffer, int vect_incr) {
+  this->Ax(buffer, v, vect_incr);
+  MPI_Allreduce(buffer, r, this->n_row, MPI_DOUBLE, MPI_SUM, comm);
 }
 
 double* tbsla::mpi::MatrixCOO::a_axpx_(MPI_Comm comm, const double* v, int vect_incr) {

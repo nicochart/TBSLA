@@ -14,7 +14,7 @@ class Matrix : public virtual tbsla::cpp::Matrix {
     virtual int read_bin_mpiio(MPI_Comm comm, std::string filename, int pr, int pc, int NR, int NC) = 0;
     virtual double* spmv(MPI_Comm comm, const double* v, int vect_incr = 0);
     virtual double* spmv_no_redist(MPI_Comm comm, const double* v, int vect_incr = 0);
-    virtual inline void Ax(MPI_Comm comm, double* r, const double* v, int vect_incr = 0);
+    virtual inline void Ax(MPI_Comm comm, double* r, const double* v, double *buffer, int vect_incr = 0);
     virtual inline void Ax_(MPI_Comm comm, double* r, const double* v, int vect_incr = 0);
     virtual double* a_axpx_(MPI_Comm comm, const double* v, int vect_incr = 0);
     int const get_gnnz() {return gnnz;};

@@ -33,9 +33,15 @@ inline void tbsla::mpi::Matrix::Ax_(MPI_Comm comm, double* r, const double* v, i
   this->Ax(r, v, vect_incr);
 }
 
-inline void tbsla::mpi::Matrix::Ax(MPI_Comm comm, double* r, const double* v, int vect_incr) {
-  double* send = new double[this->ln_row]();
-  this->Ax(send, v, vect_incr);
+/*
+ * comm : MPI communicator
+ * r : results (size : n_row)
+ * v : input vector (size : n_col)
+ * buffer : buffer for internal operations (size : 2 * ln_row)
+ *
+ */
+inline void tbsla::mpi::Matrix::Ax(MPI_Comm comm, double* r, const double* v, double* buffer, int vect_incr) {
+  this->Ax(buffer, v, vect_incr);
   if(this->NC == 1 && this->NR > 1) {
     int* recvcounts = new int[this->NR]();
     int* displs = new int[this->NR]();
@@ -46,14 +52,13 @@ inline void tbsla::mpi::Matrix::Ax(MPI_Comm comm, double* r, const double* v, in
     for(int i = 1; i < this->NR; i++) {
       displs[i] = displs[i - 1] + recvcounts[i - 1];
     }
-    MPI_Allgatherv(send, this->ln_row, MPI_DOUBLE, r, recvcounts, displs, MPI_DOUBLE, comm);
+    MPI_Allgatherv(buffer, this->ln_row, MPI_DOUBLE, r, recvcounts, displs, MPI_DOUBLE, comm);
   } else if(this->NC > 1 && this->NR == 1) {
-    MPI_Allreduce(send, r, this->n_row, MPI_DOUBLE, MPI_SUM, comm);
+    MPI_Allreduce(buffer, r, this->n_row, MPI_DOUBLE, MPI_SUM, comm);
   } else {
     MPI_Comm row_comm;
     MPI_Comm_split(comm, this->pr, this->pc, &row_comm);
-    double* recv = new double[this->ln_row]();
-    MPI_Allreduce(send, recv, this->ln_row, MPI_DOUBLE, MPI_SUM, row_comm);
+    MPI_Allreduce(buffer, buffer + this->ln_row, this->ln_row, MPI_DOUBLE, MPI_SUM, row_comm);
 
     int* recvcounts = new int[this->NR]();
     int* displs = new int[this->NR]();
@@ -66,7 +71,7 @@ inline void tbsla::mpi::Matrix::Ax(MPI_Comm comm, double* r, const double* v, in
     }
     MPI_Comm col_comm;
     MPI_Comm_split(comm, this->pc, this->pr, &col_comm);
-    MPI_Allgatherv(recv, this->ln_row, MPI_DOUBLE, r, recvcounts, displs, MPI_DOUBLE, col_comm);
+    MPI_Allgatherv(buffer + this->ln_row, this->ln_row, MPI_DOUBLE, r, recvcounts, displs, MPI_DOUBLE, col_comm);
     MPI_Comm_free(&col_comm);
     MPI_Comm_free(&row_comm);
   }

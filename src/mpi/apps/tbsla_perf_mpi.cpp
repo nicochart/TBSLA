@@ -148,8 +148,9 @@ int main(int argc, char** argv) {
     t_op = t_op_end - t_op_start;
   } else if(op == "Ax") {
     double* res = new double[m->get_n_row()]();
+    double* buffer = new double[2 * m->get_ln_row()]();
     auto t_op_start = now();
-    m->Ax(MPI_COMM_WORLD, res, vec);
+    m->Ax(MPI_COMM_WORLD, res, vec, buffer);
     auto t_op_end = now();
     t_op = t_op_end - t_op_start;
   } else if(op == "Ax_") {
