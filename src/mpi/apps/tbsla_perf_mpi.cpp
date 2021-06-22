@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     }
     exit(1);
   }
-  if(op != "spmv" && op != "a_axpx" && op != "spmv_no_redist") {
+  if(op != "spmv" && op != "a_axpx" && op != "spmv_no_redist" && op != "Ax" && op != "Ax_") {
     if(rank == 0) {
       std::cerr << "OP : " << op << " unrecognized!" << std::endl;
     }
