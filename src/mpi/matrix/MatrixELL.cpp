@@ -4,6 +4,8 @@
 #include <vector>
 #include <mpi.h>
 
+#define TBSLA_MATRIX_ELL_READLINES 2048
+
 int tbsla::mpi::MatrixELL::read_bin_mpiio(MPI_Comm comm, std::string filename, int pr, int pc, int NR, int NC) {
   int world, rank;
   MPI_Comm_size(comm, &world);
@@ -47,30 +49,37 @@ int tbsla::mpi::MatrixELL::read_bin_mpiio(MPI_Comm comm, std::string filename, i
     delete[] this->columns;
   this->values = new double[this->ln_row * this->max_col];
   this->columns = new int[this->ln_row * this->max_col];
-  int idx;
 
-  std::vector<int> ctmp(this->max_col);
-  std::vector<double> vtmp(this->max_col);
-  for(int i = 0; i < this->ln_row; i++) {
-    MPI_File_read_at(fh, columns_start + (this->f_row + i) * this->max_col * sizeof(int), ctmp.data(), this->max_col, MPI_INT, &status);
-    MPI_File_read_at(fh, values_start + (this->f_row + i) * this->max_col * sizeof(double), vtmp.data(), this->max_col, MPI_DOUBLE, &status);
-    int incr = 0;
-    for(int j = 0; j < this->max_col; j++) {
-      idx = ctmp[j];
-      if(idx >= this->f_col && idx < this->f_col + this->ln_col) {
-        this->columns[i * this->max_col + incr] = idx;
-        this->values[i * this->max_col + incr] = vtmp[j];
-        incr++;
-      }
-    }
-    this->nnz += incr;
-    for(int j = incr; j < this->max_col; j++) {
-      this->columns[i * this->max_col + j] = 0;
-      this->values[i * this->max_col + j] = 0;
-    }
+  int mod = this->ln_row % TBSLA_MATRIX_ELL_READLINES;
+  tbsla::mpi::MatrixELL::mpiio_read_lines(fh, 0, mod, columns_start, values_start);
+  for(int i = mod; i < this->ln_row; i += TBSLA_MATRIX_ELL_READLINES) {
+    tbsla::mpi::MatrixELL::mpiio_read_lines(fh, i, TBSLA_MATRIX_ELL_READLINES, columns_start, values_start);
   }
 
   MPI_File_close(&fh);
   return 0;
 }
 
+void tbsla::mpi::MatrixELL::mpiio_read_lines(MPI_File &fh, int s, int n, int columns_start, int values_start) {
+  MPI_Status status;
+  std::vector<int> ctmp(n * this->max_col);
+  std::vector<double> vtmp(n * this->max_col);
+  MPI_File_read_at(fh, columns_start + (this->f_row + s) * this->max_col * sizeof(int), ctmp.data(), n * this->max_col, MPI_INT, &status);
+  MPI_File_read_at(fh, values_start + (this->f_row + s) * this->max_col * sizeof(double), vtmp.data(), n * this->max_col, MPI_DOUBLE, &status);
+  for(int i = 0; i < n; i++) {
+    int incr = 0;
+    for(int j = 0; j < this->max_col; j++) {
+      int idx = ctmp[i * this->max_col + j];
+      if(idx >= this->f_col && idx < this->f_col + this->ln_col) {
+        this->columns[(i + s) * this->max_col + incr] = idx;
+        this->values[(i + s) * this->max_col + incr] = vtmp[i * this->max_col + j];
+        incr++;
+      }
+    }
+    this->nnz += incr;
+    for(int j = incr; j < this->max_col; j++) {
+      this->columns[(i + s) * this->max_col + j] = 0;
+      this->values[(i + s) * this->max_col + j] = 0;
+    }
+  }
+}
