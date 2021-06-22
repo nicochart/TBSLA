@@ -419,16 +419,16 @@ void tbsla::cpp::MatrixCSR::fill_cqmat(int n_row, int n_col, int c, double q, un
 void tbsla::cpp::MatrixCSR::NUMAinit() {
   double* newVal = new double[this->nnz];
   int* newCol = new int[this->nnz];
-  int* newRowPtr = new int[this->n_row + 1];
+  int* newRowPtr = new int[this->ln_row + 1];
 
   //NUMA init
 #pragma omp parallel for schedule(static)
-  for(int row = 0; row < this->n_row + 1; ++row)
+  for(int row = 0; row < this->ln_row + 1; ++row)
   {
     newRowPtr[row] = this->rowptr[row];
   }
 #pragma omp parallel for schedule(static)
-  for(int row = 0; row < this->n_row; ++row)
+  for(int row = 0; row < this->ln_row; ++row)
   {
     for(int idx = newRowPtr[row]; idx < newRowPtr[row + 1]; ++idx)
     {
