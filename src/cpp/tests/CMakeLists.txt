@@ -17,6 +17,14 @@ add_executable(test_a_axpx__cdiag test_a_axpx__cdiag.cpp)
 target_link_libraries(test_a_axpx__cdiag PRIVATE tbsla)
 add_test(test_a_axpx__cdiag_test test_a_axpx__cdiag)
 
+add_executable(test_Ax_cdiag test_Ax_cdiag.cpp)
+target_link_libraries(test_Ax_cdiag PRIVATE tbsla)
+add_test(test_Ax_cdiag_test test_Ax_cdiag)
+
+add_executable(test_AAxpAx_cdiag test_AAxpAx_cdiag.cpp)
+target_link_libraries(test_AAxpAx_cdiag PRIVATE tbsla)
+add_test(test_AAxpAx_cdiag_test test_AAxpAx_cdiag)
+
 if(TBSLA_ENABLE_OMP)
   add_executable(test_spmv_cdiag_omp test_spmv_cdiag.cpp)
   target_link_libraries(test_spmv_cdiag_omp PRIVATE tbsla_omp)
@@ -29,4 +37,12 @@ if(TBSLA_ENABLE_OMP)
   add_executable(test_a_axpx__cdiag_omp test_a_axpx__cdiag.cpp)
   target_link_libraries(test_a_axpx__cdiag_omp PRIVATE tbsla_omp)
   add_test(test_a_axpx__cdiag_test_omp test_a_axpx__cdiag_omp)
+
+  add_executable(test_Ax_cdiag_omp test_Ax_cdiag.cpp)
+  target_link_libraries(test_Ax_cdiag_omp PRIVATE tbsla_omp)
+  add_test(test_Ax_cdiag_test_omp test_Ax_cdiag_omp)
+
+  add_executable(test_AAxpAx_cdiag_omp test_AAxpAx_cdiag.cpp)
+  target_link_libraries(test_AAxpAx_cdiag_omp PRIVATE tbsla_omp)
+  add_test(test_AAxpAx_cdiag_test_omp test_AAxpAx_cdiag_omp)
 endif()

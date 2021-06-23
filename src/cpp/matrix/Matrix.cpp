@@ -12,10 +12,10 @@ double* tbsla::cpp::Matrix::a_axpx_(const double* v, int vect_incr) const {
   return r2;
 }
 
-void tbsla::cpp::Matrix::AAxpAx(double* r, double* v, int vect_incr) const {
-  this->Ax(r, v, vect_incr);
+void tbsla::cpp::Matrix::AAxpAx(double* r, double* v, double* buffer, int vect_incr) const {
+  this->Ax(buffer, v, vect_incr);
   for (int i = 0; i < this->ln_col; i++) {
-    r[i] += v[i];
+    buffer[i] += v[i];
   }
-  this->Ax(r, v, vect_incr);
+  this->Ax(r, buffer, vect_incr);
 }

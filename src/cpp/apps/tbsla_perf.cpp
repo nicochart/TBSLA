@@ -85,6 +85,7 @@ void dothings(InputParser& input, std::string &format) {
   auto gen = [&dist, &mersenne_engine](){ return dist(mersenne_engine); };
   double* vec = new double[m.get_n_col()]();
   double* res = new double[m.get_n_row()]();
+  double* buf = new double[m.get_n_row()]();
   std::generate(vec, vec + m.get_n_col(), gen);
 
   auto t_op_start = now();
@@ -113,13 +114,14 @@ void dothings(InputParser& input, std::string &format) {
   } else if(op == "AAxpAx") {
     for(int i = 0; i < ITERATIONS; i++) {
       t_op_start = now();
-      m.AAxpAx(res, vec);
+      m.AAxpAx(res, vec, buf);
       t_op += now() - t_op_start;
     }
   }
   auto t_app_end = now();
   delete[] res;
   delete[] vec;
+  delete[] buf;
 
   std::map<std::string, std::string> outmap;
   outmap["test"] = op;
