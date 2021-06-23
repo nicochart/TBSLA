@@ -2,7 +2,7 @@ import argparse
 
 def init_parser():
   parser = argparse.ArgumentParser(add_help=False)
-  parser.add_argument("--op", dest="op", help="Operation", type=str, required=True, choices=['spmv', 'a_axpx', 'spmv_no_redist', 'Ax', 'Ax_'])
+  parser.add_argument("--op", dest="op", help="Operation", type=str, required=True, choices=['spmv', 'a_axpx', 'spmv_no_redist', 'Ax', 'Ax_', 'AAxpAx'])
   parser.add_argument("--format", dest="format", help="Matrix format", type=str, required=True)
   parser.add_argument("--matrixtype", dest="matrixtype", help="Matrix used as input", type=str, required=True)
   parser.add_argument("--matrixfolder", dest="matrixfolder", help="Folder containing the matrices", type=str, default=".")

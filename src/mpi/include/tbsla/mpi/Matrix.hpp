@@ -17,6 +17,7 @@ class Matrix : public virtual tbsla::cpp::Matrix {
     virtual inline void Ax(MPI_Comm comm, double* r, const double* v, double *buffer, int vect_incr = 0);
     virtual inline void Ax_(MPI_Comm comm, double* r, const double* v, int vect_incr = 0);
     virtual double* a_axpx_(MPI_Comm comm, const double* v, int vect_incr = 0);
+    virtual inline void AAxpAx(MPI_Comm comm, double* r, const double* v, double *buffer, int vect_incr = 0);
     int const get_gnnz() {return gnnz;};
     long int const compute_sum_nnz(MPI_Comm comm);
     long int const compute_min_nnz(MPI_Comm comm);

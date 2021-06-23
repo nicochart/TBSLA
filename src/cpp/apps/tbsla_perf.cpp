@@ -58,7 +58,7 @@ void dothings(InputParser& input, std::string &format) {
     std::cerr << "An operation (spmv, a_axpx) has to be given with the parameter --op op" << std::endl;
     exit(1);
   }
-  if(op != "spmv" && op != "a_axpx" && op != "spmv_no_redist" && op != "Ax" && op != "Ax_") {
+  if(op != "spmv" && op != "a_axpx" && op != "spmv_no_redist" && op != "Ax" && op != "Ax_" && op != "AAxpAx") {
     std::cerr << "OP : " << op << " unrecognized!" << std::endl;
     exit(1);
   }
@@ -110,6 +110,12 @@ void dothings(InputParser& input, std::string &format) {
       t_op += now() - t_op_start;
       delete[] res;
     }
+  } else if(op == "AAxpAx") {
+    for(int i = 0; i < ITERATIONS; i++) {
+      t_op_start = now();
+      m.AAxpAx(res, vec);
+      t_op += now() - t_op_start;
+    }
   }
   auto t_app_end = now();
   delete[] res;
@@ -125,7 +131,7 @@ void dothings(InputParser& input, std::string &format) {
   outmap["time_op"] = std::to_string(t_op / 1e9 / ITERATIONS);
   if(op == "spmv" or op == "spmv_no_redist" or op == "Ax" or op == "Ax_") {
     outmap["gflops"] = std::to_string(2.0 * m.get_nnz() / t_op * ITERATIONS);
-  } else if(op == "a_axpx") {
+  } else if(op == "a_axpx" or op == "AAxpAx") {
     outmap["gflops"] = std::to_string(4.0 * m.get_nnz() / t_op * ITERATIONS);
   }
 #if TBSLA_COMPILED_WITH_OMP

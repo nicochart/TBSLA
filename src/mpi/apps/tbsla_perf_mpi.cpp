@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     }
     exit(1);
   }
-  if(op != "spmv" && op != "a_axpx" && op != "spmv_no_redist" && op != "Ax" && op != "Ax_") {
+  if(op != "spmv" && op != "a_axpx" && op != "spmv_no_redist" && op != "Ax" && op != "Ax_" && op != "AAxpAx") {
     if(rank == 0) {
       std::cerr << "OP : " << op << " unrecognized!" << std::endl;
     }
@@ -153,6 +153,13 @@ int main(int argc, char** argv) {
     m->Ax(MPI_COMM_WORLD, res, vec, buffer);
     auto t_op_end = now();
     t_op = t_op_end - t_op_start;
+  } else if(op == "AAxpAx") {
+    double* res = new double[m->get_n_row()]();
+    double* buffer = new double[2 * m->get_ln_row()]();
+    auto t_op_start = now();
+    m->AAxpAx(MPI_COMM_WORLD, res, vec, buffer);
+    auto t_op_end = now();
+    t_op = t_op_end - t_op_start;
   } else if(op == "Ax_") {
     double* res = new double[m->get_ln_row()]();
     auto t_op_start = now();
@@ -190,7 +197,7 @@ int main(int argc, char** argv) {
     outmap["processes"] = std::to_string(world);
     if(op == "spmv" or op == "spmv_no_redist" or op == "Ax" or op == "Ax_") {
       outmap["gflops"] = std::to_string(2.0 * m->get_nnz() / t_op);
-    } else if(op == "a_axpx") {
+    } else if(op == "a_axpx" or op == "AAxpAx") {
       outmap["gflops"] = std::to_string(4.0 * m->get_nnz() / t_op);
     }
 #if TBSLA_COMPILED_WITH_OMP

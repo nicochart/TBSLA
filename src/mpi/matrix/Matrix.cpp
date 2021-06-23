@@ -130,3 +130,9 @@ double* tbsla::mpi::Matrix::a_axpx_(MPI_Comm comm, const double* v, int vect_inc
   delete[] r;
   return r2;
 }
+
+inline void tbsla::mpi::Matrix::AAxpAx(MPI_Comm comm, double* r, const double* v, double* buffer, int vect_incr) {
+  this->Ax(comm, r, v + this->f_col, buffer, vect_incr);
+  std::transform (r, r + this->n_row, v, r, std::plus<double>());
+  this->Ax(comm, r, v + this->f_col, buffer, vect_incr);
+}
