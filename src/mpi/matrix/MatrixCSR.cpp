@@ -73,7 +73,6 @@ void tbsla::mpi::MatrixCSR::mpiio_read_lines(MPI_File &fh, int s, int n, int row
   jmin = jtmp[0];
   jmax = jtmp[n];
   nv = jmax - jmin;
-  std::cout << nv << std::endl;
   std::vector<int> ctmp(nv);
   std::vector<double> vtmp(nv);
   MPI_File_read_at(fh, colidx_start + jmin * sizeof(int), ctmp.data(), nv, MPI_INT, &status);
