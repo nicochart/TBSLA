@@ -21,13 +21,19 @@ void test_matrix(tbsla::mpi::Matrix & m, int nr, int nc, int cdiag, int pr, int 
 
   double* v = new double[nc];
   double* r = new double[nr];
-  double* b = new double[nr];
+  double* b1 = new double[m.get_ln_row()];
+  double* b2 = new double[m.get_ln_row()];
+  double* b3 = new double[m.get_n_row()];
   std::iota (v, v + nc, 0);
   for(int i = 0; i < nr; i++) {
     r[i] = 0;
-    b[i] = 0;
+    b3[i] = 0;
   }
-  m.AAxpAx(MPI_COMM_WORLD, r, v, b);
+  for(int i = 0; i < m.get_ln_row(); i++) {
+    b1[i] = 0;
+    b2[i] = 0;
+  }
+  m.AAxpAx(MPI_COMM_WORLD, r, v, b1, b2, b3);
   int res = tbsla::utils::array::test_a_axpx__cdiag(nr, nc, cdiag, v, r, false);
   int res0;
   MPI_Allreduce(&res, &res0, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
@@ -36,7 +42,15 @@ void test_matrix(tbsla::mpi::Matrix & m, int nr, int nc, int cdiag, int pr, int 
   }
   if(res0) {
     int res;
-    double* r = m.a_axpx_(MPI_COMM_WORLD, v);
+    for(int i = 0; i < nr; i++) {
+      r[i] = 0;
+      b3[i] = 0;
+    }
+    for(int i = 0; i < m.get_ln_row(); i++) {
+      b1[i] = 0;
+      b2[i] = 0;
+    }
+    m.AAxpAx(MPI_COMM_WORLD, r, v, b1, b2, b3);
     for(int i = 0; i < world; i++) {
       MPI_Barrier(MPI_COMM_WORLD);
       if(i == rank) {

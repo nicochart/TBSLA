@@ -91,9 +91,10 @@ double* tbsla::mpi::MatrixCOO::spmv(MPI_Comm comm, const double* v, int vect_inc
  * r : results (size : n_row)
  * v : input vector (size : n_col)
  * buffer : buffer for internal operations (size : ln_row(=n_row))
+ * buffer2 : unused, for consistency with other formats
  *
  */
-inline void tbsla::mpi::Matrix::Ax(MPI_Comm comm, double* r, const double* v, double *buffer, int vect_incr) {
+inline void tbsla::mpi::MatrixCOO::Ax(MPI_Comm comm, double* r, const double* v, double *buffer, double *buffer2, int vect_incr) {
   this->Ax(buffer, v, vect_incr);
   MPI_Allreduce(buffer, r, this->n_row, MPI_DOUBLE, MPI_SUM, comm);
 }
