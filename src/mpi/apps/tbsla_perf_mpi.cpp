@@ -138,12 +138,16 @@ int main(int argc, char** argv) {
   std::uint64_t t_op = 0;
   if(op == "spmv") {
     auto t_op_start = now();
+    MPI_Barrier(MPI_COMM_WORLD);
     double* res = m->spmv(MPI_COMM_WORLD, vec);
+    MPI_Barrier(MPI_COMM_WORLD);
     auto t_op_end = now();
     t_op = t_op_end - t_op_start;
   } else if(op == "spmv_no_redist") {
     auto t_op_start = now();
+    MPI_Barrier(MPI_COMM_WORLD);
     double* res = m->spmv_no_redist(MPI_COMM_WORLD, vec);
+    MPI_Barrier(MPI_COMM_WORLD);
     auto t_op_end = now();
     t_op = t_op_end - t_op_start;
   } else if(op == "Ax") {
@@ -151,7 +155,9 @@ int main(int argc, char** argv) {
     double* buffer = new double[m->get_ln_row()]();
     double* buffer2 = new double[m->get_ln_row()]();
     auto t_op_start = now();
+    MPI_Barrier(MPI_COMM_WORLD);
     m->Ax(MPI_COMM_WORLD, res, vec, buffer, buffer2);
+    MPI_Barrier(MPI_COMM_WORLD);
     auto t_op_end = now();
     t_op = t_op_end - t_op_start;
   } else if(op == "AAxpAx") {
@@ -160,18 +166,24 @@ int main(int argc, char** argv) {
     double* buffer2 = new double[m->get_ln_row()]();
     double* buffer3 = new double[m->get_n_row()]();
     auto t_op_start = now();
+    MPI_Barrier(MPI_COMM_WORLD);
     m->AAxpAx(MPI_COMM_WORLD, res, vec, buffer, buffer2, buffer3);
+    MPI_Barrier(MPI_COMM_WORLD);
     auto t_op_end = now();
     t_op = t_op_end - t_op_start;
   } else if(op == "Ax_") {
     double* res = new double[m->get_ln_row()]();
     auto t_op_start = now();
+    MPI_Barrier(MPI_COMM_WORLD);
     m->Ax_(MPI_COMM_WORLD, res, vec);
+    MPI_Barrier(MPI_COMM_WORLD);
     auto t_op_end = now();
     t_op = t_op_end - t_op_start;
   } else if(op == "a_axpx") {
     auto t_op_start = now();
+    MPI_Barrier(MPI_COMM_WORLD);
     double* res = m->a_axpx_(MPI_COMM_WORLD, vec);
+    MPI_Barrier(MPI_COMM_WORLD);
     auto t_op_end = now();
     t_op = t_op_end - t_op_start;
   }
