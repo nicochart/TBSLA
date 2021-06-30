@@ -2,6 +2,7 @@
 #define TBSLA_CPP_Matrix
 
 #include <fstream>
+#include <string>
 
 namespace tbsla { namespace cpp {
 
@@ -24,6 +25,7 @@ class Matrix {
     int get_NR() const {return NR;}
     int get_NC() const {return NC;}
     long int get_nnz() const {return nnz;};
+    std::string get_vectorization() const {return "None";}
 
     virtual std::ostream & write(std::ostream &os) = 0;
     virtual std::istream & read(std::istream &is, std::size_t pos = 0, std::size_t n = 1) = 0;

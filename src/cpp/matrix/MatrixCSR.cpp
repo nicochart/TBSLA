@@ -9,6 +9,12 @@
 #include <string>
 #include <algorithm>
 
+#if TBSLA_ENABLE_VECTO
+#ifdef __ARM_FEATURE_SVE
+#include <arm_sve.h>
+#endif
+#endif
+
 tbsla::cpp::MatrixCSR::MatrixCSR(int n_row, int n_col, double* values, int* rowptr,  int* colidx) : values(NULL), rowptr(NULL), colidx(NULL) {
   this->n_row = n_row;
   this->n_col = n_col;
@@ -142,6 +148,61 @@ double* tbsla::cpp::MatrixCSR::spmv(const double* v, int vect_incr) const {
   return r;
 }
 
+#if TBSLA_ENABLE_VECTO
+#ifdef __ARM_FEATURE_SVE
+std::string tbsla::cpp::MatrixCSR::get_vectorization() const {
+  return "ARM_SVE";
+}
+
+inline void tbsla::cpp::MatrixCSR::Ax(double* r, const double* v, int vect_incr) const {
+  if (this->nnz == 0)
+    return;
+  if (this->f_col == 0) {
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < this->ln_row; i++) {
+      double tmp = 0;
+      int start = this->rowptr[i];
+      int end = this->rowptr[i + 1];
+      int j = start;
+      svbool_t pg = svwhilelt_b64(j, end);
+      do {
+        svfloat64_t values_vec = svld1(pg, &(this->values[j]));
+        svuint64_t col = svld1sw_u64(pg, &(this->colidx[j]));
+        svfloat64_t v_vec = svld1_gather_index(pg, v, col);
+        tmp += svaddv(pg, svmul_x(pg, values_vec, v_vec));
+        j += svcntd();
+        pg = svwhilelt_b64(j, end);
+      } while (svptest_any(svptrue_b64(), pg));
+      r[i] = tmp;
+    }
+  } else {
+    #pragma omp parallel for schedule(static)
+    for (int i = 0; i < this->ln_row; i++) {
+      double tmp = 0;
+      int start = this->rowptr[i];
+      int end = this->rowptr[i + 1];
+      int j = start;
+      uint64_t fix = this->f_col;
+      svbool_t pg = svwhilelt_b64(j, end);
+      do {
+        svfloat64_t values_vec = svld1(pg, &(this->values[j]));
+        svuint64_t col = svld1sw_u64(pg, &(this->colidx[j]));
+        svuint64_t col_fix = svsub_z(pg, col, fix);
+        svfloat64_t v_vec = svld1_gather_index(pg, v, col_fix);
+        tmp += svaddv(pg, svmul_x(pg, values_vec, v_vec));
+        j += svcntd();
+        pg = svwhilelt_b64(j, end);
+      } while (svptest_any(svptrue_b64(), pg));
+      r[i] = tmp;
+    }
+  }
+}
+#endif // __ARM_FEATURE_SVE
+#else
+std::string tbsla::cpp::MatrixCSR::get_vectorization() const {
+  return "None";
+}
+
 inline void tbsla::cpp::MatrixCSR::Ax(double* r, const double* v, int vect_incr) const {
   if (this->nnz == 0)
     return;
@@ -167,6 +228,7 @@ inline void tbsla::cpp::MatrixCSR::Ax(double* r, const double* v, int vect_incr)
     }
   }
 }
+#endif // TBSLA_ENABLE_VECTO
 
 std::ostream & tbsla::cpp::MatrixCSR::write(std::ostream &os) {
   os.write(reinterpret_cast<char*>(&this->n_row), sizeof(this->n_row));

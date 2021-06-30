@@ -16,6 +16,7 @@ class MatrixCSR : public virtual Matrix {
     ~MatrixCSR();
     double* spmv(const double* v, int vect_incr = 0) const;
     inline void Ax(double* r, const double* v, int vect_incr = 0) const;
+    std::string get_vectorization() const;
     using tbsla::cpp::Matrix::a_axpx_;
     using tbsla::cpp::Matrix::AAxpAx;
     std::ostream & print_as_dense(std::ostream &os);
