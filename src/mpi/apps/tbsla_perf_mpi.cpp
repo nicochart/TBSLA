@@ -235,7 +235,7 @@ int main(int argc, char** argv) {
 #if TBSLA_COMPILED_WITH_OMP
     outmap["compile_options"] += " " + std::string(OpenMP_CXX_FLAGS);
 #endif
-    outmap["vectorization"] = m.get_vectorization();
+    outmap["vectorization"] = m->get_vectorization();
     if(matrix == "cdiag") {
       outmap["cdiag_c"] = std::to_string(C);
     } else if(matrix == "cqmat") {
