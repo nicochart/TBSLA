@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     }
     exit(1);
   }
-  if(op != "spmv" && op != "a_axpx" && op != "spmv_no_redist" && op != "Ax" && op != "Ax_" && op != "AAxpAx") {
+  if(op != "spmv" && op != "a_axpx" && op != "spmv_no_redist" && op != "Ax" && op != "Ax_" && op != "AAxpAx" && op != "AAxpAxpx") {
     if(rank == 0) {
       std::cerr << "OP : " << op << " unrecognized!" << std::endl;
     }
@@ -171,6 +171,17 @@ int main(int argc, char** argv) {
     MPI_Barrier(MPI_COMM_WORLD);
     auto t_op_end = now();
     t_op = t_op_end - t_op_start;
+  } else if(op == "AAxpAxpx") {
+    double* res = new double[m->get_n_row()]();
+    double* buffer = new double[m->get_ln_row()]();
+    double* buffer2 = new double[m->get_ln_row()]();
+    double* buffer3 = new double[m->get_n_row()]();
+    auto t_op_start = now();
+    MPI_Barrier(MPI_COMM_WORLD);
+    m->AAxpAxpx(MPI_COMM_WORLD, res, vec, buffer, buffer2, buffer3);
+    MPI_Barrier(MPI_COMM_WORLD);
+    auto t_op_end = now();
+    t_op = t_op_end - t_op_start;
   } else if(op == "Ax_") {
     double* res = new double[m->get_ln_row()]();
     auto t_op_start = now();
@@ -214,6 +225,8 @@ int main(int argc, char** argv) {
       outmap["gflops"] = std::to_string(2.0 * m->get_nnz() / t_op);
     } else if(op == "a_axpx" or op == "AAxpAx") {
       outmap["gflops"] = std::to_string(4.0 * m->get_nnz() / t_op);
+    } else if(op == "AAxpAxpx") {
+      outmap["gflops"] = std::to_string((4.0 * m->get_nnz() + m->get_n_col()) / t_op);
     }
 #if TBSLA_COMPILED_WITH_OMP
     outmap["lang"] = "MPIOMP";

@@ -141,3 +141,8 @@ inline void tbsla::mpi::Matrix::AAxpAx(MPI_Comm comm, double* r, const double* v
   }
   this->Ax(comm, r, buffer3 + this->f_col, buffer, buffer2, vect_incr);
 }
+
+inline void tbsla::mpi::Matrix::AAxpAxpx(MPI_Comm comm, double* r, const double* v, double* buffer, double* buffer2, double* buffer3, int vect_incr) {
+  this->AAxpAx(comm, r, v, buffer, buffer2, buffer3, vect_incr);
+  std::transform (r, r + this->n_row, v, r, std::plus<double>());
+}

@@ -19,6 +19,7 @@ class MatrixCSR : public virtual Matrix {
     std::string get_vectorization() const;
     using tbsla::cpp::Matrix::a_axpx_;
     using tbsla::cpp::Matrix::AAxpAx;
+    using tbsla::cpp::Matrix::AAxpAxpx;
     std::ostream & print_as_dense(std::ostream &os);
     std::ostream & write(std::ostream &os);
     std::istream & read(std::istream &is, std::size_t pos = 0, std::size_t n = 1);

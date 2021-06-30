@@ -19,3 +19,10 @@ void tbsla::cpp::Matrix::AAxpAx(double* r, double* v, double* buffer, int vect_i
   }
   this->Ax(r, buffer, vect_incr);
 }
+
+void tbsla::cpp::Matrix::AAxpAxpx(double* r, double* v, double* buffer, int vect_incr) const {
+  this->AAxpAx(r, v, buffer, vect_incr);
+  for (int i = 0; i < this->ln_col; i++) {
+    r[i] += v[i];
+  }
+}

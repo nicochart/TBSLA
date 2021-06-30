@@ -12,6 +12,7 @@ class Matrix {
     virtual double* spmv(const double* v, int vect_incr = 0) const = 0;
     virtual inline void Ax(double* r, const double* v, int vect_incr = 0) const = 0;
     void AAxpAx(double* r, double* v, double* buffer, int vect_incr = 0) const;
+    void AAxpAxpx(double* r, double* v, double* buffer, int vect_incr = 0) const;
     double* a_axpx_(const double* v, int vect_incr = 0) const;
     double* & saxpy(const double* x, double* y);
     int get_n_row() const {return n_row;}

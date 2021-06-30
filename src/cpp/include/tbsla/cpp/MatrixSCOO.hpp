@@ -21,6 +21,7 @@ class MatrixSCOO : public virtual Matrix {
     inline void Ax(double* r, const double* v, int vect_incr = 0) const;
     using tbsla::cpp::Matrix::a_axpx_;
     using tbsla::cpp::Matrix::AAxpAx;
+    using tbsla::cpp::Matrix::AAxpAxpx;
     void push_back(int r, int c, double v);
     std::ostream & print_as_dense(std::ostream &os);
     std::ostream & write(std::ostream &os);
