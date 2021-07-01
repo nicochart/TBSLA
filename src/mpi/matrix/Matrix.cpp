@@ -134,7 +134,11 @@ double* tbsla::mpi::Matrix::a_axpx_(MPI_Comm comm, const double* v, int vect_inc
 
 inline void tbsla::mpi::Matrix::AAxpAx(MPI_Comm comm, double* r, const double* v, double* buffer, double* buffer2, double* buffer3, int vect_incr) {
   this->Ax(comm, buffer3, v + this->f_col, buffer, buffer2, vect_incr);
-  std::transform (buffer3, buffer3 + this->n_row, v, buffer3, std::plus<double>());
+  #pragma omp parallel for schedule(static)
+  for(int i = 0; i < this->n_row; i++) {
+    buffer3[i] += v[i];
+  }
+  #pragma omp parallel for schedule(static)
   for(int i = 0; i < this->ln_row; i++) {
     buffer[i] = 0;
     buffer2[i] = 0;
@@ -144,5 +148,8 @@ inline void tbsla::mpi::Matrix::AAxpAx(MPI_Comm comm, double* r, const double* v
 
 inline void tbsla::mpi::Matrix::AAxpAxpx(MPI_Comm comm, double* r, const double* v, double* buffer, double* buffer2, double* buffer3, int vect_incr) {
   this->AAxpAx(comm, r, v, buffer, buffer2, buffer3, vect_incr);
-  std::transform (r, r + this->n_row, v, r, std::plus<double>());
+  #pragma omp parallel for schedule(static)
+  for(int i = 0; i < this->n_row; i++) {
+    r[i] += v[i];
+  }
 }
