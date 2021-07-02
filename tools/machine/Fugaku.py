@@ -2,12 +2,14 @@ from datetime import datetime
 import os
 
 LOAD_ENV_BEFORE_SUBMIT=False
+OUT_DICT_FILE="${PJM_STDOUT_PATH}"
+OUT_DICT_FILE_CASES=['MPI', 'MPIOMP']
 
 def get_cores_per_node(args):
   return 48
 
 def get_mpirun(args):
-  return "mpirun "
+  return "mpirun"
 
 def get_mpirun_options_hpx(args):
   return f"-n {args.nodes}"
@@ -55,6 +57,7 @@ export XOS_MMM_L_PAGING_POLICY=demand:demand:demand
 export FLIB_CPU_AFFINITY="12-59:1"
 export OMP_PLACES=cores
 export OMP_PROC_BIND=close
+export PLE_MPI_STD_EMPTYFILE="off"
 
 """
 
