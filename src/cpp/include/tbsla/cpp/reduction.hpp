@@ -17,7 +17,7 @@ struct array {
       }
     }
     void add(tbsla::cpp::reduction::array<T> &vin) {
-      #pragma omp paralell for
+      #pragma omp parallel for
       for(int i = 0; i < this->len; i++) {
         this->v[i] += vin[i];
       }
@@ -33,9 +33,6 @@ struct array {
     bool del;
 };
 
-#pragma omp declare reduction(add_arr : tbsla::cpp::reduction::array<double> : \
-  omp_out.add(omp_in)) \
-  initializer(omp_priv = decltype(omp_orig)(omp_orig.size()))
 
 }}}
 

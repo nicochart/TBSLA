@@ -133,6 +133,7 @@ double* tbsla::cpp::MatrixCOO::spmv(const double* v, int vect_incr) const {
 }
 
 inline void tbsla::cpp::MatrixCOO::Ax(double* r, const double* v, int vect_incr) const {
+  #pragma omp declare reduction(add_arr: tbsla::cpp::reduction::array<double> : omp_out.add(omp_in)) initializer(omp_priv = decltype(omp_orig)(omp_orig.size()))
   tbsla::cpp::reduction::array<double> s(r, this->n_row);
   #pragma omp parallel for reduction(add_arr:s) schedule(static)
   for (std::size_t i = 0; i < this->nnz; i++) {

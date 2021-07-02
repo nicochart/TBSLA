@@ -154,6 +154,7 @@ inline void tbsla::cpp::MatrixSCOO::Ax(double* r, const double* v, int vect_incr
   if (this->nnz == 0) {
     return;
   }
+  #pragma omp declare reduction(add_arr: tbsla::cpp::reduction::array<double> : omp_out.add(omp_in)) initializer(omp_priv = decltype(omp_orig)(omp_orig.size()))
   tbsla::cpp::reduction::array<double> s(r, this->ln_row);
   #pragma omp parallel for reduction(add_arr:s) schedule(static)
   for (int i = 0; i < this->nnz; i++) {
