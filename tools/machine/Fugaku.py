@@ -51,9 +51,8 @@ def get_header(args):
 #PJM -o logs/%n.%j.out
 #PJM --spath logs/%n.%j.out.stats
 
-export OMPI_MCA_plm_ple_numanode_assign_policy=share_band
-#export FLIB_CPU_AFFINITY="12-59:1"
-export GOMP_CPU_AFFINITY="12-59:1"
+export XOS_MMM_L_PAGING_POLICY=demand:demand:demand
+export FLIB_CPU_AFFINITY="12-59:1"
 export OMP_PLACES=cores
 export OMP_PROC_BIND=close
 
