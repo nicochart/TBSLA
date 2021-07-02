@@ -20,12 +20,8 @@ def get_submit_cmd(args):
 
 def get_env(args):
   env = """
-. ~/spack/share/spack/setup-env.sh
-
 module purge
-spack unload
-spack load gcc@10.2.0%gcc@8.3.1 arch=linux-rhel8-a64fx
-spack load openmpi@4.0.5 +atomics
+module load lang/tcsds-1.2.31
 export PATH=$PATH:${INSTALL_DIR}/tbsla/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${INSTALL_DIR}/tbsla/lib
 """

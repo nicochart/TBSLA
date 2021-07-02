@@ -32,5 +32,6 @@ if(TBSLA_ENABLE_OMP)
 
   add_executable(test_impl_csr_omp test_impl_csr.cpp)
   target_link_libraries(test_impl_csr_omp PUBLIC OpenMP::OpenMP_CXX)
+  target_link_options(test_impl_csr_omp PUBLIC "${TBSLA_OpenMP_CXX_LIBRARIES}")
   install(TARGETS test_impl_csr_omp DESTINATION bin)
 endif()
