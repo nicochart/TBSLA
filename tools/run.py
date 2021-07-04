@@ -7,6 +7,7 @@ import json
 import sys
 from datetime import datetime
 import time
+import os
 
 parser = argparse.ArgumentParser(description="Run TBSLA application", parents=[cap.add_common(required = True)])
 parser.add_argument('cmd')
@@ -43,7 +44,7 @@ errs = errs.decode('utf-8')
 print(errs, file=sys.stderr)
 print(outs)
 
-if args.infile != "stdout":
+if args.infile != "stdout" and os.path.isfile(args.infile):
   print(args.infile)
   with open(args.infile) as f:
     outs = f.read()
