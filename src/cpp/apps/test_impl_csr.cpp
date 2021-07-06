@@ -319,6 +319,26 @@ inline void spmv_array_no_class_sve2(double *b, double *x, int *rowptr, int *col
     b[i] = tmp;
   }
 }
+
+inline void spmv_array_no_class_sve3(double *b, double *x, int *rowptr, int *colidx, double *values, int s){
+  #pragma omp parallel for schedule(static)
+  for (int i = 0; i < s - 1; i++) {
+    svfloat64_t tmp; tmp = svadd_z(svpfalse(), tmp, tmp);
+    int start = rowptr[i];
+    int end = rowptr[i + 1];
+    int j = start;
+    svbool_t pg = svwhilelt_b64(j, end);
+    do {
+      svfloat64_t values_vec = svld1(pg, &(values[j]));
+      svuint64_t col = svld1sw_u64(pg, &(colidx[j]));
+      svfloat64_t v_vec = svld1_gather_index(pg, x, col);
+      tmp = svmla_m(pg, tmp, values_vec, v_vec);
+      j += svcntd();
+      pg = svwhilelt_b64(j, end);
+    } while (svptest_any(svptrue_b64(), pg));
+    b[i] = svaddv(pg, tmp);
+  }
+}
 #endif
 
 void spmv1(std::vector<double> &b, std::vector<double> &x, std::vector<double> &values, std::vector<int> &colidx, std::vector<int> &rowptr){
@@ -349,7 +369,7 @@ int main(int argc, char** argv) {
   double *b2 = new double[mc.n_col];
 
   int ITERATIONS = 100;
-  double t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, t7 = 0, t8 = 0, t9 = 0, t10 = 0, t11 = 0, t12 = 0;
+  double t1 = 0, t2 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, t7 = 0, t8 = 0, t9 = 0, t10 = 0, t11 = 0, t12 = 0, t13 = 0;
   for(int it = 0; it < ITERATIONS; it++) {
     auto start = now();
     mvec.spmv1(b, x);
@@ -415,6 +435,11 @@ int main(int argc, char** argv) {
     spmv_array_no_class_sve2(b2, x2, mc.rowptr, mc.colidx, mc.values, mc.n_row);
     end = now();
     t12 += (end - start) / 1e9;
+
+    start = now();
+    spmv_array_no_class_sve3(b2, x2, mc.rowptr, mc.colidx, mc.values, mc.n_row);
+    end = now();
+    t13 += (end - start) / 1e9;
 #endif
   }
 
@@ -443,6 +468,8 @@ int main(int argc, char** argv) {
   std::cout << "spmv array no class NUMAinit SVE1 --> GFlops   : " << 2 * mvec.nnz / t11 * ITERATIONS / 1e9 << std::endl;
   std::cout << "spmv array no class NUMAinit SVE2 --> time (s) : " << t12 / ITERATIONS << std::endl;
   std::cout << "spmv array no class NUMAinit SVE2 --> GFlops   : " << 2 * mvec.nnz / t12 * ITERATIONS / 1e9 << std::endl;
+  std::cout << "spmv array no class NUMAinit SVE3 --> time (s) : " << t13 / ITERATIONS << std::endl;
+  std::cout << "spmv array no class NUMAinit SVE3 --> GFlops   : " << 2 * mvec.nnz / t13 * ITERATIONS / 1e9 << std::endl;
 #endif
 
   return 0;

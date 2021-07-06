@@ -138,23 +138,23 @@ inline void tbsla::cpp::MatrixELL::Ax(double* r, const double* v, int vect_incr)
   if (this->f_col == 0) {
     #pragma omp parallel for schedule(static)
     for (int i = 0; i < this->ln_row; i++) {
-      double tmp = 0;
+      svfloat64_t tmp; tmp = svadd_z(svpfalse(), tmp, tmp);
       int j = 0;
       svbool_t pg = svwhilelt_b64(j, this->max_col);
       do {
         svfloat64_t values_vec = svld1(pg, &(this->values[i * this->max_col + j]));
         svuint64_t col = svld1sw_u64(pg, &(this->columns[i * this->max_col + j]));
         svfloat64_t v_vec = svld1_gather_index(pg, v, col);
-        tmp += svaddv(pg, svmul_x(pg, values_vec, v_vec));
+        tmp = svmla_m(pg, tmp, values_vec, v_vec);
         j += svcntd();
         pg = svwhilelt_b64(j, this->max_col);
       } while (svptest_any(svptrue_b64(), pg));
-      r[i] = tmp;
+      r[i] = svaddv(svptrue_b64(), tmp);
     }
   } else {
     #pragma omp parallel for schedule(static)
     for (int i = 0; i < this->ln_row; i++) {
-      double tmp = 0;
+      svfloat64_t tmp; tmp = svadd_z(svpfalse(), tmp, tmp);
       int j = 0;
       uint64_t fix = this->f_col;
       svbool_t pg = svwhilelt_b64(j, this->max_col);
@@ -163,11 +163,11 @@ inline void tbsla::cpp::MatrixELL::Ax(double* r, const double* v, int vect_incr)
         svuint64_t col = svld1sw_u64(pg, &(this->columns[i * this->max_col + j]));
         svuint64_t col_fix = svsub_z(pg, col, fix);
         svfloat64_t v_vec = svld1_gather_index(pg, v, col_fix);
-        tmp += svaddv(pg, svmul_x(pg, values_vec, v_vec));
+        tmp = svmla_m(pg, tmp, values_vec, v_vec);
         j += svcntd();
         pg = svwhilelt_b64(j, this->max_col);
       } while (svptest_any(svptrue_b64(), pg));
-      r[i] = tmp;
+      r[i] = svaddv(svptrue_b64(), tmp);
     }
   }
 }
