@@ -153,3 +153,56 @@ inline void tbsla::mpi::Matrix::AAxpAxpx(MPI_Comm comm, double* r, const double*
     r[i] += v[i];
   }
 }
+
+double* tbsla::mpi::Matrix::page_rank(MPI_Comm comm, double beta, double epsilon, int max_iterations, int &nb_iterations_done){
+  int proc_rank;
+  MPI_Comm_rank(comm, &proc_rank);
+  double* b = new double[n_col];
+  double* b_t = new double[n_col];
+  #pragma omp parallel for
+  for(int i = 0; i < n_col; i++){
+    b[i] = 1;
+  }
+  bool converge = false;
+  int nb_iterations = 0;
+  double max, error, teleportation_sum;
+
+  while(!converge && nb_iterations < max_iterations){
+    b_t = b;
+    b = this->spmv(comm, b_t + f_col);
+
+    max = b[0];
+    teleportation_sum = b_t[0];
+    for(int i = 1; i < n_col; i++){
+      if(max < b[i])
+        max = b[i];
+      teleportation_sum += b_t[i];
+    }
+
+    teleportation_sum *= (1-beta)/n_col;
+    max = beta*max + teleportation_sum;
+    error = 0.0;
+
+    for(int  i = 0 ; i < n_col; i++){
+      b[i] = (beta*b[i] + teleportation_sum)/max;
+      error += std::abs(b[i] - b_t[i]);
+    }
+
+    if(error < epsilon)
+      converge = true;
+    nb_iterations++;
+  }
+
+  nb_iterations_done = nb_iterations;
+
+  double sum = b[0];
+  for(int i = 1; i < n_col; i++) {
+    sum += b[i];
+  }
+
+  for(int i = 0 ; i < n_col; i++) {
+    b[i] = b[i]/sum;
+  }
+  delete[] b_t;
+  return b;
+}

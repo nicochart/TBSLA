@@ -18,6 +18,7 @@ class MatrixCOO : public tbsla::cpp::MatrixCOO, public virtual tbsla::mpi::Matri
     double* spmv(MPI_Comm comm, const double* v, int vect_incr = 0);
     double* a_axpx_(MPI_Comm comm, const double* v, int vect_incr = 0);
     inline void Ax(MPI_Comm comm, double* r, const double* v, double* buffer, double* buffer2, int vect_incr = 0);
+    double* page_rank(MPI_Comm comm, double beta, double epsilon, int max_iterations, int &nb_iterations_done);
     using tbsla::cpp::MatrixCOO::spmv;
     using tbsla::cpp::MatrixCOO::Ax;
     using tbsla::cpp::MatrixCOO::fill_cdiag;
