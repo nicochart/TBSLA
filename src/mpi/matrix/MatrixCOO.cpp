@@ -109,52 +109,66 @@ double* tbsla::mpi::MatrixCOO::page_rank(MPI_Comm comm, double beta, double epsi
   int proc_rank;
   MPI_Comm_rank(comm, &proc_rank);
   double* b = new double[n_col];
+  double* buf1 = new double[ln_row];
+  double* buf2 = new double[ln_row];
   double* b_t = new double[n_col];
-  #pragma omp parallel for
+  #pragma omp parallel for schedule(static)
   for(int i = 0; i < n_col; i++){
     b[i] = 1;
   }
   bool converge = false;
   int nb_iterations = 0;
-  double max, error, teleportation_sum;
+  double max_val, error, teleportation_sum;
 
-  while(!converge && nb_iterations <= max_iterations){
-    b_t = b;
-
-    b = this->spmv(comm, b_t);
-    max = b[0];
-    teleportation_sum = b_t[0];
-    for(int i = 1; i < n_col; i++){
-      if(max < b[i])
-        max = b[i];
+  while(!converge && nb_iterations < max_iterations){
+    #pragma omp parallel for schedule(static)
+    for(int i = 0 ; i < n_col; i++) {
+      b_t[i] = b[i];
+      b[i] = 0;
+    }
+    this->Ax(comm, b, b_t, buf1, buf2);
+    #pragma omp parallel for reduction(+ : teleportation_sum) schedule(static)
+    for(int i = 0 ; i < n_col; i++){
       teleportation_sum += b_t[i];
     }
+    teleportation_sum *= (1-beta)/n_col ;
 
-    teleportation_sum *= (1-beta)/n_col;
-    max = beta*max + teleportation_sum;
-    error = 0.0;
-
-    for(int  i = 0 ; i < n_col; i++){
-      b[i] = (beta*b[i] + teleportation_sum)/max;
-      error += std::abs(b[i] - b_t[i]);
+    b[0] = beta*b[0] + teleportation_sum;
+    max_val = b[0];
+    #pragma omp parallel for reduction(max : max_val) schedule(static)
+    for(int  i = 1 ; i < n_col;i++){
+      b[i] = beta*b[i] + teleportation_sum;
+      if(max_val < b[i])
+        max_val = b[i];
     }
 
-    if(error < epsilon)
+    error = 0.0;
+    #pragma omp parallel for reduction(+ : error) schedule(static)
+    for (int i = 0;i< n_col;i++){
+      b[i] = b[i]/max_val;
+      error += std::abs(b[i]- b_t[i]);
+    }
+    if(error < epsilon){
       converge = true;
+    }
     nb_iterations++;
   }
 
   nb_iterations_done = nb_iterations;
 
   double sum = b[0];
+  #pragma omp parallel for reduction(+ : sum) schedule(static)
   for(int i = 1; i < n_col; i++) {
     sum += b[i];
   }
 
+  #pragma omp parallel for schedule(static)
   for(int i = 0 ; i < n_col; i++) {
     b[i] = b[i]/sum;
   }
   delete[] b_t;
+  delete[] buf1;
+  delete[] buf2;
   return b;
 }
 
