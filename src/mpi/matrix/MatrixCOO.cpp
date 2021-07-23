@@ -125,6 +125,8 @@ double* tbsla::mpi::MatrixCOO::page_rank(MPI_Comm comm, double beta, double epsi
     for(int i = 0 ; i < n_col; i++) {
       b_t[i] = b[i];
       b[i] = 0;
+      buf1[i] = 0;
+      buf2[i] = 0;
     }
     this->Ax(comm, b, b_t, buf1, buf2);
     #pragma omp parallel for reduction(+ : teleportation_sum) schedule(static)
