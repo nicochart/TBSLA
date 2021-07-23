@@ -26,8 +26,8 @@ ncores = machine_informations.get_cores_per_node(None)
 
 THREADS = [1, 2, 4, 6, 12, 24, 48]
 
-walltime = 5
-timeout = 200
+walltime = 15
+timeout = 500
 
 def decomp(n):
   i = 2
@@ -58,14 +58,23 @@ for n in NODES:
   if args.MPI:
     for mf in formats:
       for f in factors:
-        print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPI --wall-time {walltime} --GR {f[0]} --GC {f[1]} --timeout {timeout} {"--numa-init" if args.numainit else ""}')
+        if OP == "page_rank":
+          print(f'python tools/submit_pagerank.py --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPI --wall-time {walltime} --GR {f[0]} --GC {f[1]} --timeout {timeout} {"--numa-init" if args.numainit else ""}')
+        else:
+          print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPI --wall-time {walltime} --GR {f[0]} --GC {f[1]} --timeout {timeout} {"--numa-init" if args.numainit else ""}')
   if args.MPIOMP:
     for t in THREADS:
       factors = decomp_pairs(int(n * ncores / t))
       for mf in formats:
         for f in factors:
-          print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --timeout {timeout} {"--numa-init" if args.numainit else ""}')
+          if OP == "page_rank":
+            print(f'python tools/submit_pagerank.py --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --timeout {timeout} {"--numa-init" if args.numainit else ""}')
+          else:
+            print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes {n} --machine {args.machine} --lang MPIOMP --wall-time {walltime} --GR {f[0]} --GC {f[1]} --threads {t} --timeout {timeout} {"--numa-init" if args.numainit else ""}')
 if args.OMP:
   for t in THREADS:
     for mf in formats:
-      print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes 1 --machine {args.machine} --lang OMP --wall-time {walltime} --threads {t} --timeout {timeout} {"--numa-init" if args.numainit else ""}')
+      if OP == "page_rank":
+        print(f'python tools/submit_pagerank.py --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes 1 --machine {args.machine} --lang OMP --wall-time {walltime} --threads {t} --timeout {timeout} {"--numa-init" if args.numainit else ""}')
+      else:
+        print(f'python tools/submit.py --op {OP} --format {mf} --matrixtype {args.matrixtype} --matrixfolder {args.matrixfolder} --nodes 1 --machine {args.machine} --lang OMP --wall-time {walltime} --threads {t} --timeout {timeout} {"--numa-init" if args.numainit else ""}')
