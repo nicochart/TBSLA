@@ -20,6 +20,7 @@ class Matrix : public virtual tbsla::cpp::Matrix {
     virtual inline void AAxpAx(MPI_Comm comm, double* r, const double* v, double *buffer, double* buffer2, double *buffer3, int vect_incr = 0);
     virtual inline void AAxpAxpx(MPI_Comm comm, double* r, const double* v, double *buffer, double* buffer2, double *buffer3, int vect_incr = 0);
     virtual double* page_rank(MPI_Comm comm, double beta, double epsilon, int max_iterations, int &nb_iterations_done);
+    virtual void CG(MPI_Comm comm, double* v, double* r, int max_iterations, int &nb_iterations_done);
     int const get_gnnz() {return gnnz;};
     long int const compute_sum_nnz(MPI_Comm comm);
     long int const compute_min_nnz(MPI_Comm comm);
