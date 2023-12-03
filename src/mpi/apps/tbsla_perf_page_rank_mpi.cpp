@@ -142,12 +142,13 @@ double compute_median(std::vector<double> _values)
   return median;
 }
 
-double compute_gflops_pagerank(double runtime, int n, int nnz, int n_iters) {
+double compute_gflops_pagerank(double runtime, long n, long nnz, int n_iters) {
+  std::cout << "Calculating Gflops with runtime = " << runtime << ", n = " << n << ", nnz = " << nnz << ", n_iter = " << n_iters << std::endl;
   unsigned long long int a = 2*nnz+2*n;
   unsigned long long int b = a*n_iters;
   unsigned long long int c = 2*n;
   unsigned long long int n_ops = b+c;
-  double gfl = (double)(n_ops/(runtime*1000000000));
+  long double gfl = (long double)(n_ops/(runtime*1000000000));
   return gfl;
 }
 
@@ -222,6 +223,8 @@ int main(int argc, char** argv) {
   std::string beta_string = input.get_opt("--beta", "0.85");
   std::string epsilon_string = input.get_opt("--epsilon", "0.00001");
   std::string max_iterations_string = input.get_opt("--max-iterations", "10000");
+
+  std::string pagerank_version = input.get_opt("--prversion", "opticom");
 
   double epsilon = std::stod(epsilon_string);
   double beta = std::stod(beta_string);
@@ -341,7 +344,7 @@ int main(int argc, char** argv) {
     for(int i = 0; i < m->get_ln_col(); i++) {
       s[i] = 0;
       b1[i] = 0;
-    } 
+    }
     auto t_three = now();
     std::cout << "Normalizing with buffers sizes = " << matrix_dim << " and " << m->get_ln_col() << std::endl;
     MPI_Barrier(MPI_COMM_WORLD);
@@ -406,19 +409,35 @@ int main(int argc, char** argv) {
 
   int nb_iterations_total = 0;
   int n_runs = 10;
+  double min_rt;
   std::vector<double> runtimes;
   std::vector<double> gflops;
+  double rt; //pagerank runtime
+  double* res; //result vector
   for(int ir=0; ir<n_runs; ir++) {
     int nb_iterations_done;
-    std::cout << "Running PageRank - Iteration " << ir << std::endl;
-    MPI_Barrier(MPI_COMM_WORLD);
-    auto t_op_start_iter = now();
-    //double* res = m->page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations, nb_iterations_done);
-    double* res = m->page_rank_opticom(max_iterations, beta, epsilon, nb_iterations_done);
-    MPI_Barrier(MPI_COMM_WORLD);
-    auto t_op_end_iter = now();
+    if (pagerank_version == "opticom")
+    {
+      std::cout << "Running Opticom PageRank - Iteration " << ir << std::endl;
+      MPI_Barrier(MPI_COMM_WORLD);
+      auto t_op_start_iter = now();
+      res = m->page_rank_opticom(max_iterations, beta, epsilon, nb_iterations_done);
+      MPI_Barrier(MPI_COMM_WORLD);
+      auto t_op_end_iter = now();
+      rt = (t_op_end_iter - t_op_start_iter) / 1e9;
+    }
+    else //(pagerank_version == "optimem")
+    {
+      std::cout << "Running Optimem PageRank - Iteration " << ir << std::endl;
+      auto t_op_start_iter = now();
+      res = m->page_rank(MPI_COMM_WORLD, beta, epsilon, max_iterations, nb_iterations_done);
+      MPI_Barrier(MPI_COMM_WORLD);
+      auto t_op_end_iter = now();
+      rt = (t_op_end_iter - t_op_start_iter) / 1e9;
+    }
     std::cout << "...finished" << std::endl;
-    double rt = (t_op_end_iter - t_op_start_iter) / 1e9;
+    if (ir == 0) {min_rt = rt;}
+    else {if (min_rt > rt) {min_rt = rt;}}
     runtimes.push_back(rt);
     double gfl_local = compute_gflops_pagerank(rt, m->get_n_col(), m->get_nnz(), nb_iterations_done);
     long double gfl = compute_gflops_pagerank(rt, m->get_n_col(), sum_nnz, nb_iterations_done);
@@ -438,6 +457,8 @@ int main(int argc, char** argv) {
   auto t_op_end = now();
   double median_op_time = compute_median(runtimes);
   double median_gflops = compute_median(gflops);
+
+  std::cout << "min runtime op = " << min_rt << std::endl;
 
   long int min_nnz = m->compute_min_nnz(MPI_COMM_WORLD);
   long int max_nnz = m->compute_max_nnz(MPI_COMM_WORLD);
